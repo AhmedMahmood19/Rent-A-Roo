@@ -11,7 +11,7 @@ source 1_venv/bin/activate
 ````
 ### 4. Install required packages:
 ````
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ````
 ### 5. Run the server when you are in the Project directory with:
 ````
