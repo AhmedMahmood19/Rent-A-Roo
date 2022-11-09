@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
+      // ignore: prefer_const_constructors
       home: Login(),
     );
   }
