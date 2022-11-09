@@ -38,15 +38,7 @@ class UserReg(UserLogin):
     ABOUT_ME: str | None = None
     class Config:
         orm_mode = True
-
-#Used for partial updates
-class UserUpdate(BaseModel):
-    EMAIL: EmailStr | None = None
-    PASSWORD: str | None = None
-    FIRST_NAME: str | None = None
-    LAST_NAME: str | None = None
-    PHONE_NO: str | None = None
-    ABOUT_ME: str | None = None
+        
 #####################################
 class Token(BaseModel):
     access_token: str

@@ -117,8 +117,8 @@ def deleteuser(db:Session=Depends(get_db), current_user_id: int = Depends(Authen
     return {"status":"Success","Detail":"User Deleted"}
 
 @app.put('/user/profile',status_code=status.HTTP_200_OK,tags=['User'])
-def update_user(request:schemas.UserReg ,db:Session=Depends(get_db), current_user: str = Depends(Authentication.get_current_user)):
-    user =db.query(models.USER).filter(models.USER.EMAIL == current_user).first()
+def update_user(request:schemas.UserReg ,db:Session=Depends(get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    user = db.query(models.USER).filter(models.USER.USER_ID == current_user_id)
     user.update(request.dict(),synchronize_session=False) #have to use dict function to update dictonary values of request
     db.commit()
     return {"status":"Success","Detail":"User Updated"}
