@@ -6,8 +6,29 @@ from fastapi.security import OAuth2PasswordRequestForm
 from . import Authentication, models, schemas
 from .database import get_db
 from sqlalchemy.orm import Session
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:8000",
+    "http://localhost:44859",
+
+    
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 
 @app.post("/register", status_code=status.HTTP_201_CREATED)
 def register_user(request: schemas.UserReg, db: Session = Depends(get_db)):
