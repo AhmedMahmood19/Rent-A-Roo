@@ -41,8 +41,8 @@ def login_user(formdata: OAuth2PasswordRequestForm = Depends(), db: Session = De
         access_token = Authentication.create_access_token(data={"sub": user.EMAIL})
         return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get('/user/{email}', status_code=200)
-def show(email:str, db:Session=Depends(get_db)):
+@app.get('/user/{email}', status_code=200,response_model=schemas.ShowUser)
+def show(email:str,response: Response, db:Session=Depends(get_db)):
     user = db.query(models.USER).filter(models.USER.EMAIL == email).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"user with the email {email} is not available")

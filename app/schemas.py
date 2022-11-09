@@ -9,33 +9,33 @@ from pydantic.typing import Optional
 
 #This class is not being used yet but dont remove!!!
 class User(BaseModel):
-    userId: Optional[int] = Field(default=None, primary_key=True) #Never assign a value to an Auto-increment PK
-    email: EmailStr
-    password: str
-    firstName: str 
-    lastName: str
-    phoneNo: str
-    profileImagePath : str | None = None #str|None means optional, =None means default value is NULL
-    avgHostRating: int
-    avgGuestRating: int
-    totalHostRating: int
-    totalGuestRating: int
-    aboutMe: str | None = None
+    USER_ID: Optional[int] = Field(default=None, primary_key=True) #Never assign a value to an Auto-increment PK
+    EMAIL: EmailStr
+    PASSWORD: str
+    FIRST_NAME: str 
+    LAST_NAME: str
+    PHONE_NO: str
+    PROFILE_IMAGE_PATH : str | None = None #str|None means optional, =None means default value is NULL
+    AVG_HOST_RATING: int
+    AVG_GUEST_RATING: int
+    TOTAl_HOST_RATING: int
+    TOTAL_GUEST_RATING: int
+    ABOUT_ME: str | None = None
     class Config:
         orm_mode = True
 
 #used for logging in
 class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
+    EMAIL: EmailStr
+    PASSWORD: str
 
 # Read about model inheritance https://fastapi.tiangolo.com/tutorial/extra-models/
 # used for registering
 class UserReg(UserLogin):
-    firstName: str
-    lastName: str
-    phoneNo: str
-    aboutMe: str | None = None
+    FIRST_NAME: str
+    LAST_NAME: str
+    PHONE_NO: str
+    ABOUT_ME: str | None = None
     class Config:
         orm_mode = True
 
@@ -46,7 +46,7 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    email: str | None = None
+    EMAIL: str | None = None
 
 class ShowUser(BaseModel):
     FIRST_NAME: str 
