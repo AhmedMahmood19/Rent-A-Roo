@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:rent_a_roo/screens/editProfile.dart';
 import 'package:rent_a_roo/screens/login.dart';
+import 'package:rent_a_roo/screens/profile.dart';
 
 void main() {
   runApp(const MyApp());

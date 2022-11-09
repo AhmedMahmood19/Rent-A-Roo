@@ -7,6 +7,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 import '../controls/services/auth.dart';
+import 'editProfile.dart';
 import 'homepage.dart';
 
 class Login extends StatefulWidget {
@@ -231,7 +232,7 @@ class _LoginState extends State<Login> {
                                 Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => HomePage(
+                                          builder: (context) => EditProfile(
                                               )),
                                     )
                               },
@@ -277,12 +278,12 @@ class _LoginState extends State<Login> {
                     else
                     {
                        Map body = {
-  "email": email.text,
-  "password": password.text,
-  "firstName": firstname.text,
-  "lastName": lastname.text,
-  "phoneNo": phone.text,
-  "aboutMe": aboutme.text
+  "EMAIL": email.text,
+  "PASSWORD": password.text,
+  "FIRST_NAME": firstname.text,
+  "LAST_NAME": lastname.text,
+  "PHONE_NO": phone.text,
+  "ABOUT_ME": aboutme.text
 };//new Map();
                       /*body['email'] = email.text;
                       body['password'] = password.text;
