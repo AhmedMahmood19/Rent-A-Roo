@@ -16,10 +16,7 @@ origins = [
     "http://localhost",
     "http://localhost:8000",
     "http://localhost:44859",
-
-    
 ]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -28,17 +25,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/register", status_code=status.HTTP_201_CREATED,tags=['login & signup'])
+@app.post("/register", status_code=status.HTTP_201_CREATED,tags=['Signup & Login'])
 def register_user(request: schemas.UserReg, db: Session = Depends(get_db)):
     #We dont need to specify all the attributes when making a model, 
     # but make sure that NOTNULL attributes have values or a default value when adding to a session
     insertuser = models.USER(
-        EMAIL=request.email,
-        PASSWORD=request.password,
-        FIRST_NAME=request.firstName,
-        LAST_NAME=request.lastName,
-        PHONE_NO=request.phoneNo,
-        ABOUT_ME=request.aboutMe
+        EMAIL=request.EMAIL,
+        PASSWORD=request.PASSWORD,
+        FIRST_NAME=request.FIRST_NAME,
+        LAST_NAME=request.LAST_NAME,
+        PHONE_NO=request.PHONE_NO,
+        ABOUT_ME=request.ABOUT_ME
     )
     #Dont insert if email is already in use
     user = db.query(models.USER).filter(models.USER.EMAIL == insertuser.EMAIL).first()
@@ -48,57 +45,25 @@ def register_user(request: schemas.UserReg, db: Session = Depends(get_db)):
     else:
         db.add(insertuser)
         db.commit()
+        return {"status":"Success","Detail":"User Registered"}
 
-@app.post("/login", status_code=status.HTTP_200_OK, response_model=schemas.Token,tags=['login & signup'])
+@app.post("/login", status_code=status.HTTP_200_OK, response_model=schemas.Token,tags=['Signup & Login'])
 def login_user(formdata: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     # Run a SELECT query on table USERS, where email and password must match,must use "username" since its fixed by OAuth2 Form
     user = db.query(models.USER).filter(models.USER.EMAIL == formdata.username, models.USER.PASSWORD == formdata.password).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Incorrect email or password")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Invalid Email or Password")
     else:
-        #Generate and return a JWT token
-        access_token = Authentication.create_access_token(data={"sub": user.EMAIL})
-        return {"access_token": access_token, "token_type": "bearer"}
+        #Generate a token, store it in a Token schema, then return it as the response
+        generatedToken = schemas.Token(access_token= Authentication.generate_token(sub=user.USER_ID) ,token_type="bearer")
+        return generatedToken
 
-@app.get('/user/{email}', status_code=200,response_model=schemas.ShowUser)
-def show(email:str,response: Response, db:Session=Depends(get_db)):
-    user = db.query(models.USER).filter(models.USER.EMAIL == email).first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"user with the email {email} is not available")
-        #response.status_code = status.HTTP_404_NOT_FOUND
-        #return  {'detail':f"Blog with the id {id} is not available"}
-    return user
 
-@app.delete('/user/{email}',status_code=status.HTTP_204_NO_CONTENT)
-def deleteuser(email:str, db:Session=Depends(get_db)):
-    user = db.query(models.USER).filter(models.USER.EMAIL == email)
-    if not user.first():
-        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"User with email {email} not found")
-    user.delete(synchronize_session=False)
-    db.commit()
-    return {"status":"Complete","Detail":"User Deleted"}
-
-@app.put('/user/{email}',status_code=status.HTTP_202_ACCEPTED)
-def updateuser(email:str,request:schemas.ShowUser ,db:Session=Depends(get_db)):
-    user =db.query(models.USER).filter(models.USER.EMAIL == email)
-    if not user.first():
-        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail= f'user with email {email} not found')
-    user.update(request.dict(),synchronize_session=False) #have to use dict function to update dictonary values of request which is body and title
-    db.commit()
-    return {"status":"Complete","Detail":"User Updated"}
 ############################################
 #                                          #
 #                 *TESTING*                #
 #                                          #
 ############################################
-# @app.get("/", status_code=status.HTTP_200_OK, response_model=schemas.User)
-# def get_user(db: Session = Depends(get_db), current_user: schemas.User = Depends(Authentication.get_current_user)):
-#     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-#     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-#     print(current_user.email)
-#     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-#     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-
 # # Uploading Images
 # # static file setup configuration
 # app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -138,3 +103,22 @@ def updateuser(email:str,request:schemas.ShowUser ,db:Session=Depends(get_db)):
 #     db.refresh(new_user)
 #     return {"Success": "Everything is fine"}
 ###########################################
+
+@app.get('/user/profile', status_code=status.HTTP_200_OK,response_model=schemas.User,tags=['User'])
+def read_user(db:Session=Depends(get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    user=db.query(models.USER).filter(models.USER.USER_ID == current_user_id).first()
+    return user
+
+@app.delete('/user/profile',status_code=status.HTTP_200_OK,tags=['User'])
+def deleteuser(db:Session=Depends(get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    user = db.query(models.USER).filter(models.USER.USER_ID == current_user_id)
+    user.delete(synchronize_session=False)
+    db.commit()
+    return {"status":"Success","Detail":"User Deleted"}
+
+@app.put('/user/profile',status_code=status.HTTP_200_OK,tags=['User'])
+def update_user(request:schemas.UserReg ,db:Session=Depends(get_db), current_user: str = Depends(Authentication.get_current_user)):
+    user =db.query(models.USER).filter(models.USER.EMAIL == current_user).first()
+    user.update(request.dict(),synchronize_session=False) #have to use dict function to update dictonary values of request
+    db.commit()
+    return {"status":"Success","Detail":"User Updated"}

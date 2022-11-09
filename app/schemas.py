@@ -3,7 +3,7 @@
 # 1.Make schemas according to the data we need from the current endpoint's request eg: Register doesnt need avgGuestRating, Login doesn't need PhoneNo etc
 # 2.Make schemas according to the data we need to send as the current endpoint's response eg: We can return a whole ORM Model but the response_model only has few attrs from it
 # We need orm_mode in 2 but not in 1. Read ORM Mode here: https://pydantic-docs.helpmanual.io/usage/models/ also check (bitfumes 2:10:00)
-# naming conventions: Class name will be Initcap, attrs will be camelCase
+# naming conventions: Class name will be Initcap, attrs will be ALLCAPS same as in models.py
 from pydantic import BaseModel, EmailStr, Field
 from pydantic.typing import Optional 
 
@@ -39,6 +39,14 @@ class UserReg(UserLogin):
     class Config:
         orm_mode = True
 
+#Used for partial updates
+class UserUpdate(BaseModel):
+    EMAIL: EmailStr | None = None
+    PASSWORD: str | None = None
+    FIRST_NAME: str | None = None
+    LAST_NAME: str | None = None
+    PHONE_NO: str | None = None
+    ABOUT_ME: str | None = None
 #####################################
 class Token(BaseModel):
     access_token: str
