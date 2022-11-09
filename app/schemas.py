@@ -47,3 +47,11 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: str | None = None
+
+class ShowUser(BaseModel):
+    FIRST_NAME: str 
+    LAST_NAME: str
+    PHONE_NO: str
+    ABOUT_ME: str
+    class Config():
+        orm_mode = True

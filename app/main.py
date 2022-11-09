@@ -1,7 +1,7 @@
 from PIL import Image
 from fastapi.staticfiles import StaticFiles
 from fastapi import File, UploadFile
-from fastapi import FastAPI, Depends, status, HTTPException
+from fastapi import FastAPI, Depends, status, HTTPException, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from . import Authentication, models, schemas
 from .database import get_db
@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 app = FastAPI()
 
-@app.post("/register", status_code=status.HTTP_201_CREATED)
+@app.post("/register", status_code=status.HTTP_201_CREATED,tags=['login & signup'])
 def register_user(request: schemas.UserReg, db: Session = Depends(get_db)):
     #We dont need to specify all the attributes when making a model, 
     # but make sure that NOTNULL attributes have values or a default value when adding to a session
@@ -30,7 +30,7 @@ def register_user(request: schemas.UserReg, db: Session = Depends(get_db)):
         db.add(insertuser)
         db.commit()
 
-@app.post("/login", status_code=status.HTTP_200_OK, response_model=schemas.Token)
+@app.post("/login", status_code=status.HTTP_200_OK, response_model=schemas.Token,tags=['login & signup'])
 def login_user(formdata: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     # Run a SELECT query on table USERS, where email and password must match,must use "username" since its fixed by OAuth2 Form
     user = db.query(models.USER).filter(models.USER.EMAIL == formdata.username, models.USER.PASSWORD == formdata.password).first()
@@ -41,8 +41,32 @@ def login_user(formdata: OAuth2PasswordRequestForm = Depends(), db: Session = De
         access_token = Authentication.create_access_token(data={"sub": user.EMAIL})
         return {"access_token": access_token, "token_type": "bearer"}
 
+@app.get('/user/{email}', status_code=200)
+def show(email:str, db:Session=Depends(get_db)):
+    user = db.query(models.USER).filter(models.USER.EMAIL == email).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"user with the email {email} is not available")
+        #response.status_code = status.HTTP_404_NOT_FOUND
+        #return  {'detail':f"Blog with the id {id} is not available"}
+    return user
 
+@app.delete('/user/{email}',status_code=status.HTTP_204_NO_CONTENT)
+def deleteuser(email:str, db:Session=Depends(get_db)):
+    user = db.query(models.USER).filter(models.USER.EMAIL == email)
+    if not user.first():
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"User with email {email} not found")
+    user.delete(synchronize_session=False)
+    db.commit()
+    return {"status":"Complete","Detail":"User Deleted"}
 
+@app.put('/user/{email}',status_code=status.HTTP_202_ACCEPTED)
+def updateuser(email:str,request:schemas.ShowUser ,db:Session=Depends(get_db)):
+    user =db.query(models.USER).filter(models.USER.EMAIL == email)
+    if not user.first():
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail= f'user with email {email} not found')
+    user.update(request.dict(),synchronize_session=False) #have to use dict function to update dictonary values of request which is body and title
+    db.commit()
+    return {"status":"Complete","Detail":"User Updated"}
 ############################################
 #                                          #
 #                 *TESTING*                #
