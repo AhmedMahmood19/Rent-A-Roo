@@ -1,7 +1,7 @@
 # This file will be used to link the backend application to the database. DONT CHANGE ANYTHING HERE
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from . import models
+from database import models
 
 SQLALCHEMY_DATABASE_URL = "postgresql://postgres:12345678@localhost:5432/rentaroo-db"
 
