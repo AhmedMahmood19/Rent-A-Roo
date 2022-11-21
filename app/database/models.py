@@ -16,7 +16,7 @@ class USER(Base):
     LAST_NAME = Column(String, nullable=False)
     PHONE_NO = Column(String(11), nullable=False)
     #Look into default images later
-    PROFILE_IMAGE_PATH = Column(String, nullable=True)
+    PROFILE_IMAGE_PATH = Column(String, nullable=True, default="/static/images/defaultprofilepic.jpg")
     AVG_HOST_RATING = Column(Integer, nullable=True, default=0)
     AVG_GUEST_RATING = Column(Integer, nullable=True, default=0)
     TOTAl_HOST_RATING = Column(Integer, nullable=True, default=0)
