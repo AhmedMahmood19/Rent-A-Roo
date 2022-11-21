@@ -34,7 +34,7 @@ class USERS(Base):
 #     GUEST_ID = Column(Integer, nullable=False, unique=True)
 #     RATING = Column(Integer, nullable=False)
 #     REVIEW = Column(String, nullable=True)
-#     # CREATED_TIME = 
+#     CREATED_TIME = 
 
 # # (1 user can ask many questions for 1 property but 1 Question has 1 Answer Only, only host can answer)		(Initially NULL, until host answers)
 # class QUESTIONS_AND_ANSWERS(Base):
@@ -44,5 +44,34 @@ class USERS(Base):
 #     GUEST_ID = Column(Integer, nullable=False, unique=True)
 #     QUESTION = Column(String, nullable=False)
 #     ANSWER = Column(String, nullable=True)
-#     # CREATED_TIME=
+#     CREATED_TIME=
 
+# class PROMOTED_LISTINGS(Base):
+#     __tablename__ = "PROMOTED_LISTINGS"
+#     LISTING_ID = Column(Integer, nullable=False, unique=True)
+#     START_TIME =
+#     END_TIME = 
+
+# class FAVOURITES(Base):
+#     __tablename__ = "FAVOURITES"
+#     GUEST_ID = Column(Integer, nullable=False, unique=True)
+#     LISTING_ID = Column(Integer, nullable=False, unique=True)
+
+# (this reservation is accepted/declined by the host, if not decided within 24 hours its automatically removed from the DB, if accepted then host takes payment and this is copied over to the transactions database, then removed from this table)			(timestamp to show when they are made to a host and to remove after 24 hrs)
+# class RESERVATIONS(Base):
+#     __tablename__ = "RESERVATIONS"
+#     GUEST_ID = Column(Integer, nullable=False, unique=True)
+#     LISTING_ID = Column(Integer, nullable=False, unique=True)
+#     CHECKIN_DATE =
+#     CHECKOUT_DATE =
+#     CREATED_TIME =
+
+# class TRANSACTIONS(Base):
+#     __tablename__ = "TRANSACTIONS"
+#     TRANSACTION_ID = Column(Integer, primary_key=True, index=True)
+#     GUEST_ID = Column(Integer, nullable=False, unique=True)
+#     LISTING_ID = Column(Integer, nullable=False, unique=True)
+#     CHECKIN_DATE =
+#     CHECKOUT_DATE =
+#     CREATED_TIME =
+#     AMOUNT_PAID = 
