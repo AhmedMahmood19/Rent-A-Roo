@@ -64,12 +64,31 @@ class ApiCalls {
     return res;
   }
 
-  Future<http.Response> putApiRequest(String route) async {
+  Future<http.Response> putApiRequest(String route,dynamic bodyData) async {
     var token = await Auth().getLoginTokenString();
     final Map<String, String> header = {
       "Authorization": "Bearer ${token}",
+      'Content-Type': 'application/json; charset=UTF-8',
+
     };
+        final temp = jsonEncode(bodyData);
+
     return await http.put(
+      Uri.parse(baseApiUrl + route),
+      headers: header,
+      body: temp
+    );
+  }
+
+    Future<http.Response> delApiRequest(String route) async {
+    var token = await Auth().getLoginTokenString();
+    final Map<String, String> header = {
+      "Authorization": "Bearer ${token}",
+     // 'Content-Type': 'application/json; charset=UTF-8',
+
+    };
+
+    return await http.delete(
       Uri.parse(baseApiUrl + route),
       headers: header,
     );

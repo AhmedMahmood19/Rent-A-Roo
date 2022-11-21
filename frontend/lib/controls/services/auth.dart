@@ -19,10 +19,9 @@ class Auth {
     //print(response.body.toString());
 
     var tokenMap = jsonDecode(response.body);
-    if (tokenMap != null && tokenMap['token'] != null) {
-      await preferences.setString('loginToken', tokenMap['token']);
-      await preferences.setString(
-          'changePass', tokenMap["data"]['changepassword'].toString());
+    if (tokenMap != null && tokenMap['access_token'] != null) {
+      await preferences.setString('loginToken', tokenMap['access_token']);
+     
     }
 
     return response;
