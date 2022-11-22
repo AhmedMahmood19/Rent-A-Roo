@@ -1,5 +1,5 @@
 # (ORM)models must be exactly like the schemas for our database tables, 1 model for each table in our database
-from sqlalchemy import Boolean, Integer, String, Column, DateTime
+from sqlalchemy import Boolean, Integer, String, Column, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -26,11 +26,12 @@ class USERS(Base):
     TOTAL_GUEST_RATING = Column(Integer, nullable=True, default=0)
     ABOUT_ME = Column(String, nullable=True)
 
-#LISTINGS CAN'T BE DELETED (CAN UNLIST AS LONG AS THERE ARE NO RESERVATIONS, CONFIRMED TRANSACTIONS STILL GO THROUGH EVEN IF UNLISTED)
+# LISTINGS CAN'T BE DELETED (CAN UNLIST AS LONG AS THERE ARE NO RESERVATIONS, CONFIRMED TRANSACTIONS STILL GO THROUGH EVEN IF UNLISTED)
 class LISTINGS(Base):
     __tablename__ = "LISTINGS"
     LISTING_ID = Column(Integer, primary_key=True, index=True)
-    HOST_ID = Column(Integer, nullable=True)      #IF USER IS DELETED THEN SET IT TO NULL
+    HOST_ID=Column(Integer, ForeignKey("USERS.USER_ID", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL
+    host = relationship("USERS",backref="listings")
     TITLE = Column(String, nullable=False)
     DESCRIPTION = Column(String, nullable=False)
     STATE = Column(String, nullable=False)
@@ -64,15 +65,18 @@ class LISTINGS(Base):
 #LISTING_IMAGES CAN'T BE DELETED
 class LISTING_IMAGES(Base):
     __tablename__ = "LISTING_IMAGES"
-    LISTING_ID = Column(Integer, primary_key=True)
+    LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"), primary_key=True)   #Didnt add index to composite primary keys yet!!!
+    listings = relationship("LISTINGS",backref="listingimages")
     IMAGE_PATH = Column(String, primary_key=True)
 
 #RATINGS_AND_REVIEWS CAN'T BE DELETED
 class RATINGS_AND_REVIEWS(Base):
     __tablename__ = "RATINGS_AND_REVIEWS"
     REVIEW_ID = Column(Integer, primary_key=True, index=True)
-    LISTING_ID = Column(Integer, nullable=False)    #NOT UNIQUE SINCE SAME PROPERTY CAN HAVE MULTIPLE REVIEWS
-    GUEST_ID = Column(Integer, nullable=True)       #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
+    LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"))
+    listings = relationship("LISTINGS",backref="ratingsandreviews")
+    GUEST_ID = Column(Integer, ForeignKey("USERS.USER_ID", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
+    guest = relationship("USERS",backref="ratingsandreviews")
     RATING = Column(Integer, nullable=False)
     REVIEW = Column(String, nullable=True)          #REVIEW TEXT IS OPTIONAL
     CREATED_TIME = Column(DateTime, server_default=func.now())  #TO SHOW REVIEWS IN ORDER
@@ -81,8 +85,10 @@ class RATINGS_AND_REVIEWS(Base):
 class QUESTIONS_AND_ANSWERS(Base):
     __tablename__ = "QUESTIONS_AND_ANSWERS"
     QUESTION_ID = Column(Integer, primary_key=True, index=True)
-    LISTING_ID = Column(Integer, nullable=False)
-    GUEST_ID = Column(Integer, nullable=True)       #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
+    LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"))
+    listings = relationship("LISTINGS",backref="questionsandanswers")
+    GUEST_ID = Column(Integer, ForeignKey("USERS.USER_ID", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
+    guest = relationship("USERS",backref="questionsandanswers")
     QUESTION = Column(String, nullable=False)
     ANSWER = Column(String, nullable=True)                       #NULL UNTIL HOST ANSWERS IT
     CREATED_TIME = Column(DateTime, server_default=func.now())   #TO SHOW Q&A IN ORDER
@@ -90,22 +96,27 @@ class QUESTIONS_AND_ANSWERS(Base):
 #PROMOTED_LISTINGS CAN BE DELETED(IF END_TIME IS REACHED, IF LISTING IS UNLISTED)
 class PROMOTED_LISTINGS(Base):
     __tablename__ = "PROMOTED_LISTINGS"
-    LISTING_ID = Column(Integer, primary_key=True, index=True)
+    LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"), primary_key=True, index=True)
+    listings = relationship("LISTINGS",backref="promotedlistings")
     START_TIME = Column(DateTime, server_default=func.now())
     END_TIME = Column(DateTime, nullable=False)             #WILL BE A FIXED DURATION AFTER THE START_TIME
 
 #FAVOURITES CAN BE DELETED(IF USER UNFAVOURITES OR USER IS DELETED)
 class FAVOURITES(Base):
     __tablename__ = "FAVOURITES"
-    GUEST_ID = Column(Integer, primary_key=True)
-    LISTING_ID = Column(Integer, primary_key=True)
+    GUEST_ID = Column(Integer, ForeignKey("USERS.USER_ID"), ondelete="CASCADE", primary_key=True) #IF USER IS DELETED THEN DELETE FAVOURITES TOO
+    guest = relationship("USERS",backref="favourites")
+    LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"), primary_key=True)
+    listings = relationship("LISTINGS",backref="favourites")
 
 #RESERVATIONS CAN BE DELETED(THROUGH NORMAL FLOW OR IF USER IS DELETED)
 class RESERVATIONS(Base):
     __tablename__ = "RESERVATIONS"
     RESERVATION_ID = Column(Integer, primary_key=True, index=True)
-    GUEST_ID = Column(Integer, nullable=False)     
-    LISTING_ID = Column(Integer, nullable=False)
+    LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"))
+    listings = relationship("LISTINGS",backref="reservations")
+    GUEST_ID = Column(Integer, ForeignKey("USERS.USER_ID", ondelete="CASCADE")) #IF USER IS DELETED THEN DELETE RESERVATIONS TOO
+    guest = relationship("USERS",backref="reservations")    
     CHECKIN_DATE = Column(DateTime, nullable=False)         #WE WILL GIVE THE SAME TIME FOR CHECKIN AND CHECKOUT(12PM?) TO EVERYONE, ONLY DATE WILL BE SET BY GUEST
     CHECKOUT_DATE = Column(DateTime, nullable=False)
     CREATED_TIME = Column(DateTime, server_default=func.now())  #TO CHECK IF IT HAS BEEN 24Hrs SO WE CAN SET STATUS TO REJECTED
@@ -116,9 +127,35 @@ class RESERVATIONS(Base):
 class TRANSACTIONS(Base):
     __tablename__ = "TRANSACTIONS"
     TRANSACTION_ID = Column(Integer, primary_key=True, index=True)
-    GUEST_ID = Column(Integer, nullable=True)                   #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON TRANSACTIONS PAGE
-    LISTING_ID = Column(Integer, nullable=False)
+    LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"))
+    listings = relationship("LISTINGS",backref="transactions")
+    GUEST_ID = Column(Integer, ForeignKey("USERS.USER_ID", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
+    guest = relationship("USERS",backref="transactions")
     CHECKIN_DATE = Column(DateTime, nullable=False)
     CHECKOUT_DATE = Column(DateTime, nullable=False)
     CREATED_TIME = Column(DateTime, server_default=func.now())  #TO SHOW TRANSACTIONS IN ORDER
     AMOUNT_PAID  = Column(Integer, nullable = False)
+
+
+#########################################
+### TO EXPLAIN HOW RELATIONSHIP WORKS ###
+#########################################
+# class Parent(Base):
+#    __tablename__="Parent"
+#    id=Column(Integer,primary_key=True,index=True,autoincrement=True)
+
+
+# class Child(Base):
+#     __tablename__= "Child"
+#     id=Column(Integer, primary_key= True)
+#     #foreign key: Child.Parent_id -> Parent.id 
+#     parent_id=Column(Integer, ForeignKey('Parent.id', ondelete='SET NULL'))
+#     parents = relationship("Parent",backref="children")
+#########################################
+# FOR TESTING OF LISTINGS FUNCTIONS!!!!!!!!!!!!!!
+# class LISTINGS(Base):
+#     __tablename__ = "LISTINGS"
+#     LISTING_ID = Column(Integer, primary_key=True, index=True)
+#     HOST_ID=Column(Integer, ForeignKey("USERS.USER_ID", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL
+#     host = relationship("USERS",backref="listings")
+#     TITLE = Column(String, nullable=False)
