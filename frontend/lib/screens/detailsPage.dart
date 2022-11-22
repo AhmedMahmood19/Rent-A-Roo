@@ -1,0 +1,208 @@
+import 'package:carousel_slider/carousel_controller.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/foundation/key.dart';
+import 'package:flutter/src/widgets/framework.dart';
+
+import '../cidgets/customNavBar.dart';
+
+class DetailsPage extends StatefulWidget {
+  const DetailsPage({Key? key}) : super(key: key);
+
+  @override
+  State<DetailsPage> createState() => _DetailsPageState();
+}
+
+class _DetailsPageState extends State<DetailsPage> {
+  int _current = 0;
+
+  var carouselInfo = [
+    {
+      'img':
+          'https://images.unsplash.com/photo-1597655601841-214a4cfe8b2c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bW91bnRhaW4lMjBzY2VuZXJ5fGVufDB8fDB8fA%3D%3D&w=1000&q=80',
+      'flag': '2',
+    },
+    {
+      'img':
+          'https://images.unsplash.com/photo-1597655601841-214a4cfe8b2c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bW91bnRhaW4lMjBzY2VuZXJ5fGVufDB8fDB8fA%3D%3D&w=1000&q=80',
+      'flag': '2',
+    }
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+        ),
+        body: SingleChildScrollView(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            carousel(),
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Hidden Haven -  5 Bed Villa with pool and Sea Views',
+                    style: TextStyle(
+                      fontSize: 28,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.star),
+                        Text('5'),
+                        Spacer(),
+                        Text('|'),
+                        Spacer(),
+                        Icon(Icons.location_pin),
+                        Text('Mexico'),
+                        Spacer(),
+                        Text('|'),
+                        Spacer(),
+                        Text('FAQs'),
+                        Spacer(),
+                        Text('|'),
+                        Spacer(),
+                        Text('4 Reviews')
+                      ],
+                    ),
+                  ),
+                  Divider(),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        radius: 25,
+                      ),
+                      SizedBox(
+                        width: 15,
+                      ),
+                      Text(
+                        'Jane Mary',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      Spacer(),
+                      Icon(Icons.arrow_right_alt)
+                    ],
+                  ),
+                  Divider(),
+                  Text(
+                    'It\'s never good to give them details, Janice told her sister. Always be a little vague and keep them guessing." Her sister listened intently and nodded in agreement. She didn\'t fully understand what her sister was saying but that didn\'t matter.',
+                    maxLines: 20,
+                  ),
+                  Divider(),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20.0),
+                    child: Container(
+                      color: Colors.white,
+                      child: Image.asset(
+                        'assets/khimap.jpg',
+                        fit: BoxFit.cover,
+                      ),
+                      width: double.infinity,
+                      height: 150,
+                    ),
+                  ),
+                  Divider(),
+                  Row(
+                    children: [
+                      Text(
+                        'Ameneties',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Spacer(),
+                      Icon(Icons.arrow_right_alt),
+                      SizedBox(
+                        width: 10,
+                      )
+                    ],
+                  )
+                ],
+              ),
+            )
+          ]),
+        ),
+        bottomNavigationBar: CustomNavBar(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  maintainState: false, builder: (context) => Container()),
+            );
+          },
+        ));
+  }
+
+  Widget carousel() {
+    CarouselController _controller = CarouselController();
+    return Column(
+      children: [
+        Container(
+          height: 200,
+          width: double.maxFinite,
+          child: CarouselSlider.builder(
+              options: CarouselOptions(
+                initialPage: 0,
+                enableInfiniteScroll: true,
+                reverse: false,
+                autoPlay: true,
+                viewportFraction: 1,
+                autoPlayInterval: Duration(seconds: 3),
+                autoPlayAnimationDuration: Duration(milliseconds: 800),
+                autoPlayCurve: Curves.fastOutSlowIn,
+                enlargeCenterPage: false,
+                scrollDirection: Axis.horizontal,
+              ),
+              itemCount: carouselInfo.length,
+              itemBuilder:
+                  (BuildContext context, int itemIndex, int pageViewIndex) {
+                return InkWell(
+                  onTap: () async {},
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(15, 8, 15, 8),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(30.0),
+                      child: Image.network(
+                        carouselInfo[itemIndex]['img'].toString(),
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        //  subject['images']['large'],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: carouselInfo.asMap().entries.map((entry) {
+            return GestureDetector(
+              onTap: () => _controller.animateToPage(entry.key),
+              child: Container(
+                width: 6.0,
+                height: 6.0,
+                margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: (Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black45)
+                        .withOpacity(_current == entry.key ? 0.5 : 0.3)),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+}
