@@ -104,7 +104,7 @@ class PROMOTED_LISTINGS(Base):
 #FAVOURITES CAN BE DELETED(IF USER UNFAVOURITES OR USER IS DELETED)
 class FAVOURITES(Base):
     __tablename__ = "FAVOURITES"
-    GUEST_ID = Column(Integer, ForeignKey("USERS.USER_ID"), ondelete="CASCADE", primary_key=True) #IF USER IS DELETED THEN DELETE FAVOURITES TOO
+    GUEST_ID = Column(Integer, ForeignKey("USERS.USER_ID", ondelete="CASCADE"), primary_key=True) #IF USER IS DELETED THEN DELETE FAVOURITES TOO
     guest = relationship("USERS",backref="favourites")
     LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"), primary_key=True)
     listings = relationship("LISTINGS",backref="favourites")
@@ -152,10 +152,3 @@ class TRANSACTIONS(Base):
 #     parent_id=Column(Integer, ForeignKey('Parent.id', ondelete='SET NULL'))
 #     parents = relationship("Parent",backref="children")
 #########################################
-# FOR TESTING OF LISTINGS FUNCTIONS!!!!!!!!!!!!!!
-# class LISTINGS(Base):
-#     __tablename__ = "LISTINGS"
-#     LISTING_ID = Column(Integer, primary_key=True, index=True)
-#     HOST_ID=Column(Integer, ForeignKey("USERS.USER_ID", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL
-#     host = relationship("USERS",backref="listings")
-#     TITLE = Column(String, nullable=False)
