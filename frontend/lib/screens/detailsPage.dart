@@ -3,6 +3,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:rent_a_roo/screens/reviewsScreen.dart';
 
 import '../cidgets/customNavBar.dart';
 
@@ -73,7 +74,15 @@ class _DetailsPageState extends State<DetailsPage> {
                         Spacer(),
                         Text('|'),
                         Spacer(),
-                        Text('4 Reviews')
+                        InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ReviewsScreens()),
+                              );
+                            },
+                            child: Text('Reviews'))
                       ],
                     ),
                   ),

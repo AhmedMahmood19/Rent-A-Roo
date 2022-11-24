@@ -5,6 +5,7 @@ import 'package:rent_a_roo/screens/editProfile.dart';
 import 'package:rent_a_roo/screens/explore.dart';
 import 'package:rent_a_roo/screens/login.dart';
 import 'package:rent_a_roo/screens/profile.dart';
+import 'package:rent_a_roo/screens/reviewsScreen.dart';
 import 'package:rent_a_roo/screens/searchFormPage.dart';
 
 void main() {
