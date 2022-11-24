@@ -14,17 +14,16 @@ router = APIRouter(prefix="/user", tags=['User'])
 def create_user(request: userSchemas.UserReg, db: Session = Depends(connection.get_db)):
     # We dont need to specify all the attributes when making a model,
     # but make sure that NOTNULL attributes have values or a default value when adding to a session
-    insertuser = models.USERS(
-        EMAIL=request.EMAIL,
-        PASSWORD=request.PASSWORD,
-        FIRST_NAME=request.FIRST_NAME,
-        LAST_NAME=request.LAST_NAME,
-        PHONE_NO=request.PHONE_NO,
-        ABOUT_ME=request.ABOUT_ME
+    insertuser = models.Users(
+        email=request.email,
+        password=request.password,
+        first_name=request.first_name,
+        last_name=request.last_name,
+        phone_no=request.phone_no,
+        about_me=request.about_me
     )
     # Dont insert if email is already in use
-    user = db.query(models.USERS).filter(
-        models.USERS.EMAIL == insertuser.EMAIL).first()
+    user = db.query(models.Users).filter(models.Users.email == insertuser.email).first()
     if user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="This email is already in use")
@@ -37,25 +36,25 @@ def create_user(request: userSchemas.UserReg, db: Session = Depends(connection.g
 @router.post("/login", status_code=status.HTTP_200_OK)
 def login_user(formdata: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(connection.get_db)):
     # Run a SELECT query on table USERS, where email and password must match,must use "username" since its fixed by OAuth2 Form
-    user = db.query(models.USERS).filter(models.USERS.EMAIL == formdata.username, models.USERS.PASSWORD == formdata.password).first()
+    user = db.query(models.Users).filter(models.Users.email == formdata.username, models.Users.password == formdata.password).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Invalid Email or Password")
     else:
         # Generate a token, store it in a Token schema, then return it as the response
-        generatedToken = Authentication.generate_token(sub=user.USER_ID)
+        generatedToken = Authentication.generate_token(sub=user.user_id)
         return {"access_token": generatedToken, "token_type": "bearer"}
 
 
 @router.get("/profile", status_code=status.HTTP_200_OK, response_model=userSchemas.User)
 def read_user(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-    user = db.query(models.USERS).filter(models.USERS.USER_ID == current_user_id).first()
+    user = db.query(models.Users).filter(models.Users.user_id == current_user_id).first()
     return user
 
 
 @router.put("/profile", status_code=status.HTTP_200_OK)
 def update_user(request: userSchemas.UserReg, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-    user = db.query(models.USERS).filter(models.USERS.USER_ID == current_user_id)
+    user = db.query(models.Users).filter(models.Users.user_id == current_user_id)
     # have to use dict function to update dictonary values of request
     user.update(request.dict(), synchronize_session=False)
     db.commit()
@@ -64,7 +63,7 @@ def update_user(request: userSchemas.UserReg, db: Session = Depends(connection.g
 
 @router.delete("/profile", status_code=status.HTTP_200_OK)
 def delete_user(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-    user = db.query(models.USERS).filter(models.USERS.USER_ID == current_user_id)
+    user = db.query(models.Users).filter(models.Users.user_id == current_user_id)
     user.delete(synchronize_session=False)
     db.commit()
     return {"status": "Success", "Detail": "User Deleted"}
@@ -83,22 +82,11 @@ async def set_profile_image(file: UploadFile = File(...), db: Session = Depends(
     # stores it in server files by writing it into a new file
     with open("."+Storedfilename, "wb") as inputfile:
         inputfile.write(file_content)
-    # Reduce image size to save space
-    img = Image.open("."+Storedfilename)
-    img = img.resize(size=(200, 200))
-    img.save("."+Storedfilename)
     file.close()
     # Store new file path in DB
-    db.query(models.USERS).filter(models.USERS.USER_ID == current_user_id).update({"PROFILE_IMAGE_PATH": Storedfilename}, synchronize_session="fetch")
+    db.query(models.Users).filter(models.Users.user_id == current_user_id).update({"image_path": Storedfilename}, synchronize_session="fetch")
     db.commit()
     return {"Success": "Image was uploaded and stored"}
-
-@router.get("/profile/image", status_code=status.HTTP_200_OK)
-async def get_profile_image(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-    user = db.query(models.USERS).filter(models.USERS.USER_ID == current_user_id).first()
-    imageURL = "localhost:8000" + user.PROFILE_IMAGE_PATH
-    return {"Image URL": imageURL}
-
 ##########################################
 # UPLOADING MULTIPLE FILES
 ##########################################

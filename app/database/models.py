@@ -8,133 +8,133 @@ from sqlalchemy.sql import func
 Base = declarative_base()
 
 # VARCHAR in databases don't occupy unneeded space. Thus, there is no reason to put length constraints on them. Unless for UI
-# naming conventions: Class and Table name and attrs are ALLCAPS
+# Naming Convention: Class name will be Initcap, attribute names will be lowercase
 
-#USERS CAN BE DELETED
-class USERS(Base):
-    __tablename__ = "USERS"
-    USER_ID = Column(Integer, primary_key=True, index=True)
-    EMAIL = Column(String, nullable=False, unique=True)
-    PASSWORD = Column(String, nullable=False)
-    FIRST_NAME = Column(String, nullable=False)
-    LAST_NAME = Column(String, nullable=False)
-    PHONE_NO = Column(String(11), nullable=False)
-    USER_IMAGE_PATH = Column(String, nullable=True, default="/static/images/defaultUSERpic.jpg")
-    AVG_HOST_RATING = Column(Integer, nullable=True, default=0)
-    AVG_GUEST_RATING = Column(Integer, nullable=True, default=0)
-    TOTAl_HOST_RATING = Column(Integer, nullable=True, default=0)
-    TOTAL_GUEST_RATING = Column(Integer, nullable=True, default=0)
-    ABOUT_ME = Column(String, nullable=True)
+#users CAN BE DELETED
+class Users(Base):
+    __tablename__ = "users"
+    user_id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, nullable=False, unique=True)
+    password = Column(String, nullable=False)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    phone_no = Column(String(11), nullable=False)
+    image_path = Column(String, nullable=True, default="/static/images/defaultprofilepic.jpg")
+    avg_host_rating = Column(Integer, nullable=True, default=0)
+    avg_guest_rating = Column(Integer, nullable=True, default=0)
+    total_host_rating = Column(Integer, nullable=True, default=0)
+    total_guest_rating = Column(Integer, nullable=True, default=0)
+    about_me = Column(String, nullable=True)
 
-# LISTINGS CAN'T BE DELETED (CAN UNLIST AS LONG AS THERE ARE NO RESERVATIONS, CONFIRMED TRANSACTIONS STILL GO THROUGH EVEN IF UNLISTED)
-class LISTINGS(Base):
-    __tablename__ = "LISTINGS"
-    LISTING_ID = Column(Integer, primary_key=True, index=True)
-    HOST_ID=Column(Integer, ForeignKey("USERS.USER_ID", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL
-    host = relationship("USERS",backref="listings")
-    TITLE = Column(String, nullable=False)
-    DESCRIPTION = Column(String, nullable=False)
-    STATE = Column(String, nullable=False)
-    CITY = Column(String, nullable=False)
-    ADDRESS = Column(String, nullable=False)
-    IS_APARTMENT = Column(Boolean, nullable=False)
-    APARTMENT_NO = Column(Integer, nullable=True)       #IF PREVIOUS ATTR. IS TRUE THEN THIS WILL BE INPUT, OTHERWISE IT'S NULL
-    GPS_LOCATION = Column(String, nullable = True)      #CHANGE LATER FOR PROPER GPS IMPLEMENTATION
-    IS_SHARED = Column(Boolean, nullable = False)       #WILL THE HOST BE LIVING IN THE SAME PROPERTY OR NOT
-    ACCOMMODATES = Column(Integer, nullable = False)    #HOW MANY PEOPLE CAN THIS PROPERTY ACCOMMODATE
-    BATHROOMS = Column(Integer, nullable = False)
-    BEDROOMS = Column(Integer, nullable = False)
-    NIGHTLY_PRICE = Column(Integer, nullable = False)   #SINCE APP IS FOR PAKISTAN, PKR WILL ALWAYS BE INTEGER
-    MIN_NIGHTS = Column(Integer, nullable = False)
-    MAX_NIGHTS = Column(Integer, nullable = False)
-    WIFI = Column(Boolean, nullable = False)
-    KITCHEN = Column(Boolean, nullable = False)
-    WASHING_MACHINE = Column(Boolean, nullable = False)
-    AIR_CONDITIONING = Column(Boolean, nullable = False)
-    TV =  Column(Boolean, nullable = False)
-    HAIR_DRYER = Column(Boolean, nullable = False)
-    IRON = Column(Boolean, nullable = False)
-    POOL = Column(Boolean, nullable = False)
-    GYM = Column(Boolean, nullable = False)
-    SMOKING_ALLOWED = Column(Boolean, nullable = False)
-    TOTAL_RATINGS = Column(Integer, nullable = True, default=0)
-    RATING = Column(Integer, nullable = True, default=0)
-    VIEW_COUNT = Column(Integer, nullable = True, default=0)
-    IS_LISTED = Column(Boolean, nullable = True, default=True)     #IF USER DELETED/LISTING IS UNLISTED THEN SET THIS TO FALSE, SINCE WE WON'T DELETE LISTINGS
+# listings CAN'T BE DELETED (CAN UNLIST AS LONG AS THERE ARE NO RESERVATIONS, CONFIRMED TRANSACTIONS STILL GO THROUGH EVEN IF UNLISTED)
+class Listings(Base):
+    __tablename__ = "listings"
+    listing_id = Column(Integer, primary_key=True, index=True)
+    host_id=Column(Integer, ForeignKey("users.user_id", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL
+    # host = relationship("users",backref="listingss")
+    title = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    state = Column(String, nullable=False)
+    city = Column(String, nullable=False)
+    address = Column(String, nullable=False)
+    is_apartment = Column(Boolean, nullable=False)
+    apartment_no = Column(Integer, nullable=True)       #IF PREVIOUS ATTR. IS TRUE THEN THIS WILL BE INPUT, OTHERWISE IT'S NULL
+    gps_location = Column(String, nullable = True)      #CHANGE LATER FOR PROPER GPS IMPLEMENTATION
+    is_shared = Column(Boolean, nullable = False)       #WILL THE HOST BE LIVING IN THE SAME PROPERTY OR NOT
+    accommodates = Column(Integer, nullable = False)    #HOW MANY PEOPLE CAN THIS PROPERTY ACCOMMODATE
+    bathrooms = Column(Integer, nullable = False)
+    bedrooms = Column(Integer, nullable = False)
+    nightly_price = Column(Integer, nullable = False)   #SINCE APP IS FOR PAKISTAN, PKR WILL ALWAYS BE INTEGER
+    min_nights = Column(Integer, nullable = False)
+    max_nights = Column(Integer, nullable = False)
+    wifi = Column(Boolean, nullable = False)
+    kitchen = Column(Boolean, nullable = False)
+    washing_machine = Column(Boolean, nullable = False)
+    air_conditioning = Column(Boolean, nullable = False)
+    tv =  Column(Boolean, nullable = False)
+    hair_dryer = Column(Boolean, nullable = False)
+    iron = Column(Boolean, nullable = False)
+    pool = Column(Boolean, nullable = False)
+    gym = Column(Boolean, nullable = False)
+    smoking_allowed = Column(Boolean, nullable = False)
+    total_ratings = Column(Integer, nullable = True, default=0)
+    rating = Column(Integer, nullable = True, default=0)
+    view_count = Column(Integer, nullable = True, default=0)
+    is_listed = Column(Boolean, nullable = True, default=True)     #IF USER DELETED/LISTING IS UNLISTED THEN SET THIS TO FALSE, SINCE WE WON'T DELETE listings
 
-#LISTING_IMAGES CAN'T BE DELETED
-class LISTING_IMAGES(Base):
-    __tablename__ = "LISTING_IMAGES"
-    LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"), primary_key=True)   #Didnt add index to composite primary keys yet!!!
-    listings = relationship("LISTINGS",backref="listingimages")
-    IMAGE_PATH = Column(String, primary_key=True)
+#listing_images CAN'T BE DELETED
+class Listing_images(Base):
+    __tablename__ = "listing_images"
+    listing_id = Column(Integer, ForeignKey("listings.listing_id"), primary_key=True)   #Didnt add index to composite primary keys yet!!!
+    # listings = relationship("listings",backref="listingimages")
+    image_path = Column(String, primary_key=True)
 
-#RATINGS_AND_REVIEWS CAN'T BE DELETED
-class RATINGS_AND_REVIEWS(Base):
-    __tablename__ = "RATINGS_AND_REVIEWS"
-    REVIEW_ID = Column(Integer, primary_key=True, index=True)
-    LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"))
-    listings = relationship("LISTINGS",backref="ratingsandreviews")
-    GUEST_ID = Column(Integer, ForeignKey("USERS.USER_ID", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
-    guest = relationship("USERS",backref="ratingsandreviews")
-    RATING = Column(Integer, nullable=False)
-    REVIEW = Column(String, nullable=True)          #REVIEW TEXT IS OPTIONAL
-    CREATED_TIME = Column(DateTime, server_default=func.now())  #TO SHOW REVIEWS IN ORDER
+#ratings_and_reviews CAN'T BE DELETED
+class Ratings_and_reviews(Base):
+    __tablename__ = "ratings_and_reviews"
+    review_id = Column(Integer, primary_key=True, index=True)
+    listing_id = Column(Integer, ForeignKey("listings.listing_id"))
+    # listings = relationship("listings",backref="ratingsandreviews")
+    guest_id = Column(Integer, ForeignKey("users.user_id", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
+    # guest = relationship("users",backref="ratingsandreviews")
+    rating = Column(Integer, nullable=False)
+    review = Column(String, nullable=True)          #REVIEW TEXT IS OPTIONAL
+    created_time = Column(DateTime, server_default=func.now())  #TO SHOW REVIEWS IN ORDER
 
-#QUESTIONS_AND_ANSWERS CAN'T BE DELETED
-class QUESTIONS_AND_ANSWERS(Base):
-    __tablename__ = "QUESTIONS_AND_ANSWERS"
-    QUESTION_ID = Column(Integer, primary_key=True, index=True)
-    LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"))
-    listings = relationship("LISTINGS",backref="questionsandanswers")
-    GUEST_ID = Column(Integer, ForeignKey("USERS.USER_ID", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
-    guest = relationship("USERS",backref="questionsandanswers")
-    QUESTION = Column(String, nullable=False)
-    ANSWER = Column(String, nullable=True)                       #NULL UNTIL HOST ANSWERS IT
-    CREATED_TIME = Column(DateTime, server_default=func.now())   #TO SHOW Q&A IN ORDER
+#questions_and_answers CAN'T BE DELETED
+class Questions_and_answers(Base):
+    __tablename__ = "questions_and_answers"
+    question_id = Column(Integer, primary_key=True, index=True)
+    listing_id = Column(Integer, ForeignKey("listings.listing_id"))
+    # listings = relationship("listings",backref="questionsandanswers")
+    guest_id = Column(Integer, ForeignKey("users.user_id", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
+    # guest = relationship("users",backref="questionsandanswers")
+    question = Column(String, nullable=False)
+    answer = Column(String, nullable=True)                       #NULL UNTIL HOST ANSWERS IT
+    created_time = Column(DateTime, server_default=func.now())   #TO SHOW Q&A IN ORDER
 
-#PROMOTED_LISTINGS CAN BE DELETED(IF END_TIME IS REACHED, IF LISTING IS UNLISTED)
-class PROMOTED_LISTINGS(Base):
-    __tablename__ = "PROMOTED_LISTINGS"
-    LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"), primary_key=True, index=True)
-    listings = relationship("LISTINGS",backref="promotedlistings")
-    START_TIME = Column(DateTime, server_default=func.now())
-    END_TIME = Column(DateTime, nullable=False)             #WILL BE A FIXED DURATION AFTER THE START_TIME
+#promoted_listings CAN BE DELETED(IF END_TIME IS REACHED, IF LISTING IS UNLISTED)
+class Promoted_listings(Base):
+    __tablename__ = "promoted_listings"
+    listing_id = Column(Integer, ForeignKey("listings.listing_id"), primary_key=True, index=True)
+    # listings = relationship("listings",backref="promotedlistings")
+    start_time = Column(DateTime, server_default=func.now())
+    end_time = Column(DateTime, nullable=False)             #WILL BE A FIXED DURATION AFTER THE START_TIME
 
-#FAVOURITES CAN BE DELETED(IF USER UNFAVOURITES OR USER IS DELETED)
-class FAVOURITES(Base):
-    __tablename__ = "FAVOURITES"
-    GUEST_ID = Column(Integer, ForeignKey("USERS.USER_ID", ondelete="CASCADE"), primary_key=True) #IF USER IS DELETED THEN DELETE FAVOURITES TOO
-    guest = relationship("USERS",backref="favourites")
-    LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"), primary_key=True)
-    listings = relationship("LISTINGS",backref="favourites")
+#favourites CAN BE DELETED(IF USER UNFAVOURITES OR USER IS DELETED)
+class Favourites(Base):
+    __tablename__ = "favourites"
+    guest_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), primary_key=True) #IF USER IS DELETED THEN DELETE FAVOURITES TOO
+    # guest = relationship("users",backref="favourites")
+    listing_id = Column(Integer, ForeignKey("listings.listing_id"), primary_key=True)
+    # listings = relationship("listings",backref="favourites")
 
-#RESERVATIONS CAN BE DELETED(THROUGH NORMAL FLOW OR IF USER IS DELETED)
-class RESERVATIONS(Base):
-    __tablename__ = "RESERVATIONS"
-    RESERVATION_ID = Column(Integer, primary_key=True, index=True)
-    LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"))
-    listings = relationship("LISTINGS",backref="reservations")
-    GUEST_ID = Column(Integer, ForeignKey("USERS.USER_ID", ondelete="CASCADE")) #IF USER IS DELETED THEN DELETE RESERVATIONS TOO
-    guest = relationship("USERS",backref="reservations")    
-    CHECKIN_DATE = Column(DateTime, nullable=False)         #WE WILL GIVE THE SAME TIME FOR CHECKIN AND CHECKOUT(12PM?) TO EVERYONE, ONLY DATE WILL BE SET BY GUEST
-    CHECKOUT_DATE = Column(DateTime, nullable=False)
-    CREATED_TIME = Column(DateTime, server_default=func.now())  #TO CHECK IF IT HAS BEEN 24Hrs SO WE CAN SET STATUS TO REJECTED
-    AMOUNT_DUE  = Column(Integer, nullable = False)         #CALCULATED USING NIGHTLYPRICE AND NUMBER OF NIGHTS
-    STATUS = Column(String, nullable=False)
+#reservations CAN BE DELETED(THROUGH NORMAL FLOW OR IF USER IS DELETED)
+class Reservations(Base):
+    __tablename__ = "reservations"
+    reservation_id = Column(Integer, primary_key=True, index=True)
+    listing_id = Column(Integer, ForeignKey("listings.listing_id"))
+    # listings = relationship("listings",backref="reservations")
+    guest_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE")) #IF USER IS DELETED THEN DELETE RESERVATIONS TOO
+    # guest = relationship("users",backref="reservations")    
+    checkin_date = Column(DateTime, nullable=False)         #WE WILL GIVE THE SAME TIME FOR CHECKIN AND CHECKOUT(12PM?) TO EVERYONE, ONLY DATE WILL BE SET BY GUEST
+    checkout_date = Column(DateTime, nullable=False)
+    created_time = Column(DateTime, server_default=func.now())  #TO CHECK IF IT HAS BEEN 24Hrs SO WE CAN SET STATUS TO REJECTED
+    amount_due  = Column(Integer, nullable = False)         #CALCULATED USING NIGHTLYPRICE AND NUMBER OF NIGHTS
+    status = Column(String, nullable=False)
 
-#TRANSACTIONS CAN'T BE DELETED
-class TRANSACTIONS(Base):
-    __tablename__ = "TRANSACTIONS"
-    TRANSACTION_ID = Column(Integer, primary_key=True, index=True)
-    LISTING_ID = Column(Integer, ForeignKey("LISTINGS.LISTING_ID"))
-    listings = relationship("LISTINGS",backref="transactions")
-    GUEST_ID = Column(Integer, ForeignKey("USERS.USER_ID", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
-    guest = relationship("USERS",backref="transactions")
-    CHECKIN_DATE = Column(DateTime, nullable=False)
-    CHECKOUT_DATE = Column(DateTime, nullable=False)
-    CREATED_TIME = Column(DateTime, server_default=func.now())  #TO SHOW TRANSACTIONS IN ORDER
-    AMOUNT_PAID  = Column(Integer, nullable = False)
+#transactions CAN'T BE DELETED
+class Transactions(Base):
+    __tablename__ = "transactions"
+    transaction_id = Column(Integer, primary_key=True, index=True)
+    listing_id = Column(Integer, ForeignKey("listings.listing_id"))
+    # listings = relationship("listings",backref="transactions")
+    guest_id = Column(Integer, ForeignKey("users.user_id", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
+    # guest = relationship("users",backref="transactions")
+    checkin_date = Column(DateTime, nullable=False)
+    checkout_date = Column(DateTime, nullable=False)
+    created_time = Column(DateTime, server_default=func.now())  #TO SHOW TRANSACTIONS IN ORDER
+    amount_paid  = Column(Integer, nullable = False)
 
 
 #########################################
