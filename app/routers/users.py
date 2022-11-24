@@ -74,7 +74,7 @@ async def set_profile_image(file: UploadFile = File(...), db: Session = Depends(
     # gets the extension of the uploaded file
     extension = "." + file.filename.split(".")[-1]
     # if extension is invalid then return error
-    if (extension not in [".png", ".jpg", ".jpeg"]):
+    if (extension not in [".png", ".jpg", ".jpeg", ".webp"]):
         return {"error": "File extension not allowed"}
     # give the image file a new name along with the path where it will be stored
     Storedfilename = "/static/images/" + secrets.token_hex(4) + str(current_user_id) + extension

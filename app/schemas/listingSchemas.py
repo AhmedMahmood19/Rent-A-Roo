@@ -1,5 +1,5 @@
-from pydantic import BaseModel, EmailStr, Field
-from pydantic.typing import Optional 
+from pydantic import BaseModel
+from typing import List
 
 class SearchListing(BaseModel):
     state             :str | None = None
@@ -37,6 +37,10 @@ class SearchResult(BaseModel):
     rating            :int
     nightly_price     :int
     # SEND THE PATH TO THE FIRST IMAGE OF THE LISTING
-    image_path        :str
+    image_path        :List[str]
     class Config:
         orm_mode = True
+
+class PromoteListing(BaseModel):
+    listing_id        :int
+    days              :int
