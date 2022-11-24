@@ -40,3 +40,73 @@ class SearchResult(BaseModel):
     image_path        :str
     class Config:
         orm_mode = True
+
+class Listing(BaseModel):
+    host_id: int | None = None
+    title: str 
+    description: str 
+    state: str 
+    city: str 
+    address: str 
+    is_apartment: bool 
+    apartment_no: int 
+    gps_location: str | None = None 
+    is_shared: bool
+    accommodates: int 
+    bathrooms: int 
+    bedrooms: int 
+    nightly_price: int 
+    min_nights: int 
+    max_nights: int
+    wifi: bool
+    kitchen: bool
+    washing_machine: bool
+    air_conditioning: bool
+    tv: bool
+    hair_dryer: bool
+    iron: bool
+    pool: bool
+    gym: bool
+    smoking_allowed: bool
+    total_ratings: int 
+    rating: int 
+    view_counted: int 
+    is_listed: bool
+    class Config():
+        orm_mode = True
+
+class Showlisiting(BaseModel):
+    title: str 
+    description: str 
+    state: str 
+    city: str 
+    address: str 
+    is_apartment: bool 
+    apartment_no: int 
+    gps_location: str | None = None 
+    is_shared: bool
+    accommodates: int 
+    bathrooms: int 
+    bedrooms: int 
+    nightly_price: int 
+    min_nights: int 
+    max_nights: int
+    wifi: bool
+    kitchen: bool
+    washing_machine: bool
+    air_conditioning: bool
+    tv: bool
+    hair_dryer: bool
+    iron: bool
+    pool: bool
+    gym: bool
+    smoking_allowed: bool
+    rating: int 
+    is_listed: bool
+    class Config():
+        orm_mode = True
+
+class removelisiting(BaseModel):
+    is_listed: bool
+    class Config():
+        orm_mode = True
