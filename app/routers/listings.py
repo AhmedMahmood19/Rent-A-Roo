@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Response
 from routers import Authentication
 from database import models, connection
 from schemas import listingSchemas
@@ -82,23 +82,21 @@ def addlisitng(request:listingSchemas.Listing, db: Session =Depends(connection.g
     )
     db.add(insertlisting)
     db.commit()
-    return insertlisting
+    db.refresh(insertlisting)
+    return {"status":"Complete","listing_id":insertlisting.listing_id}
 
-@router.get('/getlisting', status_code=200)
-def show(db:Session=Depends(connection.get_db),current_user_id: int = Depends(Authentication.get_current_user_id)):
-    listing = db.query(models.Listings).filter(models.Listings.host_id == current_user_id).all()
-    if not listing:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"listing with this hostid {current_user_id} is not available")
-    return listing
-
-@router.get('/getlisting/{id}', status_code=200)
-def show(id:int,db:Session=Depends(connection.get_db),current_user_id: int = Depends(Authentication.get_current_user_id)):
+@router.get('/getlisting/{id}', status_code=200,response_model=listingSchemas.ishost)
+def show(id:int,response: Response,db:Session=Depends(connection.get_db),current_user_id: int = Depends(Authentication.get_current_user_id)):
     listing = db.query(models.Listings).filter(models.Listings.listing_id == id).first()
     if not listing:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"listing with this id {id} is not available")
+    if listing.host_id == current_user_id:
+        listing.is_host = True
+    else:
+        listing.is_host = False
     return listing
 
-@router.put('/listing/{id}',status_code=status.HTTP_202_ACCEPTED)
+@router.put('/updatelisting/{id}',status_code=status.HTTP_202_ACCEPTED)
 def updatelisiting(id:int,request:listingSchemas.Showlisiting,db:Session=Depends(connection.get_db),current_user_id: int = Depends(Authentication.get_current_user_id)):
     listing =db.query(models.Listings).filter(models.Listings.listing_id == id, models.Listings.host_id == current_user_id)
     if not listing.first():
@@ -107,7 +105,7 @@ def updatelisiting(id:int,request:listingSchemas.Showlisiting,db:Session=Depends
     db.commit()
     return {"status":"Complete","Detail":"Listing Updated"}
 
-@router.delete('/listing/{id}',status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/deletelisting/{id}',status_code=status.HTTP_204_NO_CONTENT)
 def deletelisiting(id:int,request:listingSchemas.removelisiting, db:Session=Depends(connection.get_db),current_user_id: int = Depends(Authentication.get_current_user_id)):
     listing = db.query(models.Listings).filter(models.Listings.listing_id == id, models.Listings.host_id == current_user_id)
     if not listing.first():

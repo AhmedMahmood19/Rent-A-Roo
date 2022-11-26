@@ -49,7 +49,7 @@ class Listing(BaseModel):
     city: str 
     address: str 
     is_apartment: bool 
-    apartment_no: int 
+    apartment_no: int | None = None 
     gps_location: str | None = None 
     is_shared: bool
     accommodates: int 
@@ -82,7 +82,7 @@ class Showlisiting(BaseModel):
     city: str 
     address: str 
     is_apartment: bool 
-    apartment_no: int 
+    apartment_no: int| None = None 
     gps_location: str | None = None 
     is_shared: bool
     accommodates: int 
@@ -108,5 +108,10 @@ class Showlisiting(BaseModel):
 
 class removelisiting(BaseModel):
     is_listed: bool
+    class Config():
+        orm_mode = True
+
+class ishost(Showlisiting):
+    is_host: bool
     class Config():
         orm_mode = True
