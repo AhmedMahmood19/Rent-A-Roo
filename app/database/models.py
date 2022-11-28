@@ -38,7 +38,7 @@ class Listings(Base):
     city = Column(String, nullable=False)
     address = Column(String, nullable=False)
     is_apartment = Column(Boolean, nullable=False)
-    apartment_no = Column(Integer, nullable=True)       #IF PREVIOUS ATTR. IS TRUE THEN THIS WILL BE INPUT, OTHERWISE IT'S NULL
+    apartment_no = Column(String, nullable=True)       #IF PREVIOUS ATTR. IS TRUE THEN THIS WILL BE INPUT, OTHERWISE IT'S NULL
     gps_location = Column(String, nullable = True)      #CHANGE LATER FOR PROPER GPS IMPLEMENTATION
     is_shared = Column(Boolean, nullable = False)       #WILL THE HOST BE LIVING IN THE SAME PROPERTY OR NOT
     accommodates = Column(Integer, nullable = False)    #HOW MANY PEOPLE CAN THIS PROPERTY ACCOMMODATE

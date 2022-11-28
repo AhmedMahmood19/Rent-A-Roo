@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, status, HTTPException, Response
+import secrets
+from fastapi import File, UploadFile
+from fastapi import APIRouter, Depends, status, HTTPException
 from routers import Authentication
 from database import models, connection
 from schemas import listingSchemas
@@ -6,61 +8,16 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from datetime import datetime,timedelta
 from typing import List
-from sqlalchemy import text
 
-router = APIRouter(prefix="/listing", tags=['Listing'])
+router = APIRouter(prefix="/listing", tags=["Listing"])
 
-
-# @router.post("/search", status_code=status.HTTP_200_OK)
-# def search_listings(request: listingSchemas.SearchListing, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-#     withpromo = db.execute("select L.listing_id,L.city,L.state,L.rating,L.nightly_price,array_agg(I.image_path) image_paths from listings L, listing_images I, promoted_listings P where L.listing_id=I.listing_id and L.listing_id=P.listing_id group by L.listing_id,L.city,L.state,L.rating,L.nightly_price").fetchall()
-#     nopromo = db.execute("select L.listing_id,L.city,L.state,L.rating,L.nightly_price,array_agg (I.image_path) image_paths from listings L, listing_images I, promoted_listings P where L.listing_id=I.listing_id and L.listing_id!=P.listing_id group by L.listing_id,L.city,L.state,L.rating,L.nightly_price").fetchall()
-#     results = withpromo+nopromo
-#     print(results[0])
-#     return results
-
-###################ALISHAH CHANGES###################################
-# @router.post("/search", status_code=status.HTTP_200_OK, response_model=List[listingSchemas.SearchResult])
-# def search_listings(request: listingSchemas.SearchListing, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-#     filters=[]
-#     for key, value in request:
-#         if (value is None) or (key in ("order_by","is_ascending")):
-#             continue
-#         elif key.startswith("max_"):
-#             key=key[4:]
-#             filters.append(getattr(models.Listings, key) <= value)
-#         elif key.startswith("min_"):
-#             key=key[4:]
-#             filters.append(getattr(models.Listings, key) >= value)
-#         elif key=="nights":
-#             filters.append(getattr(models.Listings, "min_nights") <= value)
-#             filters.append(getattr(models.Listings, "max_nights") >= value)
-#         else:
-#             filters.append(getattr(models.Listings, key) == value)
-#                         # ##################################################################################
-#                         # TODO : EDIT THE QUERY TO RETURN THE PATH TO ONLY THE FIRST IMAGE FOR EACH LISTING and ALSO APPEND LOCALHOST:8000 to path 
-#                         # ##################################################################################
-#     # Create the query by using the filters and joins
-#     query=db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, models.Listing_images.image_path).filter(*filters).join(models.Listing_images, models.Listing_images.listing_id == models.Listings.listing_id)
-#     # ORDERING THE RESULTS IS ALSO OPTIONAL AND MUST BE DONE IN THE END
-#     if (request.ORDER_BY is not None) and (request.IS_ASCENDING is not None):
-#         if request.ORDER_BY not in ("city","state","rating","nightly_price"):
-#             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=f"{request.ORDER_BY} is not a valid value for ORDER_BY. Valid Values are city, state, rating, nightly_price")
-#         if request.IS_ASCENDING:
-#             query = query.order_by(getattr(models.Listings, request.ORDER_BY).asc())
-#         else:
-#             query = query.order_by(getattr(models.Listings, request.ORDER_BY).desc())
-#     # We already checked for both being "not none", now if one of these is "not none" then it means the other one must be "none" which is wrong 
-#     elif (request.ORDER_BY is not None) or (request.IS_ASCENDING is not None):
-#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Only one of these (order_by, is_ascending) can't be null. To Sort, make them both not null. To Not Sort, make them both null.")
-#     results=query.all()
-#     return results
-
-@router.post('/addlisting',status_code=status.HTTP_200_OK)
-def addlisitng(request:listingSchemas.Listing, db: Session =Depends(connection.get_db),current_user_id: int = Depends(Authentication.get_current_user_id)):
+@router.post("/create",status_code=status.HTTP_200_OK)
+def create_listing(request:listingSchemas.CreateListing, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    if ((request.is_apartment==True) and (request.apartment_no is None)) or ((request.is_apartment==False) and (request.apartment_no is not None)):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="If is_apartment==True then apartment no. can't be null, but if is_apartment==False then apartment no. must be null")
     insertlisting = models.Listings(
-        title = request.title,
         host_id = current_user_id,
+        title = request.title,
         description = request.description,
         state = request.state,
         city = request.city,
@@ -76,11 +33,11 @@ def addlisitng(request:listingSchemas.Listing, db: Session =Depends(connection.g
         min_nights = request.min_nights,
         max_nights = request.max_nights,
         wifi = request.wifi,
-        air_conditioning = request.air_conditioning,
-        washing_machine = request.washing_machine,
-        hair_dryer = request.hair_dryer,
         kitchen = request.kitchen,
+        washing_machine = request.washing_machine,
+        air_conditioning = request.air_conditioning,
         tv = request.tv,
+        hair_dryer = request.hair_dryer,
         iron = request.iron,
         pool = request.pool,
         gym = request.gym,
@@ -89,41 +46,70 @@ def addlisitng(request:listingSchemas.Listing, db: Session =Depends(connection.g
     db.add(insertlisting)
     db.commit()
     db.refresh(insertlisting)
-    return {"status":"Complete","listing_id":insertlisting.listing_id}
+    return {"Status":"Complete","listing_id":insertlisting.listing_id}
 
-@router.get('/getlisting/{id}', status_code=200,response_model=listingSchemas.ishost)
-def show(id:int,response: Response,db:Session=Depends(connection.get_db),current_user_id: int = Depends(Authentication.get_current_user_id)):
-    listing = db.query(models.Listings).filter(models.Listings.listing_id == id).first()
+# Allow user to upload listing images, needs to be an async function. This (...) means required
+@router.post("/image/{listingid}", status_code=status.HTTP_201_CREATED)
+async def set_listing_image(listingid:int, file: UploadFile = File(...), db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    #Check if user owns the property
+    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == listingid, models.Listings.host_id == current_user_id)
+    if not listing_query.first():
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"User with id {current_user_id} doesn't own a listing with id {listingid}")
+    # gets the extension of the uploaded file
+    extension = "." + file.filename.split(".")[-1]
+    # if extension is invalid then return error
+    if (extension not in [".png", ".jpg", ".jpeg", ".webp"]):
+        return {"error": "File extension not allowed"}
+    # give the image file a new name along with the path where it will be stored
+    Storedfilename = "/static/images/" + secrets.token_hex(4) + str(listingid) + extension
+    file_content = await file.read()
+    # stores it in server files by writing it into a new file
+    with open("."+Storedfilename, "wb") as inputfile:
+        inputfile.write(file_content)
+    file.close()
+    # Store new file path in DB
+    insert_image=models.Listing_images(
+        listing_id = listingid,
+        image_path = Storedfilename
+    )
+    db.add(insert_image)
+    db.commit()
+    return {"Success": "Image was uploaded and stored"}
+
+@router.get("/{listingid}", status_code=status.HTTP_200_OK, response_model=listingSchemas.GetListing)
+def get_listing(listingid:int, db:Session=Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    listing = db.query(*models.Listings.__table__.columns, (models.Listings.host_id==current_user_id).label("is_host"), func.array_agg(models.Listing_images.image_path).label("image_path"), models.Users.first_name, models.Users.last_name, models.Users.image_path.label("host_image_path")).\
+        filter(models.Listings.listing_id == listingid).join(models.Listing_images, models.Listing_images.listing_id == models.Listings.listing_id).join(models.Users, models.Listings.host_id == models.Users.user_id).\
+            group_by(*models.Listings.__table__.columns,models.Users.first_name,models.Users.last_name,"host_image_path").first()
     if not listing:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"listing with this id {id} is not available")
-    if listing.host_id == current_user_id:
-        listing.is_host = True
-    else:
-        listing.is_host = False
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"listing with id {listingid} does not exist")
     return listing
 
-@router.put('/updatelisting/{id}',status_code=status.HTTP_202_ACCEPTED)
-def updatelisiting(id:int,request:listingSchemas.Showlisiting,db:Session=Depends(connection.get_db),current_user_id: int = Depends(Authentication.get_current_user_id)):
-    listing =db.query(models.Listings).filter(models.Listings.listing_id == id, models.Listings.host_id == current_user_id)
-    if not listing.first():
-        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail= f'listing with id {id} not found')
-    listing.update(request.dict(),synchronize_session=False) 
+@router.put("/{listingid}", status_code=status.HTTP_200_OK)
+def update_listing(listingid: int, request: listingSchemas.CreateListing, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == listingid, models.Listings.host_id == current_user_id)
+    if not listing_query.first():
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"User with id {current_user_id} doesn't own a listing with id {listingid}")
+    # dict turns the request into a dictionary
+    listing_query.update(request.dict(), synchronize_session=False)
     db.commit()
-    return {"status":"Complete","Detail":"Listing Updated"}
+    return {"status": "Success", "Detail": "Listing Updated"}
 
-@router.delete('/deletelisting/{id}',status_code=status.HTTP_204_NO_CONTENT)
-def deletelisiting(id:int,request:listingSchemas.removelisiting, db:Session=Depends(connection.get_db),current_user_id: int = Depends(Authentication.get_current_user_id)):
-    listing = db.query(models.Listings).filter(models.Listings.listing_id == id, models.Listings.host_id == current_user_id)
-    if not listing.first():
-        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"Listing with id {id} not found")
-    request.is_listed = False;
-    listing.update(request.dict(),synchronize_session=False)
+@router.delete("/{listingid}", status_code=status.HTTP_200_OK)
+def delete_lisiting(listingid:int, db:Session=Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    #This creates a query but doesnt run it
+    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == listingid, models.Listings.host_id == current_user_id)
+    #This actually runs the query and gets only the first row or none if it doesnt exist
+    current_listing = listing_query.first()
+    if not current_listing:
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"User with id {current_user_id} doesn't own a listing with id {listingid}")
+    #This appends the update to the existing filter query and actually runs it
+    listing_query.update({"is_listed": False},synchronize_session=False)
     db.commit()
-    return {"status":"Complete","Detail":"listing Deleted"}
+    return {"Status":"Complete","Detail":"Listing Deleted(Unlisted)"}
     
-###################ALISHAH CHANGES###################################
-@router.post("/search-promoted", status_code=status.HTTP_200_OK, response_model=List[listingSchemas.SearchResult])
-def search_promoted_listings(request: listingSchemas.SearchListing, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+@router.post("/search/{isPromoted}", status_code=status.HTTP_200_OK, response_model=List[listingSchemas.SearchResult])
+def search_listings(isPromoted:bool ,request: listingSchemas.SearchListing, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     filters=[]
     for key, value in request:
         if (value is None) or (key in ("order_by","is_ascending")):
@@ -140,40 +126,11 @@ def search_promoted_listings(request: listingSchemas.SearchListing, db: Session 
         else:
             filters.append(getattr(models.Listings, key) == value)
     # Create the query by using the filters and joins
-    query=db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, func.array_agg(models.Listing_images.image_path).label("image_path")).filter(*filters).join(models.Listing_images, models.Listing_images.listing_id == models.Listings.listing_id).join(models.Promoted_listings, models.Promoted_listings.listing_id == models.Listings.listing_id).group_by(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price)
-    # ORDERING THE RESULTS IS ALSO OPTIONAL AND MUST BE DONE IN THE END
-    if (request.order_by is not None) and (request.is_ascending is not None):
-        if request.order_by not in ("city","state","rating","nightly_price"):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=f"{request.order_by} is not a valid value for order_by. Valid Values are city, state, rating, nightly_price")
-        if request.is_ascending:
-            query = query.order_by(getattr(models.Listings, request.order_by).asc())
-        else:
-            query = query.order_by(getattr(models.Listings, request.order_by).desc())
-    # We already checked for both being "not none", now if one of these is "not none" then it means the other one must be "none" which is wrong 
-    elif (request.order_by is not None) or (request.is_ascending is not None):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Only one of these (order_by, is_ascending) can't be null. To Sort, make them both not null. To Not Sort, make them both null.")
-    results=query.all()
-    return results
-
-@router.post("/search", status_code=status.HTTP_200_OK, response_model=List[listingSchemas.SearchResult])
-def search_listings(request: listingSchemas.SearchListing, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-    filters=[]
-    for key, value in request:
-        if (value is None) or (key in ("order_by","is_ascending")):
-            continue
-        elif key.startswith("max_"):
-            key=key[4:]
-            filters.append(getattr(models.Listings, key) <= value)
-        elif key.startswith("min_"):
-            key=key[4:]
-            filters.append(getattr(models.Listings, key) >= value)
-        elif key=="nights":
-            filters.append(getattr(models.Listings, "min_nights") <= value)
-            filters.append(getattr(models.Listings, "max_nights") >= value)
-        else:
-            filters.append(getattr(models.Listings, key) == value)
-    # Create the query by using the filters and joins
-    query=db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, func.array_agg(models.Listing_images.image_path).label("image_path")).filter(*filters).join(models.Listing_images, models.Listing_images.listing_id == models.Listings.listing_id).join(models.Promoted_listings, models.Promoted_listings.listing_id != models.Listings.listing_id).group_by(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price)
+    filters.append(models.Listings.is_listed==True)
+    if isPromoted:
+        query=db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, func.array_agg(models.Listing_images.image_path).label("image_path")).filter(*filters).join(models.Listing_images, models.Listing_images.listing_id == models.Listings.listing_id).join(models.Promoted_listings, models.Promoted_listings.listing_id == models.Listings.listing_id).group_by(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price)
+    else:
+        query=db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, func.array_agg(models.Listing_images.image_path).label("image_path")).filter(*filters).join(models.Listing_images, models.Listing_images.listing_id == models.Listings.listing_id).join(models.Promoted_listings, models.Promoted_listings.listing_id != models.Listings.listing_id).group_by(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price)
     # ORDERING THE RESULTS IS ALSO OPTIONAL AND MUST BE DONE IN THE END
     if (request.order_by is not None) and (request.is_ascending is not None):
         if request.order_by not in ("city","state","rating","nightly_price"):
@@ -191,6 +148,11 @@ def search_listings(request: listingSchemas.SearchListing, db: Session = Depends
 
 @router.post("/promote", status_code=status.HTTP_201_CREATED)
 def promote_listing(request: listingSchemas.PromoteListing, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    #Check if user owns the property it wants to promote
+    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == request.listing_id, models.Listings.host_id == current_user_id)
+    if not listing_query.first():
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"User with id {current_user_id} doesn't own a listing with id {request.listing_id}")
+    #Time calculations    
     start = datetime.utcnow()
     end = start + timedelta(days=request.days)
     # Dont insert if already promoted

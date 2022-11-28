@@ -8,23 +8,6 @@
 from pydantic import BaseModel, EmailStr, Field
 from pydantic.typing import Optional 
 
-#This class is not being used yet but dont remove!!!
-class User(BaseModel):
-    user_id: Optional[int] = Field(default=None, primary_key=True) #Never assign a value to an Auto-increment PK
-    email: EmailStr
-    password: str
-    first_name: str 
-    last_name: str
-    phone_no: str
-    image_path : str
-    avg_host_rating: int
-    avg_guest_rating: int
-    total_host_rating: int
-    total_guest_rating: int
-    about_me: str | None = None
-    class Config:
-        orm_mode = True
-
 #used for logging in
 class UserLogin(BaseModel):
     email: EmailStr
@@ -37,5 +20,22 @@ class UserReg(UserLogin):
     last_name: str
     phone_no: str
     about_me: str | None = None
+    class Config:
+        orm_mode = True
+
+class UserProfile(BaseModel):
+    first_name: str 
+    last_name: str
+    phone_no: str
+    image_path : str
+    avg_host_rating: int
+    avg_guest_rating: int
+    about_me: str | None = None
+    class Config:
+        orm_mode = True
+
+class CurrentUserProfile(UserProfile):
+    email: EmailStr
+    password: str
     class Config:
         orm_mode = True

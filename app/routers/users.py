@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from PIL import Image
 import secrets
 from fastapi import File, UploadFile
 from fastapi.security import OAuth2PasswordRequestForm
@@ -46,11 +45,18 @@ def login_user(formdata: OAuth2PasswordRequestForm = Depends(), db: Session = De
         return {"access_token": generatedToken, "token_type": "bearer"}
 
 
-@router.get("/profile", status_code=status.HTTP_200_OK, response_model=userSchemas.User)
-def read_user(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+@router.get("/profile", status_code=status.HTTP_200_OK, response_model=userSchemas.CurrentUserProfile)
+def get_current_profile(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     user = db.query(models.Users).filter(models.Users.user_id == current_user_id).first()
     return user
 
+@router.get("/profile/{id}", status_code=status.HTTP_200_OK, response_model=userSchemas.UserProfile)
+def get_profile(id:int, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    user = db.query(models.Users).filter(models.Users.user_id == id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"User with id {id} doesn't exist")
+    return user
 
 @router.put("/profile", status_code=status.HTTP_200_OK)
 def update_user(request: userSchemas.UserReg, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
