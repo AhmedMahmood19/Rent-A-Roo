@@ -30,7 +30,7 @@ class RecommendCard extends StatelessWidget {
                 SizedBox(
                   width: 130,
                   height: 130,
-                  child: Image.asset(
+                  child: Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
                   ),

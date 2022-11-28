@@ -37,6 +37,7 @@ class _DetailsPageState extends State<DetailsPage> {
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
+          elevation: 0,
         ),
         body: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
