@@ -42,6 +42,8 @@ dependencies:
   rflutter_alert: ^2.0.4
   provider: ^6.0.2
   carousel_slider: ^4.1.1
+  file_picker: ^5.2.2
+  image_picker: ^0.8.6
 
   
 dev_dependencies:

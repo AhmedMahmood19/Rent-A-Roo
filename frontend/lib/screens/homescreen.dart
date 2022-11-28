@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Image.asset(
                         "assets/images/landing_page_img.png",
-                        fit: BoxFit.scaleDown,
+                        fit: BoxFit.fill,
                       ),
                     ),
                     Column(
@@ -145,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (ctx, int) {
                   return RecommendCard(
                       imageUrl:
-                          "https://thumbs.dreamstime.com/b/amazing-misty-autumn-scenery-lake-sorapis-dolomites-italy-beautiful-mountains-colorful-yellow-larches-shore-193683774.jpg",
+                          "https://cdn.britannica.com/67/19367-050-885866B4/Valley-Taurus-Mountains-Turkey.jpg",
                       title: "Nice",
                       location: "20-2-2020",
                       startPrices: "200");
@@ -201,33 +201,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Padding buildScrollActivities(String text, String imgUri) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
-        children: <Widget>[
-          Container(
-              color: Colors.white,
-              height: 250,
-              width: 350,
-              child: Image.asset(
-                imgUri,
-                fit: BoxFit.fill,
-              )),
-          Container(
-              width: double.infinity,
-              color: Colors.black,
-              child: Text(
-                text,
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              )),
-        ],
       ),
     );
   }
