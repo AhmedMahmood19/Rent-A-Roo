@@ -12,7 +12,7 @@ from typing import List
 
 router = APIRouter(prefix="/listing", tags=["Listing"])
 
-@router.post("/create",status_code=status.HTTP_200_OK)
+@router.post("/create",status_code=status.HTTP_201_CREATED)
 def create_listing(request:listingSchemas.CreateListing, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     if ((request.is_apartment==True) and (request.apartment_no is None)) or ((request.is_apartment==False) and (request.apartment_no is not None)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="If is_apartment==True then apartment no. can't be null, but if is_apartment==False then apartment no. must be null")
@@ -47,7 +47,7 @@ def create_listing(request:listingSchemas.CreateListing, db: Session = Depends(c
     db.add(insertlisting)
     db.commit()
     db.refresh(insertlisting)
-    return {"Status":"Complete","listing_id":insertlisting.listing_id}
+    return {"Status":"Success","listing_id":insertlisting.listing_id}
 
 # Allow user to upload listing images, needs to be an async function. This (...) means required
 @router.post("/image/{listingid}", status_code=status.HTTP_201_CREATED)
@@ -124,7 +124,7 @@ def delete_lisiting(listingid:int, db:Session=Depends(connection.get_db), curren
     #This appends the update to the existing filter query and actually runs it
     listing_query.update({"is_listed": False},synchronize_session=False)
     db.commit()
-    return {"Status":"Complete","Detail":"Listing Deleted(Unlisted)"}
+    return {"Status":"Success","Detail":"Listing Deleted(Unlisted)"}
     
 @router.post("/search/{isPromoted}", status_code=status.HTTP_200_OK, response_model=List[listingSchemas.SearchResult])
 def search_listings(isPromoted:bool ,request: listingSchemas.SearchListing, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
@@ -187,3 +187,24 @@ def promote_listing(request: listingSchemas.PromoteListing, db: Session = Depend
         db.add(insertpromo)
         db.commit()
         return {"status": "Success", "Detail": "Listing Promoted"}
+
+@router.post("/favourite/{listingid}", status_code=status.HTTP_201_CREATED)
+def favourite_listing(listingid: int, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    #Check if listing exists or not
+    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == listingid)
+    if not listing_query.first():
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"listing with id {listingid} doesn't exist")
+    # Check if user is trying to favourite their own listing
+    if listing_query.first().host_id == current_user_id:
+        raise HTTPException(status_code= status.HTTP_400_BAD_REQUEST, detail=f"Current user is the host so they can't favourite their own listing")
+    # Dont insert if already favourited
+    isFavourited = db.query(models.Favourites).filter(models.Favourites.listing_id == listingid, models.Favourites.guest_id == current_user_id).first()
+    if isFavourited:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This listing is already favourited")
+    insertfav = models.Favourites(
+        guest_id = current_user_id,
+        listing_id = listingid
+    )
+    db.add(insertfav)
+    db.commit()
+    return {"status": "Success", "Detail": "Listing Favourited"}

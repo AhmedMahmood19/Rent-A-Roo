@@ -100,18 +100,3 @@ async def set_profile_image(file: UploadFile = File(...), db: Session = Depends(
     db.query(models.Users).filter(models.Users.user_id == current_user_id).update({"image_path": Storedfilename}, synchronize_session="fetch")
     db.commit()
     return {"Success": "Image was uploaded and stored"}
-##########################################
-# UPLOADING MULTIPLE FILES
-##########################################
-
-# from fastapi import UploadFile, File
-# import shutil
-# from typing import List
-
-# @router.post("/images")
-# async def upload_images(files: List[UploadFile] = File(...)):
-#     for i,img in enumerate(files):
-#         with open("static/images/" + str(i) + img.filename, "wb") as buffer:
-#             shutil.copyfileobj(img.file, buffer)
-        
-#     return {"No. of images uploaded": len(files)}
