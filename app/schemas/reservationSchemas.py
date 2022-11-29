@@ -38,3 +38,14 @@ class Transactions(BaseModel):
 
     class Config:
         orm_mode = True
+
+class GuestProfile(BaseModel):
+    first_name: str 
+    last_name: str
+    phone_no: str
+    image_path : str
+    avg_host_rating: int
+    avg_guest_rating: int
+    about_me: str | None = None
+    class Config:
+        orm_mode = True
