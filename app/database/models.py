@@ -121,7 +121,7 @@ class Reservations(Base):
     checkout_date = Column(DateTime, nullable=False)
     created_time = Column(DateTime, nullable=True, server_default=func.now())  #TO CHECK IF IT HAS BEEN 24Hrs SO WE CAN SET STATUS TO REJECTED
     amount_due  = Column(Integer, nullable = False)         #CALCULATED USING NIGHTLYPRICE AND NUMBER OF NIGHTS
-    status = Column(String, nullable=False)
+    status = Column(String, nullable=True, default="Pending")
 
 #transactions CAN'T BE DELETED
 class Transactions(Base):

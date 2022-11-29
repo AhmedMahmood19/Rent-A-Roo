@@ -83,3 +83,7 @@ class GetListing(CreateListing):
 class PromoteListing(BaseModel):
     listing_id        :int
     days              :int
+
+class DeleteImage(BaseModel):
+    listingid:int
+    imagepath:str

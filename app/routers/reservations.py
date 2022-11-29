@@ -1,0 +1,82 @@
+from fastapi import APIRouter, Depends, status, HTTPException
+from routers import Authentication
+from database import models, connection
+from schemas import reservationSchemas
+from sqlalchemy.orm import Session
+from sqlalchemy.sql import func
+from datetime import datetime, timedelta
+from typing import List
+
+router = APIRouter(tags=["Reservation And Transactions"])
+
+
+@router.get("/reserved-dates/{listingid}", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.ReservedDates])
+def get_reserved_dates(listingid: int, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    # Check if listing exists or not and also the guest cant be the host
+    listing = db.query(models.Listings).filter(models.Listings.listing_id ==
+                                               listingid, models.Listings.host_id != current_user_id).first()
+    if not listing:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"listing with id {listingid} doesn't exist, or the host is trying to reserve their own listing")
+    # Get all transactions involving this listingid
+    reserved_dates = db.query(models.Transactions).filter(
+        models.Transactions.listing_id == listingid).order_by(models.Transactions.checkin_date.asc()).all()
+    return reserved_dates
+
+
+@router.post("/reserve", status_code=status.HTTP_201_CREATED)
+def create_reservation(request: reservationSchemas.CreateReservation, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    # Check if listing exists or not and also the guest cant be the host
+    listing = db.query(models.Listings).filter(models.Listings.listing_id ==
+                                               request.listing_id, models.Listings.host_id != current_user_id).first()
+    if not listing:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"listing with id {request.listing_id} doesn't exist, or the host is trying to reserve their own listing")
+    if request.checkout_date <= request.checkin_date:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"checkout_date must be greater than checkin_date")
+    nights = (request.checkout_date - request.checkin_date).days
+    if nights > listing.max_nights or nights < listing.min_nights:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"stay is greater than max_nights or lesser than min_nights")
+    # Calculates the bill
+    amountdue = nights * listing.nightly_price
+    # Create the reservation object
+    insert_reservation = models.Reservations(
+        listing_id=request.listing_id,
+        guest_id=current_user_id,
+        checkin_date=request.checkin_date,
+        checkout_date=request.checkout_date,
+        amount_due=amountdue
+    )
+    db.add(insert_reservation)
+    db.commit()
+    return {"Status": "Success", "amount_due": amountdue}
+
+
+@router.get("/reservations/guest", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.Reservations])
+def get_reservations_for_guest(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    reservations = db.query(models.Reservations.reservation_id, models.Reservations.checkin_date, models.Reservations.checkout_date, models.Listings.title).filter(
+        models.Listings.listing_id == models.Reservations.listing_id, models.Reservations.guest_id == current_user_id).order_by(models.Reservations.created_time.asc()).all()
+    return reservations
+
+
+@router.get("/reservations/host", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.Reservations])
+def get_reservations_for_host(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    reservations = db.query(models.Reservations.reservation_id, models.Reservations.checkin_date, models.Reservations.checkout_date, models.Listings.title).filter(
+        models.Listings.listing_id == models.Reservations.listing_id, models.Listings.host_id == current_user_id).order_by(models.Reservations.created_time.asc()).all()
+    return reservations
+
+
+@router.get("/transactions/guest", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.Transactions])
+def get_transactions_for_guest(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Listings.title).filter(
+        models.Listings.listing_id == models.Transactions.listing_id, models.Transactions.guest_id == current_user_id).order_by(models.Transactions.created_time.asc()).all()
+    return transactions
+
+
+@router.get("/transactions/host", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.Transactions])
+def get_transactions_for_host(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Listings.title).filter(
+        models.Listings.listing_id == models.Transactions.listing_id, models.Listings.host_id == current_user_id).order_by(models.Reservations.created_time.asc()).all()
+    return transactions
