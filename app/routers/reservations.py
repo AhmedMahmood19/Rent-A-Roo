@@ -10,7 +10,7 @@ from typing import List
 router = APIRouter(tags=["Reservation And Transactions"])
 
 
-@router.get("/reserved-dates/{listingid}", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.ReservedDates])
+@router.get("/reserved-dates/guest/{listingid}", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.ReservedDates])
 def get_reserved_dates(listingid: int, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     # Check if listing exists or not and also the guest cant be the host
     listing = db.query(models.Listings).filter(models.Listings.listing_id ==
@@ -24,7 +24,7 @@ def get_reserved_dates(listingid: int, db: Session = Depends(connection.get_db),
     return reserved_dates
 
 
-@router.post("/reserve", status_code=status.HTTP_201_CREATED)
+@router.post("/reserve/guest", status_code=status.HTTP_201_CREATED)
 def create_reservation(request: reservationSchemas.CreateReservation, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     # Check if listing exists or not and also the guest cant be the host
     listing = db.query(models.Listings).filter(models.Listings.listing_id ==
@@ -56,27 +56,50 @@ def create_reservation(request: reservationSchemas.CreateReservation, db: Sessio
 
 @router.get("/reservations/guest", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.Reservations])
 def get_reservations_for_guest(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-    reservations = db.query(models.Reservations.reservation_id, models.Reservations.checkin_date, models.Reservations.checkout_date, models.Listings.title).filter(
+    reservations = db.query(models.Reservations.reservation_id, models.Reservations.checkin_date, models.Reservations.checkout_date, models.Reservations.amount_due, models.Listings.title, models.Listings.listing_id).filter(
         models.Listings.listing_id == models.Reservations.listing_id, models.Reservations.guest_id == current_user_id).order_by(models.Reservations.created_time.asc()).all()
     return reservations
 
 
 @router.get("/reservations/host", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.Reservations])
 def get_reservations_for_host(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-    reservations = db.query(models.Reservations.reservation_id, models.Reservations.checkin_date, models.Reservations.checkout_date, models.Listings.title).filter(
+    reservations = db.query(models.Reservations.reservation_id, models.Reservations.checkin_date, models.Reservations.checkout_date, models.Reservations.amount_due, models.Listings.title, models.Listings.listing_id).filter(
         models.Listings.listing_id == models.Reservations.listing_id, models.Listings.host_id == current_user_id).order_by(models.Reservations.created_time.asc()).all()
     return reservations
 
 
 @router.get("/transactions/guest", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.Transactions])
 def get_transactions_for_guest(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-    transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Listings.title).filter(
+    transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Transactions.amount_paid, models.Listings.title, models.Listings.listing_id).filter(
         models.Listings.listing_id == models.Transactions.listing_id, models.Transactions.guest_id == current_user_id).order_by(models.Transactions.created_time.asc()).all()
     return transactions
 
 
 @router.get("/transactions/host", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.Transactions])
 def get_transactions_for_host(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-    transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Listings.title).filter(
-        models.Listings.listing_id == models.Transactions.listing_id, models.Listings.host_id == current_user_id).order_by(models.Reservations.created_time.asc()).all()
+    transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Transactions.amount_paid, models.Listings.title, models.Listings.listing_id).filter(
+        models.Listings.listing_id == models.Transactions.listing_id, models.Listings.host_id == current_user_id).order_by(models.Transactions.created_time.asc()).all()
     return transactions
+
+# @router.get("/reservation-status/guest/{reservationid}", status_code=status.HTTP_200_OK)
+# def check_reservation_status(reservationid: int,db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+#     reservation_query = db.query(models.Reservations).filter(models.Reservations.reservation_id == reservationid)
+#     reservation = reservation_query.first()
+#     if not reservation:
+#         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"reservation with id {reservationid} doesn't exist")
+#     reservation_status=reservation.status
+#     # Decide what to do with the reservation once we tell the guest about its status
+#     if reservation_status=="Accepted":
+#         insert_transaction = models.Transactions(
+#             listing_id=reservation.listing_id,
+#             guest_id=reservation.guest_id,
+#             checkin_date=reservation.checkin_date,
+#             checkout_date=reservation.checkout_date,
+#             amount_paid=reservation.amount_due
+#         )
+#         reservation_query.delete(synchronize_session=False)
+#         db.add(insert_transaction)
+#         db.commit()
+#     if reservation_status=="Rejected":
+#         pass
+#     return {"status": reservation_status}
