@@ -1,3 +1,4 @@
+import os
 import secrets
 from fastapi import File, UploadFile
 from fastapi import APIRouter, Depends, status, HTTPException
@@ -75,6 +76,23 @@ async def set_listing_image(listingid:int, file: UploadFile = File(...), db: Ses
     db.add(insert_image)
     db.commit()
     return {"Success": "Image was uploaded and stored"}
+
+@router.put("/image/delete", status_code=status.HTTP_200_OK)
+def delete_listing_image(request: listingSchemas.DeleteImage, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    #Check if user owns the property
+    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == request.listingid, models.Listings.host_id == current_user_id)
+    if not listing_query.first():
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"User with id {current_user_id} doesn't own a listing with id {request.listingid}")
+    deleted_image = db.query(models.Listing_images).filter(models.Listing_images.listing_id == request.listingid,models.Listing_images.image_path == request.imagepath)
+    if not deleted_image.first():
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"listing with id {request.listingid} doesn't have an image with path {request.imagepath}")   
+    # remove the image file from server if it exists
+    if os.path.isfile("."+request.imagepath):
+        os.remove("."+request.imagepath)
+    # remove its entry from DB too
+    deleted_image.delete(synchronize_session=False)
+    db.commit()
+    return {"status": "Success", "Detail": "Listing Image Deleted"}
 
 @router.get("/{listingid}", status_code=status.HTTP_200_OK, response_model=listingSchemas.GetListing)
 def get_listing(listingid:int, db:Session=Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):

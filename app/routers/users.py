@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
 import secrets
+import os
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi import File, UploadFile
 from fastapi.security import OAuth2PasswordRequestForm
 from routers import Authentication
@@ -82,13 +83,19 @@ async def set_profile_image(file: UploadFile = File(...), db: Session = Depends(
     # if extension is invalid then return error
     if (extension not in [".png", ".jpg", ".jpeg", ".webp"]):
         return {"error": "File extension not allowed"}
+    # If user already has a profile pic then remove it first
+    old_image_user=db.query(models.Users).filter(models.Users.user_id == current_user_id).first()
+    if old_image_user.image_path!="/static/images/defaultprofilepic.jpg":
+        # If file exists then delete it
+        if os.path.isfile("."+old_image_user.image_path):
+            os.remove("."+old_image_user.image_path)
     # give the image file a new name along with the path where it will be stored
     Storedfilename = "/static/images/" + secrets.token_hex(4) + str(current_user_id) + extension
     file_content = await file.read()
     # stores it in server files by writing it into a new file
     with open("."+Storedfilename, "wb") as inputfile:
         inputfile.write(file_content)
-    file.close()
+    await file.close()
     # Store new file path in DB
     db.query(models.Users).filter(models.Users.user_id == current_user_id).update({"image_path": Storedfilename}, synchronize_session="fetch")
     db.commit()
