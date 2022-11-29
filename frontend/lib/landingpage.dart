@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rent_a_roo/screens/TransactionScreen.dart';
 import 'package:rent_a_roo/screens/favourites.dart';
 import 'package:rent_a_roo/screens/homescreen.dart';
 import 'package:rent_a_roo/screens/profile.dart';
@@ -13,7 +14,7 @@ class LandingPageState extends State<LandingPage> {
   List<Widget> _children = [
     HomeScreen(),
     FavouritesPage(),
-        Container(),
+        TransactionScreen(),
 
     Container(),
     Profile()
