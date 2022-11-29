@@ -1,5 +1,8 @@
-import 'dart:io';
-
+import 'dart:convert';
+import 'dart:io';  
+import 'package:http_parser/http_parser.dart';
+import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
@@ -7,10 +10,11 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rent_a_roo/landingpage.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:flutter/foundation.dart';
 
 class AddImagesScreen extends StatefulWidget {
-  const AddImagesScreen({Key? key}) : super(key: key);
-
+   AddImagesScreen({Key? key,required this.listingMap}) : super(key: key);
+  Map listingMap;
   @override
   State<AddImagesScreen> createState() => _AddImagesScreenState();
 }
@@ -49,6 +53,29 @@ class _AddImagesScreenState extends State<AddImagesScreen> {
         actions: [
           IconButton(
               onPressed: () async {
+            
+                String fileName = files[1].path.split('/').last;
+                print(fileName);
+                print(files[0].path);
+
+                FormData data = FormData.fromMap({
+                  "listingid":widget.listingMap['listing_id'],
+                  "file": await MultipartFile.fromFile(
+                    files[0].path,
+                    filename: fileName,
+                  ),
+                });
+
+                Dio dio = new Dio();
+
+                dio.post("http://127.0.0.1:8000", data: data).then((response) {
+                  var jsonResponse = jsonDecode(response.toString());
+                  print(jsonResponse);
+                  var testData = jsonResponse['histogram_counts'].cast<double>();
+                  var averageGrindSize = jsonResponse['average_particle_size'];
+                }).catchError((error) => print(error));
+              
+/*
                 var a = await Alert(
                   context: context,
                   style: alertStyle,
@@ -72,16 +99,16 @@ class _AddImagesScreenState extends State<AddImagesScreen> {
                       // color: glt.themeColor,
                     ),
                   ],
-                ).show();
+                ).show();*/
               },
               icon: Icon(Icons.arrow_right))
         ],
       ),
       body: SingleChildScrollView(
         child: Column(children: [
-          files.length == 0
-              ? Container()
-              : ListView.builder(
+        /* files.length == 0
+              ?*/ Container(),
+              /* : ListView.builder(
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemCount: files.length,
@@ -105,7 +132,7 @@ class _AddImagesScreenState extends State<AddImagesScreen> {
                             icon: Icon(Icons.cancel))
                       ]),
                     );
-                  }),
+                  }), */
           files.length == 3
               ? Container()
               : IconButton(

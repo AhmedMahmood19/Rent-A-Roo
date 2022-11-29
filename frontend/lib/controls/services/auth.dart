@@ -12,7 +12,7 @@ class Auth {
       "password": password
     };
 
-    String route = "/login";
+    String route = "/user/login";
 
     var response = await ApiCalls(loginToken: LoginToken(token: ""))
         .postApiRequest(route, bodyData);

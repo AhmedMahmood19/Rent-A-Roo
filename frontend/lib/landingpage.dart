@@ -13,6 +13,8 @@ class LandingPageState extends State<LandingPage> {
   List<Widget> _children = [
     HomeScreen(),
     FavouritesPage(),
+        Container(),
+
     Container(),
     Profile()
   ];
@@ -43,13 +45,21 @@ class LandingPageState extends State<LandingPage> {
               ),
               label: "EXPLORER",
             ),
+                BottomNavigationBarItem(
+              icon: Icon(
+                Icons.favorite_border,
+                //color: Colors.black,
+                size: 30,
+              ),
+              label: "Transactions",
+            ),
             BottomNavigationBarItem(
               icon: Icon(
                 Icons.favorite_border,
                 //color: Colors.black,
                 size: 30,
               ),
-              label: "FAVORITES",
+              label: "Reservations",
             ),
             BottomNavigationBarItem(
               icon: Icon(
