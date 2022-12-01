@@ -89,6 +89,7 @@ def check_reservation_status(reservationid: int,db: Session = Depends(connection
     reservation_status=reservation.status
     # Decide what to do with the reservation record while we tell the guest about its status
     if reservation_status=="Accepted":
+        # THIS IS THE ONLY PLACE WHERE A TUPLE CAN BE INSERTED INTO TRANSACTIONS
         insert_transaction = models.Transactions(
             listing_id=reservation.listing_id,
             guest_id=reservation.guest_id,

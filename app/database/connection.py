@@ -6,7 +6,7 @@ from database import models
 SQLALCHEMY_DATABASE_URL = "postgresql://postgres:12345678@localhost:5432/rentaroo-db"
 
 # echo=True means it prints the SQL Queries in the terminal
-engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
+engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True, connect_args={"options": "-c timezone=utc"})
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
