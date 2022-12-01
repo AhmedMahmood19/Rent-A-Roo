@@ -1,5 +1,6 @@
 import secrets
 import os
+from datetime import datetime,timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi import File, UploadFile
 from fastapi.security import OAuth2PasswordRequestForm
@@ -70,6 +71,12 @@ def update_user(request: userSchemas.UserReg, db: Session = Depends(connection.g
 
 @router.delete("/profile", status_code=status.HTTP_200_OK)
 def delete_user(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    #If a guest has paid the user to stay at their residence and the guest has not completed their stay then the host can't delete their profile
+    has_transactions = db.query(models.Transactions).filter(models.Transactions.listing_id==models.Listings.listing_id, models.Listings.host_id==current_user_id, models.Transactions.checkout_date>datetime.now(tz=timezone.utc)).first()
+    if has_transactions:
+        raise HTTPException(status_code= status.HTTP_403_FORBIDDEN, detail=f"User with id {current_user_id} can't delete their profile until their guest completes the stay that they have already paid for")
+    listing_query = db.query(models.Listings).filter(models.Listings.host_id == current_user_id)
+    listing_query.update({"is_listed": False},synchronize_session=False)
     user = db.query(models.Users).filter(models.Users.user_id == current_user_id)
     user.delete(synchronize_session=False)
     db.commit()

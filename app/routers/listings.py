@@ -144,6 +144,8 @@ def delete_lisiting(listingid:int, db:Session=Depends(connection.get_db), curren
         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"User with id {current_user_id} doesn't own a listing with id {listingid}")
     #This appends the update to the existing filter query and actually runs it
     listing_query.update({"is_listed": False},synchronize_session=False)
+    promo_query = db.query(models.Promoted_listings).filter(models.Promoted_listings.listing_id == models.Listings.listing_id, models.Listings.is_listed == False)
+    promo_query.delete(synchronize_session=False)
     db.commit()
     return {"Status":"Success","Detail":"Listing Deleted(Unlisted)"}
     
