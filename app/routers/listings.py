@@ -7,7 +7,7 @@ from database import models, connection
 from schemas import listingSchemas
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
-from datetime import datetime,timedelta
+from datetime import datetime,timedelta,timezone
 from typing import List
 
 router = APIRouter(prefix="/listing", tags=["Listing"])
@@ -94,6 +94,27 @@ def delete_listing_image(request: listingSchemas.DeleteImage, db: Session = Depe
     db.commit()
     return {"status": "Success", "Detail": "Listing Image Deleted"}
 
+@router.get("/my-favourites", status_code=status.HTTP_200_OK, response_model=List[listingSchemas.SearchResult])
+def get_favourites(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    favourites = db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, func.array_agg(models.Listing_images.image_path).label("image_path")).filter(
+        models.Favourites.listing_id == models.Listings.listing_id, models.Favourites.guest_id == models.Users.user_id, models.Listings.listing_id == models.Listing_images.listing_id, models.Favourites.guest_id == current_user_id).group_by(
+            models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price).all()
+    return favourites
+
+@router.get("/my-listings", status_code=status.HTTP_200_OK, response_model=List[listingSchemas.SearchResult])
+def get_my_listings(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    listings = db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, func.array_agg(models.Listing_images.image_path).label("image_path")).filter(
+        models.Listings.listing_id == models.Listing_images.listing_id, models.Listings.host_id == current_user_id).group_by(
+            models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price).all()
+    return listings
+
+@router.get("/popular-listings", status_code=status.HTTP_200_OK, response_model=List[listingSchemas.SearchResult])
+def get_popular_listings(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    listings = db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, func.array_agg(models.Listing_images.image_path).label("image_path")).filter(
+        models.Listings.listing_id == models.Listing_images.listing_id, models.Listings.view_count>0).group_by(
+            models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price).order_by(models.Listings.view_count.desc()).limit(3).all()
+    return listings
+
 @router.get("/{listingid}", status_code=status.HTTP_200_OK, response_model=listingSchemas.GetListing)
 def get_listing(listingid:int, db:Session=Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     listing = db.query(*models.Listings.__table__.columns, (models.Listings.host_id==current_user_id).label("is_host"), func.array_agg(models.Listing_images.image_path).label("image_path"), models.Users.first_name, models.Users.last_name, models.Users.image_path.label("host_image_path")).\
@@ -123,6 +144,8 @@ def delete_lisiting(listingid:int, db:Session=Depends(connection.get_db), curren
         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"User with id {current_user_id} doesn't own a listing with id {listingid}")
     #This appends the update to the existing filter query and actually runs it
     listing_query.update({"is_listed": False},synchronize_session=False)
+    promo_query = db.query(models.Promoted_listings).filter(models.Promoted_listings.listing_id == models.Listings.listing_id, models.Listings.is_listed == False)
+    promo_query.delete(synchronize_session=False)
     db.commit()
     return {"Status":"Success","Detail":"Listing Deleted(Unlisted)"}
     
@@ -148,7 +171,9 @@ def search_listings(isPromoted:bool ,request: listingSchemas.SearchListing, db: 
     if isPromoted:
         query=db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, func.array_agg(models.Listing_images.image_path).label("image_path")).filter(*filters).join(models.Listing_images, models.Listing_images.listing_id == models.Listings.listing_id).join(models.Promoted_listings, models.Promoted_listings.listing_id == models.Listings.listing_id).group_by(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price)
     else:
-        query=db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, func.array_agg(models.Listing_images.image_path).label("image_path")).filter(*filters).join(models.Listing_images, models.Listing_images.listing_id == models.Listings.listing_id).join(models.Promoted_listings, models.Promoted_listings.listing_id != models.Listings.listing_id).group_by(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price)
+        #We create a subquery and use it in the where clause
+        filters.append(models.Listings.listing_id.not_in(db.query(models.Promoted_listings.listing_id)))
+        query=db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, func.array_agg(models.Listing_images.image_path).label("image_path")).filter(*filters).join(models.Listing_images, models.Listing_images.listing_id == models.Listings.listing_id).group_by(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price)
     # ORDERING THE RESULTS IS ALSO OPTIONAL AND MUST BE DONE IN THE END
     if (request.order_by is not None) and (request.is_ascending is not None):
         if request.order_by not in ("city","state","rating","nightly_price"):
@@ -170,8 +195,11 @@ def promote_listing(request: listingSchemas.PromoteListing, db: Session = Depend
     listing_query = db.query(models.Listings).filter(models.Listings.listing_id == request.listing_id, models.Listings.host_id == current_user_id)
     if not listing_query.first():
         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"User with id {current_user_id} doesn't own a listing with id {request.listing_id}")
+    #Check that the days to promote are more than 0
+    if request.days<=0:
+        raise HTTPException(status_code= status.HTTP_400_BAD_REQUEST, detail=f"No. of days to promote must be atleast 1")
     #Time calculations    
-    start = datetime.utcnow()
+    start = datetime.now(tz=timezone.utc)
     end = start + timedelta(days=request.days)
     # Dont insert if already promoted
     isPromoted = db.query(models.Promoted_listings).filter(models.Promoted_listings.listing_id == request.listing_id).first()

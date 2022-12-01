@@ -13,8 +13,7 @@ router = APIRouter(tags=["Reservation And Transactions"])
 @router.get("/reserved-dates/guest/{listingid}", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.ReservedDates])
 def get_reserved_dates(listingid: int, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     # Check if listing exists or not and also the guest cant be the host
-    listing = db.query(models.Listings).filter(models.Listings.listing_id ==
-                                               listingid, models.Listings.host_id != current_user_id).first()
+    listing = db.query(models.Listings).filter(models.Listings.listing_id == listingid, models.Listings.host_id != current_user_id).first()
     if not listing:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"listing with id {listingid} doesn't exist, or the host is trying to reserve their own listing")
@@ -68,14 +67,14 @@ def get_reservations_for_host(db: Session = Depends(connection.get_db), current_
     return reservations
 
 
-@router.get("/transactions/guest", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.Transactions])
+@router.get("/transactions/guest", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.TransactionsGuest])
 def get_transactions_for_guest(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Transactions.amount_paid, models.Listings.title, models.Listings.listing_id).filter(
         models.Listings.listing_id == models.Transactions.listing_id, models.Transactions.guest_id == current_user_id).order_by(models.Transactions.created_time.asc()).all()
     return transactions
 
 
-@router.get("/transactions/host", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.Transactions])
+@router.get("/transactions/host", status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.TransactionsHost])
 def get_transactions_for_host(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Transactions.amount_paid, models.Listings.title, models.Listings.listing_id).filter(
         models.Listings.listing_id == models.Transactions.listing_id, models.Listings.host_id == current_user_id).order_by(models.Transactions.created_time.asc()).all()
@@ -90,6 +89,7 @@ def check_reservation_status(reservationid: int,db: Session = Depends(connection
     reservation_status=reservation.status
     # Decide what to do with the reservation record while we tell the guest about its status
     if reservation_status=="Accepted":
+        # THIS IS THE ONLY PLACE WHERE A TUPLE CAN BE INSERTED INTO TRANSACTIONS
         insert_transaction = models.Transactions(
             listing_id=reservation.listing_id,
             guest_id=reservation.guest_id,
