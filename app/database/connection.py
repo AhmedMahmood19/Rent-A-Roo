@@ -120,7 +120,7 @@ dummy.close()
 ##############################################
 from datetime import datetime, timedelta, timezone
 start = datetime.now(tz=timezone.utc)
-start2daysbefore = start-timedelta(days=2)+timedelta(minutes=1) #2 days before today and 5 minutes after the time from now(expires 5min after program starts) 
+start2daysbefore = start-timedelta(days=2)+timedelta(minutes=5) #2 days before today and 5 minutes after the time from now(expires 5min after program starts) 
 dummy = SessionLocal()
 dummy.add(models.Promoted_listings(listing_id=1, start_time=start ,end_time=start + timedelta(days=2)))
 dummy.add(models.Promoted_listings(listing_id=3, start_time=start2daysbefore ,end_time=start2daysbefore + timedelta(days=2)))
@@ -167,3 +167,23 @@ dummy.add(models.Transactions(listing_id=1,guest_id=1,
         amount_paid=52500))
 dummy.commit()
 dummy.close()
+
+# #########################################TRIGGERS TESTING##################################################################
+# from sqlalchemy import DDL,event
+# func = DDL(
+#     "CREATE FUNCTION my_func() "
+#     "RETURNS TRIGGER AS $$ "
+#     "BEGIN"
+#     "DELETE FROM promoted_listings WHERE now()>=end_time;"
+#     "RETURN NULL; "
+#     "END; $$ LANGUAGE PLPGSQL"
+# )
+
+# trigger = DDL(
+#     "CREATE TRIGGER expire_promos"
+#     "BEFORE INSERT OR UPDATE OR DELETE ON promoted_listings"
+#     "EXECUTE PROCEDURE my_func();"
+# )
+
+# event.listen(models.Promoted_listings.__table__, "after_create", func.execute_if(dialect="postgresql"))
+# event.listen(models.Promoted_listings.__table__, "after_create", trigger.execute_if(dialect="postgresql"))

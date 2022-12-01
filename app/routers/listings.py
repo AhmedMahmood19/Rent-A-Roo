@@ -12,6 +12,10 @@ from typing import List
 
 router = APIRouter(prefix="/listing", tags=["Listing"])
 
+def expire_promotions(db: Session = Depends(connection.get_db)):
+    db.execute("DELETE FROM promoted_listings WHERE now()>=end_time;")
+    db.commit()
+
 @router.post("/create",status_code=status.HTTP_201_CREATED)
 def create_listing(request:listingSchemas.CreateListing, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     if ((request.is_apartment==True) and (request.apartment_no is None)) or ((request.is_apartment==False) and (request.apartment_no is not None)):
@@ -53,7 +57,7 @@ def create_listing(request:listingSchemas.CreateListing, db: Session = Depends(c
 @router.post("/image/{listingid}", status_code=status.HTTP_201_CREATED)
 async def set_listing_image(listingid:int, file: UploadFile = File(...), db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     #Check if user owns the property
-    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == listingid, models.Listings.host_id == current_user_id)
+    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == listingid, models.Listings.is_listed == True, models.Listings.host_id == current_user_id)
     if not listing_query.first():
         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"User with id {current_user_id} doesn't own a listing with id {listingid}")
     # gets the extension of the uploaded file
@@ -80,7 +84,7 @@ async def set_listing_image(listingid:int, file: UploadFile = File(...), db: Ses
 @router.put("/image/delete", status_code=status.HTTP_200_OK)
 def delete_listing_image(request: listingSchemas.DeleteImage, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     #Check if user owns the property
-    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == request.listingid, models.Listings.host_id == current_user_id)
+    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == request.listingid, models.Listings.is_listed == True, models.Listings.host_id == current_user_id)
     if not listing_query.first():
         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"User with id {current_user_id} doesn't own a listing with id {request.listingid}")
     deleted_image = db.query(models.Listing_images).filter(models.Listing_images.listing_id == request.listingid,models.Listing_images.image_path == request.imagepath)
@@ -97,24 +101,25 @@ def delete_listing_image(request: listingSchemas.DeleteImage, db: Session = Depe
 @router.get("/my-favourites", status_code=status.HTTP_200_OK, response_model=List[listingSchemas.SearchResult])
 def get_favourites(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     favourites = db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, func.array_agg(models.Listing_images.image_path).label("image_path")).filter(
-        models.Favourites.listing_id == models.Listings.listing_id, models.Favourites.guest_id == models.Users.user_id, models.Listings.listing_id == models.Listing_images.listing_id, models.Favourites.guest_id == current_user_id).group_by(
+        models.Favourites.listing_id == models.Listings.listing_id, models.Favourites.guest_id == models.Users.user_id, models.Listings.listing_id == models.Listing_images.listing_id, models.Listings.is_listed == True, models.Favourites.guest_id == current_user_id).group_by(
             models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price).all()
     return favourites
 
 @router.get("/my-listings", status_code=status.HTTP_200_OK, response_model=List[listingSchemas.SearchResult])
 def get_my_listings(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     listings = db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, func.array_agg(models.Listing_images.image_path).label("image_path")).filter(
-        models.Listings.listing_id == models.Listing_images.listing_id, models.Listings.host_id == current_user_id).group_by(
+        models.Listings.listing_id == models.Listing_images.listing_id, models.Listings.is_listed == True, models.Listings.host_id == current_user_id).group_by(
             models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price).all()
     return listings
 
 @router.get("/popular-listings", status_code=status.HTTP_200_OK, response_model=List[listingSchemas.SearchResult])
 def get_popular_listings(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     listings = db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, func.array_agg(models.Listing_images.image_path).label("image_path")).filter(
-        models.Listings.listing_id == models.Listing_images.listing_id, models.Listings.view_count>0).group_by(
+        models.Listings.listing_id == models.Listing_images.listing_id, models.Listings.is_listed == True, models.Listings.view_count>0).group_by(
             models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price).order_by(models.Listings.view_count.desc()).limit(3).all()
     return listings
 
+#We allow get_listing to reach an unlisted listing only for the case of transactions history
 @router.get("/{listingid}", status_code=status.HTTP_200_OK, response_model=listingSchemas.GetListing)
 def get_listing(listingid:int, db:Session=Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     listing = db.query(*models.Listings.__table__.columns, (models.Listings.host_id==current_user_id).label("is_host"), func.array_agg(models.Listing_images.image_path).label("image_path"), models.Users.first_name, models.Users.last_name, models.Users.image_path.label("host_image_path")).\
@@ -126,7 +131,7 @@ def get_listing(listingid:int, db:Session=Depends(connection.get_db), current_us
 
 @router.put("/{listingid}", status_code=status.HTTP_200_OK)
 def update_listing(listingid: int, request: listingSchemas.CreateListing, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == listingid, models.Listings.host_id == current_user_id)
+    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == listingid, models.Listings.host_id == current_user_id, models.Listings.is_listed == True)
     if not listing_query.first():
         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"User with id {current_user_id} doesn't own a listing with id {listingid}")
     # dict turns the request into a dictionary
@@ -134,10 +139,11 @@ def update_listing(listingid: int, request: listingSchemas.CreateListing, db: Se
     db.commit()
     return {"status": "Success", "Detail": "Listing Updated"}
 
-@router.delete("/{listingid}", status_code=status.HTTP_200_OK)
+#DEPENDS on expire_promotions since we need to access promoted_listings here
+@router.delete("/{listingid}", dependencies=[Depends(expire_promotions)], status_code=status.HTTP_200_OK)
 def delete_lisiting(listingid:int, db:Session=Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     #This creates a query but doesnt run it
-    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == listingid, models.Listings.host_id == current_user_id)
+    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == listingid, models.Listings.host_id == current_user_id, models.Listings.is_listed == True)
     #This actually runs the query and gets only the first row or none if it doesnt exist
     current_listing = listing_query.first()
     if not current_listing:
@@ -148,8 +154,9 @@ def delete_lisiting(listingid:int, db:Session=Depends(connection.get_db), curren
     promo_query.delete(synchronize_session=False)
     db.commit()
     return {"Status":"Success","Detail":"Listing Deleted(Unlisted)"}
-    
-@router.post("/search/{isPromoted}", status_code=status.HTTP_200_OK, response_model=List[listingSchemas.SearchResult])
+
+#DEPENDS on expire_promotions since we need to access promoted_listings here
+@router.post("/search/{isPromoted}", dependencies=[Depends(expire_promotions)],status_code=status.HTTP_200_OK, response_model=List[listingSchemas.SearchResult])
 def search_listings(isPromoted:bool ,request: listingSchemas.SearchListing, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     filters=[]
     for key, value in request:
@@ -167,7 +174,7 @@ def search_listings(isPromoted:bool ,request: listingSchemas.SearchListing, db: 
         else:
             filters.append(getattr(models.Listings, key) == value)
     # Create the query by using the filters and joins
-    filters.append(models.Listings.is_listed==True)
+    filters.append(models.Listings.is_listed == True)
     if isPromoted:
         query=db.query(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price, func.array_agg(models.Listing_images.image_path).label("image_path")).filter(*filters).join(models.Listing_images, models.Listing_images.listing_id == models.Listings.listing_id).join(models.Promoted_listings, models.Promoted_listings.listing_id == models.Listings.listing_id).group_by(models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price)
     else:
@@ -189,10 +196,11 @@ def search_listings(isPromoted:bool ,request: listingSchemas.SearchListing, db: 
     return results
 
 
-@router.post("/promote", status_code=status.HTTP_201_CREATED)
+#DEPENDS on expire_promotions since we need to access promoted_listings here 
+@router.post("/promote", dependencies=[Depends(expire_promotions)], status_code=status.HTTP_201_CREATED)
 def promote_listing(request: listingSchemas.PromoteListing, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     #Check if user owns the property it wants to promote
-    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == request.listing_id, models.Listings.host_id == current_user_id)
+    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == request.listing_id, models.Listings.is_listed == True, models.Listings.host_id == current_user_id)
     if not listing_query.first():
         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"User with id {current_user_id} doesn't own a listing with id {request.listing_id}")
     #Check that the days to promote are more than 0
@@ -219,7 +227,7 @@ def promote_listing(request: listingSchemas.PromoteListing, db: Session = Depend
 @router.post("/favourite/{listingid}", status_code=status.HTTP_201_CREATED)
 def favourite_listing(listingid: int, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     #Check if listing exists or not
-    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == listingid)
+    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == listingid, models.Listings.is_listed == True)
     if not listing_query.first():
         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"listing with id {listingid} doesn't exist")
     # Check if user is trying to favourite their own listing
