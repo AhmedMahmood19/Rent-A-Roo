@@ -79,7 +79,7 @@ class Ratings_and_reviews(Base):
     # guest = relationship("users",backref="ratingsandreviews")
     rating = Column(Integer, nullable=False)
     review = Column(String, nullable=True)          #REVIEW TEXT IS OPTIONAL
-    created_time = Column(DateTime, nullable=True, server_default=func.now())  #TO SHOW REVIEWS IN ORDER
+    created_time = Column(DateTime(timezone=True), nullable=True, server_default=func.now())  #TO SHOW REVIEWS IN ORDER
 
 #questions_and_answers CAN'T BE DELETED
 class Questions_and_answers(Base):
@@ -91,15 +91,15 @@ class Questions_and_answers(Base):
     # guest = relationship("users",backref="questionsandanswers")
     question = Column(String, nullable=False)
     answer = Column(String, nullable=True)                       #NULL UNTIL HOST ANSWERS IT
-    created_time = Column(DateTime, nullable=True, server_default=func.now())   #TO SHOW Q&A IN ORDER
+    created_time = Column(DateTime(timezone=True), nullable=True, server_default=func.now())   #TO SHOW Q&A IN ORDER
 
 #promoted_listings CAN BE DELETED(IF END_TIME IS REACHED, IF LISTING IS UNLISTED)
 class Promoted_listings(Base):
     __tablename__ = "promoted_listings"
     listing_id = Column(Integer, ForeignKey("listings.listing_id"), primary_key=True, index=True)
     # listings = relationship("listings",backref="promotedlistings")
-    start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime, nullable=False)             #WILL BE A FIXED DURATION AFTER THE START_TIME
+    start_time = Column(DateTime(timezone=True), nullable=False)
+    end_time = Column(DateTime(timezone=True), nullable=False)             #WILL BE A FIXED DURATION AFTER THE START_TIME
 
 #favourites CAN BE DELETED(IF USER UNFAVOURITES OR USER IS DELETED)
 class Favourites(Base):
@@ -117,9 +117,9 @@ class Reservations(Base):
     # listings = relationship("listings",backref="reservations")
     guest_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE")) #IF USER IS DELETED THEN DELETE RESERVATIONS TOO
     # guest = relationship("users",backref="reservations")    
-    checkin_date = Column(DateTime, nullable=False)         #WE WILL GIVE THE SAME TIME FOR CHECKIN AND CHECKOUT(12PM?) TO EVERYONE, ONLY DATE WILL BE SET BY GUEST
-    checkout_date = Column(DateTime, nullable=False)
-    created_time = Column(DateTime, nullable=True, server_default=func.now())  #TO CHECK IF IT HAS BEEN 24Hrs SO WE CAN SET STATUS TO REJECTED
+    checkin_date = Column(DateTime(timezone=True), nullable=False)         #WE WILL GIVE THE SAME TIME FOR CHECKIN AND CHECKOUT(12PM?) TO EVERYONE, ONLY DATE WILL BE SET BY GUEST
+    checkout_date = Column(DateTime(timezone=True), nullable=False)
+    created_time = Column(DateTime(timezone=True), nullable=True, server_default=func.now())  #TO CHECK IF IT HAS BEEN 24Hrs SO WE CAN SET STATUS TO REJECTED
     amount_due  = Column(Integer, nullable = False)         #CALCULATED USING NIGHTLYPRICE AND NUMBER OF NIGHTS
     status = Column(String, nullable=True, default="Pending")
 
@@ -131,10 +131,13 @@ class Transactions(Base):
     # listings = relationship("listings",backref="transactions")
     guest_id = Column(Integer, ForeignKey("users.user_id", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
     # guest = relationship("users",backref="transactions")
-    checkin_date = Column(DateTime, nullable=False)
-    checkout_date = Column(DateTime, nullable=False)
-    created_time = Column(DateTime, nullable=True, server_default=func.now())  #TO SHOW TRANSACTIONS IN ORDER
+    checkin_date = Column(DateTime(timezone=True), nullable=False)
+    checkout_date = Column(DateTime(timezone=True), nullable=False)
+    created_time = Column(DateTime(timezone=True), nullable=True, server_default=func.now())  #TO SHOW TRANSACTIONS IN ORDER
     amount_paid  = Column(Integer, nullable = False)
+    #Initially Null, set to False once now()>=checkout_date, set to True once user rates
+    has_guest_rated  = Column(Boolean, nullable = True)                     #Has guest rated host and rated&reviewed listing yet?
+    has_host_rated  = Column(Boolean, nullable = True)                      #Has host rated guest yet?
 
 
 #########################################

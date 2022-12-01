@@ -11,7 +11,7 @@ class CreateReservation(BaseModel):
 class ReservedDates(BaseModel):
     checkin_date: datetime
     checkout_date: datetime
-
+    
     class Config:
         orm_mode = True
 
@@ -36,6 +36,15 @@ class Transactions(BaseModel):
     checkout_date: datetime
     amount_paid:int
 
+class TransactionsHost(Transactions):
+    has_host_rated:bool|None
+
+    class Config:
+        orm_mode = True
+
+class TransactionsGuest(Transactions):
+    has_guest_rated:bool|None
+    
     class Config:
         orm_mode = True
 
