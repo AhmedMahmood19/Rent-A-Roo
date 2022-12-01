@@ -3,6 +3,7 @@ import 'package:rent_a_roo/screens/TransactionScreen.dart';
 import 'package:rent_a_roo/screens/favourites.dart';
 import 'package:rent_a_roo/screens/homescreen.dart';
 import 'package:rent_a_roo/screens/profile.dart';
+import 'package:rent_a_roo/screens/reservationScreen.dart';
 
 class LandingPage extends StatefulWidget {
   @override
@@ -13,8 +14,8 @@ class LandingPageState extends State<LandingPage> {
   int _currentTab = 0;
   List<Widget> _children = [
     HomeScreen(),
-    FavouritesPage(),
-        TransactionScreen(),
+    ReservationScreen(),
+    TransactionScreen(),
 
     Container(),
     Profile()

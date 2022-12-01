@@ -26,7 +26,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => DetailsPage()),
+                  MaterialPageRoute(builder: (context) => DetailsPage(listingID: 1,)),
                 );
               },
               child: Column(

@@ -4,26 +4,27 @@ import 'package:flutter/src/widgets/framework.dart';
 
 import '../cidgets/recommendation_card.dart';
 import '../cidgets/tranResCard.dart';
+import '../controls/services/reservactions.dart';
 import '../controls/services/transactions.dart';
 
-class TransactionScreen extends StatefulWidget {
-  const TransactionScreen({super.key});
+class ReservationScreen extends StatefulWidget {
+  const ReservationScreen({super.key});
 
   @override
-  State<TransactionScreen> createState() => _TransactionScreenState();
+  State<ReservationScreen> createState() => _ReservationScreenState();
 }
 
-class _TransactionScreenState extends State<TransactionScreen> {
-    List guestTransactions=[];
-     List hostTransactions=[];
+class _ReservationScreenState extends State<ReservationScreen> {
+    List guestReservation=[];
+     List hostReservations=[];
 
   Future initValues() async
   {
-     guestTransactions = await Transactions().getGuestTransactions(); 
-     hostTransactions = await Transactions().getHostTransactions(); 
+     guestReservation = await Reservations().getGuestReservations(); 
+     hostReservations = await Reservations().getHostReservations(); 
 
-    print(guestTransactions);
-    print(hostTransactions);
+    print(guestReservation);
+    print(hostReservations);
     
   }
   @override
@@ -56,12 +57,12 @@ class _TransactionScreenState extends State<TransactionScreen> {
           Tab(text: "Guest",),
         ],
       ),
-      title: Text('Transactions'),
+      title: Text('Reservations'),
     ),
     body: TabBarView(
       children: [
 ListView.builder(
-        itemCount: hostTransactions.length,
+        itemCount: hostReservations.length,
         shrinkWrap: true,
         itemBuilder: (ctx, int index) {
           return Padding(
@@ -69,13 +70,13 @@ ListView.builder(
             child: TranResCard(
                 imageUrl:
                     "https://thumbs.dreamstime.com/b/amazing-misty-autumn-scenery-lake-sorapis-dolomites-italy-beautiful-mountains-colorful-yellow-larches-shore-193683774.jpg",
-                title: hostTransactions[index]['title']??"",
-                location: hostTransactions[index]['checkin_date']??"",
-                startPrices: hostTransactions[index]['amount_paid'].toString()??""),
+                title: hostReservations[index]['title']??"",
+                location: hostReservations[index]['checkin_date']??"",
+                startPrices: hostReservations[index]['amount_due'].toString()??""),
           );
         },
       ),ListView.builder(
-        itemCount: guestTransactions.length,
+        itemCount: guestReservation.length,
         shrinkWrap: true,
         itemBuilder: (ctx, int index) {
           return Padding(
@@ -83,9 +84,9 @@ ListView.builder(
             child: RecommendCard(
                 imageUrl:
                     "https://thumbs.dreamstime.com/b/amazing-misty-autumn-scenery-lake-sorapis-dolomites-italy-beautiful-mountains-colorful-yellow-larches-shore-193683774.jpg",
-                title: guestTransactions[index]['title']??"",
-                location: guestTransactions[index]['checkin_date']??"",
-                startPrices: guestTransactions[index]['amount_paid'].toString()??""),
+                title: guestReservation[index]['title']??"",
+                location: guestReservation[index]['checkin_date']??"",
+                startPrices: guestReservation[index]['amount_due'].toString()??""),
           );
         },
       ),

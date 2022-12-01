@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:rent_a_roo/controls/services/listings.dart';
 import 'package:rent_a_roo/screens/detailsPage.dart';
 
 class ExplorePage extends StatefulWidget {
@@ -12,21 +13,38 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
+  List data=[];
+
+  void fetchData()async{
+    data= await Listing().getPopularListing();
+    print(data);
+    setState(() {
+      
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    fetchData();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Rent A Roo')),
       body: ListView.builder(
-        itemCount: 4,
+        itemCount: data.length,
         shrinkWrap: true,
-        itemBuilder: (ctx, int) {
+        itemBuilder: (ctx, int index) {
           return Padding(
             padding: const EdgeInsets.fromLTRB(12.0, 12, 12, 0),
             child: InkWell(
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => DetailsPage()),
+                  MaterialPageRoute(builder: (context) => DetailsPage(listingID: data[index]['listing_id'],)),
                 );
               },
               child: Column(
@@ -45,7 +63,7 @@ class _ExplorePageState extends State<ExplorePage> {
                   Row(
                     children: [
                       Text(
-                        'San Jose del Cabo',
+                        data[index]['state']??"",
                         style: TextStyle(fontSize: 18, color: Colors.black),
                       ),
                       Spacer(),
@@ -53,21 +71,18 @@ class _ExplorePageState extends State<ExplorePage> {
                         Icons.star,
                         size: 14,
                       ),
-                      Text('5', style: TextStyle(fontSize: 18))
+                      Text(data[index]['rating'].toString()??"", style: TextStyle(fontSize: 18))
                     ],
                   ),
                   SizedBox(
                     height: 3,
                   ),
-                  Text('viewed 150 times', style: TextStyle(fontSize: 16)),
+                  Text(data[index]['city']??"", style: TextStyle(fontSize: 16)),
                   SizedBox(
                     height: 3,
                   ),
-                  Text('Dec 1-5', style: TextStyle(fontSize: 16)),
-                  SizedBox(
-                    height: 3,
-                  ),
-                  Text('\$500 night', style: TextStyle(fontSize: 16)),
+                  
+                  Text('Rs-/${data[index]['nightly_price'].toString()??""} / night', style: TextStyle(fontSize: 16)),
                   Divider(height: 10, thickness: 1)
                 ],
               ),
