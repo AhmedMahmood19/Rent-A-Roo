@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rent_a_roo/landingpage.dart';
+import 'package:rent_a_roo/screens/TransactionScreen.dart';
 import 'package:rent_a_roo/screens/addAmeneities.dart';
 import 'package:rent_a_roo/screens/addImages.dart';
 import 'package:rent_a_roo/screens/createListing.dart';
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      home: LandingPage(),
+      home: Login(),
     );
   }
 }

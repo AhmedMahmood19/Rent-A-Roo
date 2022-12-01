@@ -14,6 +14,8 @@ class _HomeScreenState extends State<HomeScreen> {
     initialPage: 1,
   );
 
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: 4,
                 shrinkWrap: true,
-                itemBuilder: (ctx, int) {
+                itemBuilder: (ctx, int index) {
                   return RecommendCard(
                       imageUrl:
                           "https://cdn.britannica.com/67/19367-050-885866B4/Valley-Taurus-Mountains-Turkey.jpg",

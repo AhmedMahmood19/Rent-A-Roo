@@ -6,10 +6,11 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:rent_a_roo/screens/reviewsScreen.dart';
 
 import '../cidgets/customNavBar.dart';
+import '../controls/services/listings.dart';
 
 class DetailsPage extends StatefulWidget {
-  const DetailsPage({Key? key}) : super(key: key);
-
+   DetailsPage({Key? key,required this.listingID}) : super(key: key);
+  int listingID;
   @override
   State<DetailsPage> createState() => _DetailsPageState();
 }
@@ -29,6 +30,23 @@ class _DetailsPageState extends State<DetailsPage> {
       'flag': '2',
     }
   ];
+  Map details={};
+    Future initValues() async
+  {
+     details = await Listing().getListing(widget.listingID); 
+
+    print(details);
+    
+  }
+
+  @override
+  void initState() {
+
+       initValues().whenComplete((){
+          setState(() {});
+       });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +66,7 @@ class _DetailsPageState extends State<DetailsPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Hidden Haven -  5 Bed Villa with pool and Sea Views',
+                    details['title']??"",
                     style: TextStyle(
                       fontSize: 28,
                     ),
@@ -62,12 +80,12 @@ class _DetailsPageState extends State<DetailsPage> {
                     child: Row(
                       children: [
                         Icon(Icons.star),
-                        Text('5'),
+                        Text(details['rating'].toString()??""),
                         Spacer(),
                         Text('|'),
                         Spacer(),
                         Icon(Icons.location_pin),
-                        Text('Mexico'),
+                        Text(details['city']??""),
                         Spacer(),
                         Text('|'),
                         Spacer(),
@@ -98,7 +116,7 @@ class _DetailsPageState extends State<DetailsPage> {
                         width: 15,
                       ),
                       Text(
-                        'Jane Mary',
+                        "${details['first_name']??""} ${details['last_name']??""}",
                         style: TextStyle(fontSize: 20),
                       ),
                       Spacer(),
@@ -107,7 +125,7 @@ class _DetailsPageState extends State<DetailsPage> {
                   ),
                   Divider(),
                   Text(
-                    'It\'s never good to give them details, Janice told her sister. Always be a little vague and keep them guessing." Her sister listened intently and nodded in agreement. She didn\'t fully understand what her sister was saying but that didn\'t matter.',
+                    details['description']??"",
                     maxLines: 20,
                   ),
                   Divider(),
@@ -143,6 +161,7 @@ class _DetailsPageState extends State<DetailsPage> {
           ]),
         ),
         bottomNavigationBar: CustomNavBar(
+          price: details['nightly_price'].toString()??"",
           onPressed: () {
             Navigator.push(
               context,

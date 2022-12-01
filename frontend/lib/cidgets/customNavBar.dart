@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 class CustomNavBar extends StatelessWidget {
   Function onPressed;
 
-  CustomNavBar({Key? key, required Function this.onPressed}) : super(key: key);
-
+  CustomNavBar({Key? key, required Function this.onPressed,required this.price}) : super(key: key);
+  String price;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -37,7 +37,7 @@ class CustomNavBar extends StatelessWidget {
             ),
           ), */
           Text(
-            '\$500',
+            'Rs-/$price',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           SizedBox(

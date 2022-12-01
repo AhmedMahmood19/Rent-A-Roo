@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:rent_a_roo/screens/TransactionScreen.dart';
 import 'package:rent_a_roo/screens/favourites.dart';
 import 'package:rent_a_roo/screens/homescreen.dart';
 import 'package:rent_a_roo/screens/profile.dart';
+import 'package:rent_a_roo/screens/reservationScreen.dart';
 
 class LandingPage extends StatefulWidget {
   @override
@@ -12,7 +14,9 @@ class LandingPageState extends State<LandingPage> {
   int _currentTab = 0;
   List<Widget> _children = [
     HomeScreen(),
-    FavouritesPage(),
+    ReservationScreen(),
+    TransactionScreen(),
+
     Container(),
     Profile()
   ];
@@ -43,13 +47,21 @@ class LandingPageState extends State<LandingPage> {
               ),
               label: "EXPLORER",
             ),
+                BottomNavigationBarItem(
+              icon: Icon(
+                Icons.favorite_border,
+                //color: Colors.black,
+                size: 30,
+              ),
+              label: "Transactions",
+            ),
             BottomNavigationBarItem(
               icon: Icon(
                 Icons.favorite_border,
                 //color: Colors.black,
                 size: 30,
               ),
-              label: "FAVORITES",
+              label: "Reservations",
             ),
             BottomNavigationBarItem(
               icon: Icon(

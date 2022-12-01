@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:rent_a_roo/landingpage.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 import '../controls/services/auth.dart';
@@ -232,8 +233,7 @@ class _LoginState extends State<Login> {
                                 Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => EditProfile(
-                                              )),
+                                          builder: (context) => LandingPage()),
                                     )
                               },
                              // color: glt.themeColor,
