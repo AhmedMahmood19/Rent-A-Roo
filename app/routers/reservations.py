@@ -13,8 +13,8 @@ def expire_reservations(db: Session = Depends(connection.get_db)):
     db.commit()
 
 def checkout_transactions(db: Session = Depends(connection.get_db)):
-    db.execute("UPDATE transactions SET has_guest_rated=false WHERE now()>=checkout_date AND has_guest_rated=NULL;")
-    db.execute("UPDATE transactions SET has_host_rated=false  WHERE now()>=checkout_date AND has_host_rated= NULL;")
+    db.execute("UPDATE transactions SET has_guest_rated=false WHERE now()>=checkout_date AND has_guest_rated is NULL;")
+    db.execute("UPDATE transactions SET has_host_rated=false  WHERE now()>=checkout_date AND has_host_rated  is NULL;")
     db.commit()
 
 @router.get("/reserved-dates/guest/{listingid}", dependencies=[Depends(checkout_transactions)], status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.ReservedDates])
@@ -76,14 +76,14 @@ def get_reservations_for_host(db: Session = Depends(connection.get_db), current_
 # We allow it to view unlisted listings in transactions
 @router.get("/transactions/guest", dependencies=[Depends(checkout_transactions)], status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.TransactionsGuest])
 def get_transactions_for_guest(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-    transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Transactions.amount_paid, models.Listings.title, models.Listings.listing_id).filter(
+    transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Transactions.amount_paid, models.Listings.title, models.Listings.listing_id, models.Transactions.has_guest_rated).filter(
         models.Listings.listing_id == models.Transactions.listing_id, models.Transactions.guest_id == current_user_id).order_by(models.Transactions.created_time.asc()).all()
     return transactions
 
 # We allow it to view unlisted listings in transactions
 @router.get("/transactions/host", dependencies=[Depends(checkout_transactions)], status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.TransactionsHost])
 def get_transactions_for_host(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-    transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Transactions.amount_paid, models.Listings.title, models.Listings.listing_id).filter(
+    transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Transactions.amount_paid, models.Listings.title, models.Listings.listing_id, models.Transactions.has_host_rated).filter(
         models.Listings.listing_id == models.Transactions.listing_id, models.Listings.host_id == current_user_id).order_by(models.Transactions.created_time.asc()).all()
     return transactions
 

@@ -166,7 +166,7 @@ dummy.add(models.Transactions(listing_id=1,guest_id=1,
         checkin_date=datetime(2022, 11, 8, 9, 00, 00, 000000,tzinfo=timezone.utc),
         checkout_date=datetime(2022, 11, 19, 9, 00, 00, 000000,tzinfo=timezone.utc),
         amount_paid=82500))
-dummy.add(models.Transactions(listing_id=1,guest_id=1,
+dummy.add(models.Transactions(listing_id=1,guest_id=5,
         checkin_date=datetime(2022, 12, 14, 9, 00, 00, 000000,tzinfo=timezone.utc),
         checkout_date=datetime(2022, 12, 21, 9, 00, 00, 000000,tzinfo=timezone.utc),
         amount_paid=52500))
