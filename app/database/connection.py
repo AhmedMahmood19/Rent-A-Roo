@@ -157,6 +157,11 @@ dummy.close()
 ### Adding Transactions###
 ##########################
 dummy = SessionLocal()
+# hina stayed for 3 nights at the islamabad skyrise and checkout will be in 3min for (testing purposes) 
+dummy.add(models.Transactions(listing_id=3,guest_id=5,
+        checkin_date=start-timedelta(days=3)+timedelta(minutes=3),
+        checkout_date=start+timedelta(minutes=3),
+        amount_paid=82500))
 dummy.add(models.Transactions(listing_id=1,guest_id=1,
         checkin_date=datetime(2022, 11, 8, 9, 00, 00, 000000,tzinfo=timezone.utc),
         checkout_date=datetime(2022, 11, 19, 9, 00, 00, 000000,tzinfo=timezone.utc),
