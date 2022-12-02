@@ -68,7 +68,7 @@ def update_user(request: userSchemas.UserReg, db: Session = Depends(connection.g
     db.commit()
     return {"status": "Success", "Detail": "User Updated"}
 
-
+# A deleted user wont be able to call this again so we dont check if the user exists here
 @router.delete("/profile", status_code=status.HTTP_200_OK)
 def delete_user(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     #If a guest has paid the user to stay at their residence and the guest has not completed their stay then the host can't delete their profile

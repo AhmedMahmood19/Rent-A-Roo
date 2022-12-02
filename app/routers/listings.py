@@ -244,3 +244,17 @@ def favourite_listing(listingid: int, db: Session = Depends(connection.get_db), 
     db.add(insertfav)
     db.commit()
     return {"status": "Success", "Detail": "Listing Favourited"}
+
+@router.delete("/unfavourite/{listingid}", status_code=status.HTTP_200_OK)
+def unfavourite_listing(listingid: int, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    #Check if listing exists or not
+    listing_query = db.query(models.Listings).filter(models.Listings.listing_id == listingid, models.Listings.is_listed == True)
+    if not listing_query.first():
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"listing with id {listingid} doesn't exist")
+    # Check if listing is even favourited or not
+    isFavourited = db.query(models.Favourites).filter(models.Favourites.listing_id == listingid, models.Favourites.guest_id == current_user_id)
+    if not isFavourited.first():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This listing isn't favourited")
+    isFavourited.delete(synchronize_session=False)
+    db.commit()
+    return {"status": "Success", "Detail": "Listing Unfavourited"}

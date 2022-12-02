@@ -28,9 +28,9 @@ models.Base.metadata.create_all(bind=engine)
 ########################################################################
 ### Adding Dummy data and committing after inserting into each table ###
 ########################################################################
-#######################
+####################
 ### Adding Users ###
-#######################
+####################
 dummy = SessionLocal()
 dummy.add(models.Users(email="pam@gmail.com", password="pamb", first_name="Pam", last_name="Beesly", phone_no="03348652936", image_path="/static/images/ae9f7e4b1.jpg",
           about_me="I love to keep my home nice and tidy, so you never have to worry when staying at my house."))
@@ -65,7 +65,7 @@ dummy.add(models.Listings(host_id=1,
 ))
 dummy.add(models.Listings(host_id=4, 
         title="Regal Urban Minimalism",description="Gaze out across the city from high up in this 16th-floor retreat. The expansive residence features an open-plan layout, floor-to-ceiling windows, soothing greys, chic furnishings and decor, and breathtaking panoramic vistas.",
-        state="Punjab",city="Islamabad",address="House 5A, Sector G6, Islamabad",is_apartment=False,
+        state="Punjab",city="Islamabad",address="Apt 5A, legion towers, Sector G6, Islamabad",is_apartment=True, apartment_no="16K",
         is_shared=False,accommodates=3,bathrooms=1,bedrooms=1,nightly_price=25000,min_nights=3,max_nights=7,wifi=True, kitchen=True, washing_machine=True, air_conditioning=True, tv=True, hair_dryer=True, iron=True, pool=False, gym=False, smoking_allowed=False,view_count=1000
 ))
 dummy.add(models.Listings(host_id=4, 
@@ -115,19 +115,18 @@ dummy.add(models.Listing_images(listing_id=6, image_path="/static/images/e190501
 dummy.commit()
 dummy.close()
 
-##############################################
-### Adding Promoted Listings and Favourites###
-##############################################
+###############################################
+### Adding Promoted Listings and Favourites ###
+###############################################
 from datetime import datetime, timedelta, timezone
 start = datetime.now(tz=timezone.utc)
-start2daysbefore = start-timedelta(days=2)+timedelta(minutes=5) #2 days before today and 5 minutes after the time from now(expires 5min after program starts) 
+start2daysbefore = start-timedelta(days=2)+timedelta(minutes=5) #2 days before today and 5 minutes after the time from now 
 dummy = SessionLocal()
-dummy.add(models.Promoted_listings(listing_id=1, start_time=start ,end_time=start + timedelta(days=2)))
+dummy.add(models.Promoted_listings(listing_id=2, start_time=start ,end_time=start + timedelta(days=2)))
+# (promotion expires 5min after program starts)
 dummy.add(models.Promoted_listings(listing_id=3, start_time=start2daysbefore ,end_time=start2daysbefore + timedelta(days=2)))
 dummy.add(models.Promoted_listings(listing_id=4, start_time=start2daysbefore ,end_time=start2daysbefore + timedelta(days=2)))
-dummy.add(models.Promoted_listings(listing_id=5, start_time=start ,end_time=start + timedelta(days=5)))
-dummy.add(models.Promoted_listings(listing_id=6, start_time=start ,end_time=start + timedelta(days=6)))
-dummy.add(models.Favourites(guest_id=5,listing_id=1))
+dummy.add(models.Favourites(guest_id=5,listing_id=4))
 dummy.add(models.Favourites(guest_id=5,listing_id=2))
 dummy.add(models.Favourites(guest_id=5,listing_id=3))
 dummy.add(models.Favourites(guest_id=4,listing_id=5))
@@ -135,60 +134,52 @@ dummy.add(models.Favourites(guest_id=4,listing_id=6))
 dummy.commit()
 dummy.close()
 
-##########################
-### Adding Reservations###
-##########################
+###########################
+### Adding Reservations ###
+###########################
 # 9AM UTC is 2PM PKT the same day, and all checkins and checkouts are at 2PM PKT
 dummy = SessionLocal()
 #This reservation is about to expire in 8 minutes
-dummy.add(models.Reservations(listing_id=1,guest_id=1,
+dummy.add(models.Reservations(listing_id=4,guest_id=5,
         checkin_date=datetime(2022, 11, 20, 9, 00, 00, 000000,tzinfo=timezone.utc),
         checkout_date=datetime(2022, 12, 1, 9, 00, 00, 000000,tzinfo=timezone.utc),
         amount_due=82500,
         created_time=start-timedelta(hours=23, minutes=52)))
-dummy.add(models.Reservations(listing_id=1,guest_id=1,
+dummy.add(models.Reservations(listing_id=3,guest_id=5,
         checkin_date=datetime(2022, 12, 6, 9, 00, 00, 000000,tzinfo=timezone.utc),
         checkout_date=datetime(2022, 12, 13, 9, 00, 00, 000000,tzinfo=timezone.utc),
         amount_due=52500))
 dummy.commit()
 dummy.close()
 
-##########################
-### Adding Transactions###
-##########################
+###########################
+### Adding Transactions ###
+###########################
 dummy = SessionLocal()
-# hina stayed for 3 nights at the islamabad skyrise and checkout will be in 3min for (testing purposes) 
-dummy.add(models.Transactions(listing_id=3,guest_id=5,
+# hina stayed for 3 nights at the islamabad skyrise and checkout will be in 3min 
+dummy.add(models.Transactions(listing_id=4,guest_id=5,
         checkin_date=start-timedelta(days=3)+timedelta(minutes=3),
         checkout_date=start+timedelta(minutes=3),
         amount_paid=82500))
-dummy.add(models.Transactions(listing_id=1,guest_id=1,
+dummy.add(models.Transactions(listing_id=5,guest_id=4,
         checkin_date=datetime(2022, 11, 8, 9, 00, 00, 000000,tzinfo=timezone.utc),
         checkout_date=datetime(2022, 11, 19, 9, 00, 00, 000000,tzinfo=timezone.utc),
         amount_paid=82500))
-dummy.add(models.Transactions(listing_id=1,guest_id=5,
+dummy.add(models.Transactions(listing_id=3,guest_id=5,
         checkin_date=datetime(2022, 12, 14, 9, 00, 00, 000000,tzinfo=timezone.utc),
         checkout_date=datetime(2022, 12, 21, 9, 00, 00, 000000,tzinfo=timezone.utc),
         amount_paid=52500))
 dummy.commit()
 dummy.close()
 
-# #########################################TRIGGERS TESTING##################################################################
-# from sqlalchemy import DDL,event
-# func = DDL(
-#     "CREATE FUNCTION my_func() "
-#     "RETURNS TRIGGER AS $$ "
-#     "BEGIN"
-#     "DELETE FROM promoted_listings WHERE now()>=end_time;"
-#     "RETURN NULL; "
-#     "END; $$ LANGUAGE PLPGSQL"
-# )
-
-# trigger = DDL(
-#     "CREATE TRIGGER expire_promos"
-#     "BEFORE INSERT OR UPDATE OR DELETE ON promoted_listings"
-#     "EXECUTE PROCEDURE my_func();"
-# )
-
-# event.listen(models.Promoted_listings.__table__, "after_create", func.execute_if(dialect="postgresql"))
-# event.listen(models.Promoted_listings.__table__, "after_create", trigger.execute_if(dialect="postgresql"))
+##################
+### Adding Q&A ###
+##################
+dummy = SessionLocal()
+dummy.add(models.Questions_and_answers(listing_id=3,guest_id=5,question="Are there any good malls nearby?",answer="Yes, legion mall is a 5 min walk away and has all the international brands you could think of."))
+dummy.add(models.Questions_and_answers(listing_id=3,guest_id=5,question="Do these apartments offer free parking?"))
+#Question from a deleted user so it will make guest_id null
+dummy.add(models.Questions_and_answers(listing_id=3,question="Can you lower the price a bit? This is too expensive!!!"))
+dummy.add(models.Questions_and_answers(listing_id=3,question="Are pets allowed?", answer="Ofcourse, I look forward to meeting them too when you check in :)"))
+dummy.commit()
+dummy.close()
