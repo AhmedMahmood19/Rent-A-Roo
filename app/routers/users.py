@@ -8,6 +8,8 @@ from routers import Authentication
 from database import models, connection
 from schemas import userSchemas
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
+from reservations import checkout_transactions
 
 router = APIRouter(prefix="/user", tags=['User'])
 
@@ -69,14 +71,17 @@ def update_user(request: userSchemas.UserReg, db: Session = Depends(connection.g
     return {"status": "Success", "Detail": "User Updated"}
 
 # A deleted user wont be able to call this again so we dont check if the user exists here
-@router.delete("/profile", status_code=status.HTTP_200_OK)
+@router.delete("/profile", dependencies=[Depends(checkout_transactions)],status_code=status.HTTP_200_OK)
 def delete_user(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     #If a guest has paid the user to stay at their residence and the guest has not completed their stay then the host can't delete their profile
     has_transactions = db.query(models.Transactions).filter(models.Transactions.listing_id==models.Listings.listing_id, models.Listings.host_id==current_user_id, models.Transactions.checkout_date>datetime.now(tz=timezone.utc)).first()
     if has_transactions:
         raise HTTPException(status_code= status.HTTP_403_FORBIDDEN, detail=f"User with id {current_user_id} can't delete their profile until their guest completes the stay that they have already paid for")
-    listing_query = db.query(models.Listings).filter(models.Listings.host_id == current_user_id)
-    listing_query.update({"is_listed": False},synchronize_session=False)
+    #Unlist all listings belonging to this user
+    db.query(models.Listings).filter(models.Listings.host_id == current_user_id).update({"is_listed": False},synchronize_session=False)
+    #For all transactions related to this user, assume the guest/host rated them and they rated the guest/host(since no point in actually rating or being rated by a deleted user)
+    db.query(models.Transactions).filter(models.Transactions.listing_id==models.Listings.listing_id, or_(models.Listings.host_id==current_user_id, models.Transactions.guest_id==current_user_id)).update({"has_host_rated": True, "has_guest_rated": True},synchronize_session=False)
+    #Delete the user
     user = db.query(models.Users).filter(models.Users.user_id == current_user_id)
     user.delete(synchronize_session=False)
     db.commit()

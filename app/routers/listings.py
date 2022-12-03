@@ -119,7 +119,7 @@ def get_popular_listings(db: Session = Depends(connection.get_db), current_user_
             models.Listings.listing_id,models.Listings.city,models.Listings.state,models.Listings.rating,models.Listings.nightly_price).order_by(models.Listings.view_count.desc()).limit(3).all()
     return listings
 
-#We allow get_listing to reach an unlisted listing only for the case of transactions history
+#We allow get_listing to reach an unlisted listing for transactions history
 @router.get("/{listingid}", status_code=status.HTTP_200_OK, response_model=listingSchemas.GetListing)
 def get_listing(listingid:int, db:Session=Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     listing = db.query(*models.Listings.__table__.columns, (models.Listings.host_id==current_user_id).label("is_host"), func.array_agg(models.Listing_images.image_path).label("image_path"), models.Users.first_name, models.Users.last_name, models.Users.image_path.label("host_image_path")).\
@@ -127,6 +127,11 @@ def get_listing(listingid:int, db:Session=Depends(connection.get_db), current_us
             group_by(*models.Listings.__table__.columns,models.Users.first_name,models.Users.last_name,"host_image_path").first()
     if not listing:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"listing with id {listingid} does not exist")
+    
+    #If the listing is listed and the user viewing it isnt the host then we increment viewcount 
+    if listing.is_host==False and listing.is_listed==True:
+        db.query(models.Listings).filter(models.Listings.listing_id==listingid).update({models.Listings.view_count : models.Listings.view_count + 1}, synchronize_session=False)
+        db.commit()
     return listing
 
 @router.put("/{listingid}", status_code=status.HTTP_200_OK)

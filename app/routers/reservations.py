@@ -3,6 +3,7 @@ from routers import Authentication
 from database import models, connection
 from schemas import reservationSchemas
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from typing import List
 
 router = APIRouter(tags=["Reservation And Transactions"])
@@ -77,14 +78,14 @@ def get_reservations_for_host(db: Session = Depends(connection.get_db), current_
 @router.get("/transactions/guest", dependencies=[Depends(checkout_transactions)], status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.TransactionsGuest])
 def get_transactions_for_guest(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Transactions.amount_paid, models.Listings.title, models.Listings.listing_id, models.Transactions.has_guest_rated).filter(
-        models.Listings.listing_id == models.Transactions.listing_id, models.Transactions.guest_id == current_user_id).order_by(models.Transactions.created_time.asc()).all()
+        models.Listings.listing_id == models.Transactions.listing_id, models.Transactions.guest_id == current_user_id).order_by(models.Transactions.checkout_date.desc()).all()
     return transactions
 
 # We allow it to view unlisted listings in transactions
 @router.get("/transactions/host", dependencies=[Depends(checkout_transactions)], status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.TransactionsHost])
 def get_transactions_for_host(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
     transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Transactions.amount_paid, models.Listings.title, models.Listings.listing_id, models.Transactions.has_host_rated).filter(
-        models.Listings.listing_id == models.Transactions.listing_id, models.Listings.host_id == current_user_id).order_by(models.Transactions.created_time.asc()).all()
+        models.Listings.listing_id == models.Transactions.listing_id, models.Listings.host_id == current_user_id).order_by(models.Transactions.checkout_date.desc()).all()
     return transactions
 
 #DEPENDS on expire_reservations since we need to access reservations here
@@ -136,7 +137,7 @@ def accept_or_reject_reservation(reservationid: int, IsAccepted: bool, db: Sessi
         acceptedlistingid=reservation.listing_id;
         reservation_query.update({"status": "Accepted"},synchronize_session=False)
         # For any pending reservations with the same listing_id as the one just accepted, if the stay overlaps with the accepted one then reject these reservations 
-        reservation_query = db.query(models.Reservations).filter(models.Reservations.listing_id == acceptedlistingid, models.Reservations.status == "Pending", (models.Reservations.checkin_date.between(begin,end) | models.Reservations.checkout_date.between(begin,end)))
+        reservation_query = db.query(models.Reservations).filter(models.Reservations.listing_id == acceptedlistingid, models.Reservations.status == "Pending", or_(models.Reservations.checkin_date.between(begin,end), models.Reservations.checkout_date.between(begin,end)))
         reservation_query.update({"status": "Rejected"},synchronize_session=False)
     else:
         reservation_query.update({"status": "Rejected"},synchronize_session=False)

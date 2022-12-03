@@ -35,17 +35,17 @@ dummy = SessionLocal()
 dummy.add(models.Users(email="pam@gmail.com", password="pamb", first_name="Pam", last_name="Beesly", phone_no="03348652936", image_path="/static/images/ae9f7e4b1.jpg",
           about_me="I love to keep my home nice and tidy, so you never have to worry when staying at my house."))
 dummy.add(models.Users(email="jim@gmail.com", password="jim123", first_name="Jim", last_name="Halpert", image_path="/static/images/29eb25b52.webp",
-          phone_no="03348652936", about_me="Me and my wife Pam love having people stay at our house and explore our city, I strive to make your stay comfortable and hope you have a good time."))
+          phone_no="03348652936", about_me="Me and my wife Pam love having people stay at our house and explore our city, I strive to make your stay comfortable and hope you have a good time.",avg_guest_rating=3,total_guest_rating=1))
 dummy.add(models.Users(email="abc@gmail.com", password="abc", first_name="Michael", last_name="Scott", phone_no="03231932775", image_path="/static/images/e4f035533.png",
           about_me="I am new to all this tech stuff and keep forgetting my password."))
 dummy.add(models.Users(email="abdullah@gmail.com", password="abd", first_name="Abdullah", last_name="Riaz", phone_no="03132334645", image_path="/static/images/fb0cfdbb4.webp",
-          about_me="I am a photographer who mostly lives abroad and keep all my houses maintained to a high standard."))
+          about_me="I am a photographer who mostly lives abroad and keep all my houses maintained to a high standard.",avg_host_rating=4,avg_guest_rating=5,total_host_rating=5,total_guest_rating=1))
 dummy.add(models.Users(email="hina@gmail.com", password="hin", first_name="Hina", last_name="Qureshi", phone_no="03168333542", image_path="/static/images/226d7de75.jpg",
-          about_me="An ecopreneur, marketing professional, and a travel junkie, I love reading and sleeping when I am not going places. I love traveling on Airbnb"))
+          about_me="An ecopreneur, marketing professional, and a travel junkie, I love reading and sleeping when I am not going places. I love traveling on Rent-A-Roo",avg_guest_rating=5,total_guest_rating=1))
 dummy.add(models.Users(email="ali@gmail.com", password="aliak", first_name="Ali", last_name="Akbar", phone_no="03257448423", image_path="/static/images/146926d96.webp",
-          about_me="I am Ali, a Software Professional, deeply interested in Art, Literature, and Culture. I have been travelling for the last 10 years on Airbnb and it continues to be a great experience. I have visited over 45 countries"))
+          about_me="I am Ali, a Software Professional, deeply interested in Art, Literature, and Culture. I have been travelling for the last 10 years and been using Rent-A-Roo and it continues to be a great experience. I have visited over 45 countries",avg_guest_rating=4,total_guest_rating=1))
 dummy.add(models.Users(email="adeel@gmail.com", password="ade", first_name="Adeel", last_name="Ansari", phone_no="03334467893", image_path="/static/images/07ce1fb57.webp",
-          about_me="Entrepreneur, Designer and a loving father, I am a British/Pakistani living in Karachi since 2008 I have been hosting since 2017 with my wife and absolutely love it. Looking forward to hosting you next."))
+          about_me="Entrepreneur, Designer and a loving father, I am a British/Pakistani living in Karachi since 2008 I have been hosting since 2017 with my wife and absolutely love it. Looking forward to hosting you next.",avg_host_rating=5,total_host_rating=1,avg_guest_rating=5,total_guest_rating=1))
 dummy.commit()
 dummy.close()
 
@@ -66,17 +66,17 @@ dummy.add(models.Listings(host_id=1,
 dummy.add(models.Listings(host_id=4, 
         title="Regal Urban Minimalism",description="Gaze out across the city from high up in this 16th-floor retreat. The expansive residence features an open-plan layout, floor-to-ceiling windows, soothing greys, chic furnishings and decor, and breathtaking panoramic vistas.",
         state="Punjab",city="Islamabad",address="Apt 5A, legion towers, Sector G6, Islamabad",is_apartment=True, apartment_no="16K",
-        is_shared=False,accommodates=3,bathrooms=1,bedrooms=1,nightly_price=25000,min_nights=3,max_nights=7,wifi=True, kitchen=True, washing_machine=True, air_conditioning=True, tv=True, hair_dryer=True, iron=True, pool=False, gym=False, smoking_allowed=False,view_count=1000
+        is_shared=False,accommodates=3,bathrooms=1,bedrooms=1,nightly_price=25000,min_nights=3,max_nights=7,wifi=True, kitchen=True, washing_machine=True, air_conditioning=True, tv=True, hair_dryer=True, iron=True, pool=False, gym=False, smoking_allowed=False,view_count=1000, total_ratings=3, rating=3
 ))
 dummy.add(models.Listings(host_id=4, 
         title="Unique woody feel and panoramic views of the mountains",description="The spacious terrace has a sitting arrangement for 4 and has the most gorgeous views you can soak in from all of the region. We can arrange for a bonfire or barbecue in the terrace as well.",
         state="Punjab",city="Murree",address="G-14, Kuldana Road, Murree, Punjab",is_apartment=False,
-        is_shared=False,accommodates=6,bathrooms=2,bedrooms=2,nightly_price=15000,min_nights=2,max_nights=5,wifi=True, kitchen=True, washing_machine=False, air_conditioning=True, tv=False, hair_dryer=False, iron=False, pool=False, gym=False, smoking_allowed=True,view_count=790
+        is_shared=False,accommodates=6,bathrooms=2,bedrooms=2,nightly_price=15000,min_nights=2,max_nights=5,wifi=True, kitchen=True, washing_machine=False, air_conditioning=True, tv=False, hair_dryer=False, iron=False, pool=False, gym=False, smoking_allowed=True,view_count=790, total_ratings=2, rating=3
 ))
 dummy.add(models.Listings(host_id=7, 
         title="Modern living in the heart of Karachi",description="A modern 2 Bedroom Apartment on the 9th floor with amazing view in the heart of Karachi. It comes with all amenities, central air conditioning, 24/7 generator/power backup, security, lift with free underground parking. The apartments have a gym and a pool too", 
         state="Sindh",city="Karachi",address="Apartment H174, Phase 3, Navy Housing Scheme Karsaz, Karachi",is_apartment=True,apartment_no="H174",
-        is_shared=False,accommodates=4,bathrooms=2,bedrooms=2,nightly_price=12000,min_nights=6,max_nights=12,wifi=True, kitchen=True, washing_machine=True, air_conditioning=True, tv=True, hair_dryer=True, iron=True, pool=True, gym=True, smoking_allowed=True,view_count=110
+        is_shared=False,accommodates=4,bathrooms=2,bedrooms=2,nightly_price=12000,min_nights=6,max_nights=12,wifi=True, kitchen=True, washing_machine=True, air_conditioning=True, tv=True, hair_dryer=True, iron=True, pool=True, gym=True, smoking_allowed=True,view_count=110, total_ratings=1, rating=5
 ))
 dummy.add(models.Listings(host_id=7, 
         title="Magnificent apartments near the beautiful Arabian Sea",description="Inside layout combines modern living confluenced to our cultural ethos. A magnificent clubhouse offering a swimming pool, card room, snooker room, gym, community hall and other indoor games.", 
@@ -156,19 +156,39 @@ dummy.close()
 ### Adding Transactions ###
 ###########################
 dummy = SessionLocal()
-# hina stayed for 3 nights at the islamabad skyrise and checkout will be in 3min 
+# hina stayed for 3 nights at this place and checkout will be in 3min 
 dummy.add(models.Transactions(listing_id=4,guest_id=5,
         checkin_date=start-timedelta(days=3)+timedelta(minutes=3),
         checkout_date=start+timedelta(minutes=3),
-        amount_paid=82500))
-dummy.add(models.Transactions(listing_id=5,guest_id=4,
-        checkin_date=datetime(2022, 11, 8, 9, 00, 00, 000000,tzinfo=timezone.utc),
-        checkout_date=datetime(2022, 11, 19, 9, 00, 00, 000000,tzinfo=timezone.utc),
         amount_paid=82500))
 dummy.add(models.Transactions(listing_id=3,guest_id=5,
         checkin_date=datetime(2022, 12, 14, 9, 00, 00, 000000,tzinfo=timezone.utc),
         checkout_date=datetime(2022, 12, 21, 9, 00, 00, 000000,tzinfo=timezone.utc),
         amount_paid=52500))
+dummy.add(models.Transactions(listing_id=5,guest_id=4,
+        checkin_date=datetime(2022, 11, 8, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        checkout_date=datetime(2022, 11, 19, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        amount_paid=82500,has_guest_rated=True, has_host_rated=True))
+dummy.add(models.Transactions(listing_id=4,guest_id=7,
+        checkin_date=datetime(2022, 9, 14, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        checkout_date=datetime(2022, 9, 17, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        amount_paid=45000,has_guest_rated=True, has_host_rated=True))
+dummy.add(models.Transactions(listing_id=4,guest_id=6,
+        checkin_date=datetime(2022, 4, 10, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        checkout_date=datetime(2022, 4, 14, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        amount_paid=60000,has_guest_rated=True, has_host_rated=True))
+dummy.add(models.Transactions(listing_id=3,guest_id=2,
+        checkin_date=datetime(2022, 10, 11, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        checkout_date=datetime(2022, 10, 14, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        amount_paid=75000,has_guest_rated=True, has_host_rated=True))
+dummy.add(models.Transactions(listing_id=3,guest_id=5,
+        checkin_date=datetime(2022, 9, 3, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        checkout_date=datetime(2022, 9, 7, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        amount_paid=100000,has_guest_rated=True, has_host_rated=True))
+dummy.add(models.Transactions(listing_id=3,
+        checkin_date=datetime(2022, 9, 10, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        checkout_date=datetime(2022, 9, 13, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        amount_paid=75000,has_guest_rated=True, has_host_rated=True))
 dummy.commit()
 dummy.close()
 
@@ -181,5 +201,21 @@ dummy.add(models.Questions_and_answers(listing_id=3,guest_id=5,question="Do thes
 #Question from a deleted user so it will make guest_id null
 dummy.add(models.Questions_and_answers(listing_id=3,question="Can you lower the price a bit? This is too expensive!!!"))
 dummy.add(models.Questions_and_answers(listing_id=3,question="Are pets allowed?", answer="Ofcourse, I look forward to meeting them too when you check in :)"))
+dummy.add(models.Questions_and_answers(listing_id=4,guest_id=1,question="How cold does it get there during december?"))
+dummy.add(models.Questions_and_answers(listing_id=4,guest_id=7,question="Is there public transport available in this area?",answer="Yes there is a public bus that has a stop right outside the street from here"))
+dummy.commit()
+dummy.close()
+
+##################
+### Adding R&R ###
+##################
+#There is a rating for each complete stay(transaction that reached checkout)
+dummy = SessionLocal()
+dummy.add(models.Ratings_and_reviews(listing_id=5,guest_id=4,rating=5,review="This was a beautiful place to stay at and I will 100 percent be visiting again!"))
+dummy.add(models.Ratings_and_reviews(listing_id=4,guest_id=7,rating=4))
+dummy.add(models.Ratings_and_reviews(listing_id=4,guest_id=6,rating=2,review="This was too expensive and not worth it"))
+dummy.add(models.Ratings_and_reviews(listing_id=3,guest_id=2,rating=5,review="The view was amazing and the host was very helpful with any problems I had"))
+dummy.add(models.Ratings_and_reviews(listing_id=3,guest_id=5,rating=5,review="Wonderful experience, I could never buy this place but thanks to rent-a-roo I can atleast rent it lol"))
+dummy.add(models.Ratings_and_reviews(listing_id=3,rating=1,review="I had the worst experience, the place was fine but the neigbourhood is so dangerous I got robbed at gunpoint coming home at night"))
 dummy.commit()
 dummy.close()

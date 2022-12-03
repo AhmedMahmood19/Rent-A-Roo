@@ -48,87 +48,80 @@ def answer_question(request: ratingandquestionSchemas.AnswerQ, db: Session = Dep
     db.commit()
     return {"Status": "Success", "Detail": "Answer Added"}
 
-# # We allow it to use an unlisted listing, so we can show them that their reservation was rejected(due to it being unlisted)
-# #DEPENDS on expire_reservations since we need to access reservations here
-# @router.get("/reservations/guest", dependencies=[Depends(expire_reservations)], status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.Reservations])
-# def get_reservations_for_guest(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-#     reservations = db.query(models.Reservations.reservation_id, models.Reservations.checkin_date, models.Reservations.checkout_date, models.Reservations.amount_due, models.Listings.title, models.Listings.listing_id).filter(
-#         models.Listings.listing_id == models.Reservations.listing_id, models.Reservations.guest_id == current_user_id).order_by(models.Reservations.created_time.asc()).all()
-#     return reservations
+# We wont check if its listed or not since we need to display this in transactions history even if the host unlists it
+@router.get("/r-and-r-list/{listingid}", status_code=status.HTTP_200_OK, response_model=List[ratingandquestionSchemas.RandR])
+def show_R_and_R_list(listingid: int, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    # Check if listing exists or not
+    listing = db.query(models.Listings).filter(models.Listings.listing_id == listingid).first()
+    if not listing:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"listing with id {listingid} doesn't exist")
+    # Get all Reviews and Ratings involving this listingid
+    R_and_R = db.query(models.Ratings_and_reviews.rating, models.Ratings_and_reviews.review, models.Users.first_name, models.Users.last_name).filter(
+        models.Ratings_and_reviews.listing_id == listingid).join(models.Users, models.Users.user_id == models.Ratings_and_reviews.guest_id,isouter=True).order_by(models.Ratings_and_reviews.created_time.desc()).all()
+    return R_and_R
 
-# #DEPENDS on expire_reservations since we need to access reservations here
-# @router.get("/reservations/host", dependencies=[Depends(expire_reservations)], status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.Reservations])
-# def get_reservations_for_host(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-#     reservations = db.query(models.Reservations.reservation_id, models.Reservations.checkin_date, models.Reservations.checkout_date, models.Reservations.amount_due, models.Listings.title, models.Listings.listing_id).filter(
-#         models.Listings.listing_id == models.Reservations.listing_id, models.Listings.is_listed == True, models.Listings.host_id == current_user_id, models.Reservations.status == "Pending").order_by(models.Reservations.created_time.asc()).all()
-#     return reservations
+#We dont add a dependency for checkout transactions since this API is only called when the button for it becomes clickable which means checkout must have arrived 
+@router.post("/rate-and-review/guest", status_code=status.HTTP_201_CREATED)
+def guest_rates(request: ratingandquestionSchemas.GuestRandR, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    # Check if transaction exists or not for which a rating is being given and if the current user is the guest in it
+    transaction_query = db.query(models.Transactions).filter(models.Transactions.transaction_id == request.transaction_id, models.Transactions.has_guest_rated == False, models.Transactions.guest_id == current_user_id)
+    transaction = transaction_query.first()
+    if not transaction:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Transaction with id {request.transaction_id} doesn't exist, or the current user is not the guest in it, or its already rated, or checkout date hasn't arrived yet")
+    # Transaction will be updated, since the guest has rated the host and listing
+    transaction_query.update({"has_guest_rated": True},synchronize_session=False)
 
-# # We allow it to view unlisted listings in transactions
-# @router.get("/transactions/guest", dependencies=[Depends(checkout_transactions)], status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.TransactionsGuest])
-# def get_transactions_for_guest(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-#     transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Transactions.amount_paid, models.Listings.title, models.Listings.listing_id, models.Transactions.has_guest_rated).filter(
-#         models.Listings.listing_id == models.Transactions.listing_id, models.Transactions.guest_id == current_user_id).order_by(models.Transactions.created_time.asc()).all()
-#     return transactions
+    # Get the host of the transaction
+    host_query = db.query(models.Users).filter(models.Transactions.listing_id==models.Listings.listing_id, models.Listings.host_id==models.Users.user_id)
+    host = host_query.first()
+    # Calculate host's new rating avg and total, update the host
+    new_total = host.total_host_rating + 1
+    new_ratingsum = (host.avg_host_rating*host.total_host_rating) + request.rating_of_host
+    new_avg = new_ratingsum // new_total
+    host_query.update({"total_host_rating":new_total, "avg_host_rating":new_avg},synchronize_session=False)
+    db.commit()
+    
+    # Get the listing of the transaction
+    listing_query = db.query(models.Listings).filter(models.Transactions.listing_id==models.Listings.listing_id, models.Transactions.transaction_id==request.transaction_id)
+    listing = listing_query.first()
+    # Calculate listing's new rating avg and total, update the listing
+    new_total = listing.total_ratings + 1
+    new_ratingsum = (listing.rating*listing.total_ratings) + request.rating_of_listing
+    new_avg = new_ratingsum // new_total
+    listing_query.update({"total_ratings":new_total, "rating":new_avg},synchronize_session=False)
+    db.commit()
 
-# # We allow it to view unlisted listings in transactions
-# @router.get("/transactions/host", dependencies=[Depends(checkout_transactions)], status_code=status.HTTP_200_OK, response_model=List[reservationSchemas.TransactionsHost])
-# def get_transactions_for_host(db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-#     transactions = db.query(models.Transactions.transaction_id, models.Transactions.checkin_date, models.Transactions.checkout_date, models.Transactions.amount_paid, models.Listings.title, models.Listings.listing_id, models.Transactions.has_host_rated).filter(
-#         models.Listings.listing_id == models.Transactions.listing_id, models.Listings.host_id == current_user_id).order_by(models.Transactions.created_time.asc()).all()
-#     return transactions
+    # Add a new rating and review object for the listing
+    insert_R_and_R = models.Ratings_and_reviews(
+        listing_id=listing.listing_id,
+        guest_id=current_user_id,
+        rating=request.rating_of_listing,
+        review=request.review_of_listing
+    )
+    db.add(insert_R_and_R)
+    db.commit()
 
-# #DEPENDS on expire_reservations since we need to access reservations here
-# @router.get("/reservation-status/guest/{reservationid}", dependencies=[Depends(expire_reservations)], status_code=status.HTTP_200_OK)
-# def check_reservation_status(reservationid: int,db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-#     reservation_query = db.query(models.Reservations).filter(models.Reservations.reservation_id == reservationid, models.Reservations.guest_id == current_user_id)
-#     reservation = reservation_query.first()
-#     if not reservation:
-#         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"reservation with id {reservationid} doesn't exist or it wasn't made by the current user")
-#     reservation_status=reservation.status
-#     # Decide what to do with the reservation record while we tell the guest about its status
-#     if reservation_status=="Accepted":
-#         # THIS IS THE ONLY PLACE WHERE A TUPLE CAN BE INSERTED INTO TRANSACTIONS
-#         insert_transaction = models.Transactions(
-#             listing_id=reservation.listing_id,
-#             guest_id=reservation.guest_id,
-#             checkin_date=reservation.checkin_date,
-#             checkout_date=reservation.checkout_date,
-#             amount_paid=reservation.amount_due
-#         )
-#         reservation_query.delete(synchronize_session=False)
-#         db.add(insert_transaction)
-#         db.commit()
-#     elif reservation_status=="Rejected":
-#         reservation_query.delete(synchronize_session=False)
-#         db.commit()
-#     return {"status": reservation_status}
+    return {"Status": "Success", "Detail": "Host rated the Guest"}
 
-# #Host checks the guest's details and decides to accept or decline in another API Call
-# #DEPENDS on expire_reservations since we need to access reservations here
-# @router.get("/guest-profile/host/{reservationid}", dependencies=[Depends(expire_reservations)], status_code=status.HTTP_200_OK, response_model=reservationSchemas.GuestProfile)
-# def get_guest_profile(reservationid: int,db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-#     reservation_query = db.query(models.Users).filter(models.Users.user_id == models.Reservations.guest_id, models.Reservations.listing_id == models.Listings.listing_id, models.Listings.is_listed == True, models.Reservations.status == "Pending", models.Reservations.reservation_id == reservationid, models.Listings.host_id == current_user_id)
-#     reservation = reservation_query.first()
-#     if not reservation:
-#         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"reservation with id {reservationid} doesn't exist or it wasn't sent to the current user.[Rare:It expired(>=24hrs) by the time you pressed to view guest's profile]")
-#     return reservation
-
-# #DEPENDS on expire_reservations since we need to access reservations here
-# @router.put("/reservation-status/host/{reservationid}/{IsAccepted}", dependencies=[Depends(expire_reservations)], status_code=status.HTTP_200_OK)
-# def accept_or_reject_reservation(reservationid: int, IsAccepted: bool, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
-#     reservation_query = db.query(models.Reservations).filter(models.Reservations.listing_id == models.Listings.listing_id, models.Listings.is_listed == True, models.Reservations.reservation_id == reservationid, models.Reservations.status == "Pending", models.Listings.host_id == current_user_id)
-#     reservation = reservation_query.first()
-#     if not reservation:
-#         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail=f"reservation with id {reservationid} doesn't exist or it wasn't sent to the current user.[Rare:It expired(>=24hrs) by the time you pressed accept/reject]")
-#     if IsAccepted:
-#         begin=reservation.checkin_date;
-#         end=reservation.checkout_date;
-#         acceptedlistingid=reservation.listing_id;
-#         reservation_query.update({"status": "Accepted"},synchronize_session=False)
-#         # For any pending reservations with the same listing_id as the one just accepted, if the stay overlaps with the accepted one then reject these reservations 
-#         reservation_query = db.query(models.Reservations).filter(models.Reservations.listing_id == acceptedlistingid, models.Reservations.status == "Pending", (models.Reservations.checkin_date.between(begin,end) | models.Reservations.checkout_date.between(begin,end)))
-#         reservation_query.update({"status": "Rejected"},synchronize_session=False)
-#     else:
-#         reservation_query.update({"status": "Rejected"},synchronize_session=False)
-#     db.commit()
-#     return {"status": "Success", "Detail": "Reservation status updated"}
+#We dont add a dependency for checkout transactions since this API is only called when the button for it becomes clickable which means checkout must have arrived 
+@router.post("/rate-and-review/host", status_code=status.HTTP_201_CREATED)
+def host_rates(request: ratingandquestionSchemas.HostRandR, db: Session = Depends(connection.get_db), current_user_id: int = Depends(Authentication.get_current_user_id)):
+    # Check if transaction exists or not for which a rating is being given and if the current user is the host in it
+    transaction_query = db.query(models.Transactions).filter(models.Transactions.listing_id == models.Listings.listing_id, models.Transactions.transaction_id == request.transaction_id, models.Listings.host_id == current_user_id, models.Transactions.has_host_rated == False)
+    transaction = transaction_query.first()
+    if not transaction:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Transaction with id {request.transaction_id} doesn't exist, or the current user is not the host in it, or its already rated, or checkout date hasn't arrived yet")
+    # Transaction will be updated, since the host has rated the guest
+    transaction_query.update({"has_host_rated": True},synchronize_session=False)
+    # New avg and New total rating calculated for the guest of the transaction
+    guest_query = db.query(models.Users).filter(models.Users.user_id==transaction.guest_id)
+    guest = guest_query.first()
+    new_total = guest.total_guest_rating + 1
+    new_ratingsum = (guest.avg_guest_rating*guest.total_guest_rating) + request.rating_of_guest
+    new_avg = new_ratingsum // new_total
+    guest_query.update({"total_guest_rating":new_total, "avg_guest_rating":new_avg},synchronize_session=False)
+    db.commit()
+    return {"Status": "Success", "Detail": "Host rated the Guest"}
