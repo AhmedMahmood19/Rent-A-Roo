@@ -23,8 +23,7 @@ def get_reserved_dates(listingid: int, db: Session = Depends(connection.get_db),
     # Check if listing exists or not and also the guest cant be the host
     listing = db.query(models.Listings).filter(models.Listings.listing_id == listingid, models.Listings.is_listed == True, models.Listings.host_id != current_user_id).first()
     if not listing:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"listing with id {listingid} doesn't exist, or the host is trying to reserve their own listing")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"listing with id {listingid} doesn't exist, or the host is trying to reserve their own listing")
     # Get all transactions involving this listingid
     reserved_dates = db.query(models.Transactions).filter(
         models.Transactions.listing_id == listingid).order_by(models.Transactions.checkin_date.asc()).all()
@@ -36,15 +35,16 @@ def create_reservation(request: reservationSchemas.CreateReservation, db: Sessio
     # Check if listing exists or not and also the guest cant be the host
     listing = db.query(models.Listings).filter(models.Listings.listing_id == request.listing_id, models.Listings.is_listed == True, models.Listings.host_id != current_user_id).first()
     if not listing:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"listing with id {request.listing_id} doesn't exist, or the host is trying to reserve their own listing")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"listing with id {request.listing_id} doesn't exist, or the host is trying to reserve their own listing")
     if request.checkout_date <= request.checkin_date:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail=f"checkout_date must be greater than checkin_date")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"checkout_date must be greater than checkin_date")
     nights = (request.checkout_date - request.checkin_date).days
     if nights > listing.max_nights or nights < listing.min_nights:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail=f"stay is greater than max_nights or lesser than min_nights")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"stay is greater than max_nights or lesser than min_nights")
+    #For all transactions of the listing id we are making the reservation for: Check if the reservation starts before a transaction starts and ends after a transaction ends
+    reserved_dates = db.query(models.Transactions).filter(models.Transactions.listing_id == request.listing_id).filter(request.checkin_date<=models.Transactions.checkin_date, request.checkout_date>=models.Transactions.checkout_date)
+    if reserved_dates.first:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=f"Invalid reservation range, a transaction range already lies between the selected range")
     # Calculates the bill
     amountdue = nights * listing.nightly_price
     # Create the reservation object
