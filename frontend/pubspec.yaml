@@ -47,6 +47,7 @@ dependencies:
   mime_type: ^1.0.0
   dio: ^4.0.6
   syncfusion_flutter_datepicker: ^20.3.59
+  flutter_rating_bar: ^4.0.1
   
 dev_dependencies:
   flutter_test:

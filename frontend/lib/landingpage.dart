@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:rent_a_roo/screens/EditListingData.dart';
 import 'package:rent_a_roo/screens/TransactionScreen.dart';
+import 'package:rent_a_roo/screens/bookingPage.dart';
+import 'package:rent_a_roo/screens/detailsPage.dart';
 import 'package:rent_a_roo/screens/favourites.dart';
 import 'package:rent_a_roo/screens/homescreen.dart';
+import 'package:rent_a_roo/screens/myListingDetails.dart';
 import 'package:rent_a_roo/screens/profile.dart';
 import 'package:rent_a_roo/screens/reservationScreen.dart';
 
@@ -14,10 +18,11 @@ class LandingPageState extends State<LandingPage> {
   int _currentTab = 0;
   List<Widget> _children = [
     HomeScreen(),
-    ReservationScreen(),
     TransactionScreen(),
-
-    Container(),
+    ReservationScreen(),
+    DetailsPage(
+      listingID: 1,
+    ),
     Profile()
   ];
 
@@ -47,7 +52,7 @@ class LandingPageState extends State<LandingPage> {
               ),
               label: "EXPLORER",
             ),
-                BottomNavigationBarItem(
+            BottomNavigationBarItem(
               icon: Icon(
                 Icons.favorite_border,
                 //color: Colors.black,

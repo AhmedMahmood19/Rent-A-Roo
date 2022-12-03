@@ -33,7 +33,14 @@ class _ExplorePageState extends State<ExplorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Rent A Roo')),
+      appBar: AppBar(
+       title: Text('Explore',style: TextStyle(color: Colors.green),),
+        iconTheme: IconThemeData(
+    color: Colors.green, //change your color here
+  ),
+        elevation: 0,
+        backgroundColor: Colors.white,
+),
       body: ListView.builder(
         itemCount: data.length,
         shrinkWrap: true,

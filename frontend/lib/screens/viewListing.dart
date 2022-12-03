@@ -11,14 +11,14 @@ import '../cidgets/customNavBar.dart';
 import '../controls/services/listings.dart';
 import 'EditListingData.dart';
 
-class DetailsPage extends StatefulWidget {
-   DetailsPage({Key? key,required this.listingID}) : super(key: key);
+class ViewListing extends StatefulWidget {
+  ViewListing({Key? key, required this.listingID}) : super(key: key);
   int listingID;
   @override
-  State<DetailsPage> createState() => _DetailsPageState();
+  State<ViewListing> createState() => _ViewListingState();
 }
 
-class _DetailsPageState extends State<DetailsPage> {
+class _ViewListingState extends State<ViewListing> {
   int _current = 0;
 
   var carouselInfo = [
@@ -33,21 +33,18 @@ class _DetailsPageState extends State<DetailsPage> {
       'flag': '2',
     }
   ];
-  Map details={};
-    Future initValues() async
-  {
-     details = await Listing().getListing(widget.listingID); 
+  Map details = {};
+  Future initValues() async {
+    details = await Listing().getListing(widget.listingID);
 
     print(details);
-    
   }
 
   @override
   void initState() {
-
-       initValues().whenComplete((){
-          setState(() {});
-       });
+    initValues().whenComplete(() {
+      setState(() {});
+    });
     super.initState();
   }
 
@@ -69,7 +66,7 @@ class _DetailsPageState extends State<DetailsPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    details['title']??"",
+                    details['title'] ?? "",
                     style: TextStyle(
                       fontSize: 28,
                     ),
@@ -83,12 +80,12 @@ class _DetailsPageState extends State<DetailsPage> {
                     child: Row(
                       children: [
                         Icon(Icons.star),
-                        Text(details['rating'].toString()??""),
+                        Text(details['rating'].toString() ?? ""),
                         Spacer(),
                         Text('|'),
                         Spacer(),
                         Icon(Icons.location_pin),
-                        Text(details['city']??""),
+                        Text(details['city'] ?? ""),
                         Spacer(),
                         Text('|'),
                         Spacer(),
@@ -119,7 +116,7 @@ class _DetailsPageState extends State<DetailsPage> {
                         width: 15,
                       ),
                       Text(
-                        "${details['first_name']??""} ${details['last_name']??""}",
+                        "${details['first_name'] ?? ""} ${details['last_name'] ?? ""}",
                         style: TextStyle(fontSize: 20),
                       ),
                       Spacer(),
@@ -128,7 +125,7 @@ class _DetailsPageState extends State<DetailsPage> {
                   ),
                   Divider(),
                   Text(
-                    details['description']??"",
+                    details['description'] ?? "",
                     maxLines: 20,
                   ),
                   Divider(),
@@ -163,20 +160,16 @@ class _DetailsPageState extends State<DetailsPage> {
             )
           ]),
         ),
-        bottomNavigationBar: details['is_host']==true?CustomNavBar2(onPressed: (){Navigator.push(
-              context,
-              MaterialPageRoute(
-                  maintainState: false, builder: (context) => EditListingData(listingID: widget.listingID,)),
-            );}, price: details['nightly_price'].toString()??""):CustomNavBar(
-          price: details['nightly_price'].toString()??"",
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  maintainState: false, builder: (context) => BookingPage(listingID: widget.listingID,)),
-            );
-          },
-        ));
+        bottomNavigationBar: details['is_host'] == true
+            ? CustomNavBar2(
+                onPressed: () {},
+                price: details['nightly_price'].toString() ?? "")
+            : CustomNavBar(
+                price: details['nightly_price'].toString() ?? "",
+                onPressed: () {
+                  
+                },
+              ));
   }
 
   Widget carousel() {

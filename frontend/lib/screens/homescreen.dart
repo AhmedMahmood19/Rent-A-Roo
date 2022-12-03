@@ -14,11 +14,20 @@ class _HomeScreenState extends State<HomeScreen> {
     initialPage: 1,
   );
 
-  
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Rent A Roo',
+          style: TextStyle(color: Colors.green),
+        ),
+        elevation: 0,
+        iconTheme: IconThemeData(
+          color: Colors.green, //change your color here
+        ),
+        backgroundColor: Colors.white,
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),

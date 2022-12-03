@@ -12,9 +12,23 @@ class Listing {
     return body ?? {};
   }
 
+      Future<List> postSearchListing(bool isPromoted, Map data) async {
+    Response res =
+        await ApiCalls().postApiSignUpRequest('/listing/search/$isPromoted',data);
+        print(res.body);
+    List body = jsonDecode(res.body);
+    return body ?? [];
+  }
+
   Future<Map> postListing(Map data) async {
     Response res =
         await ApiCalls().postApiSignUpRequest('/listing/create',data);
+    Map body = jsonDecode(res.body);
+    return body ?? {};
+  }
+    Future<Map> editListing(int listingID,Map data) async {
+    Response res =
+        await ApiCalls().putApiRequest('/listing/$listingID',data);
     Map body = jsonDecode(res.body);
     return body ?? {};
   }

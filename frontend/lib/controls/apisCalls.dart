@@ -80,6 +80,20 @@ class ApiCalls {
     );
   }
 
+    Future<http.Response> putApiReserveRequest(String route) async {
+    var token = await Auth().getLoginTokenString();
+    final Map<String, String> header = {
+      "Authorization": "Bearer ${token}",
+      'Content-Type': 'application/json; charset=UTF-8',
+
+    };
+
+    return await http.put(
+      Uri.parse(baseApiUrl + route),
+      headers: header,
+    );
+  }
+
     Future<http.Response> delApiRequest(String route) async {
     var token = await Auth().getLoginTokenString();
     final Map<String, String> header = {

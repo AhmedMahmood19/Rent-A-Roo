@@ -4,17 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:rent_a_roo/screens/addImages.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 import '../controls/services/listings.dart';
+import '../landingpage.dart';
+import 'homescreen.dart';
 
-class AddServices extends StatefulWidget {
-   AddServices({Key? key,required this.req}) : super(key: key);
+class EditServices extends StatefulWidget {
+   EditServices({Key? key,required this.listingID,required this.req}) : super(key: key);
   Map req={};
+  int listingID;
   @override
-  State<AddServices> createState() => _AddServicesState();
+  State<EditServices> createState() => _EditServicesState();
 }
 
-class _AddServicesState extends State<AddServices> {
+class _EditServicesState extends State<EditServices> {
   Map<String, bool?> values = {
     'WIFI': false,
     'KITCHEN': false,
@@ -33,7 +37,30 @@ class _AddServicesState extends State<AddServices> {
   final TextEditingController eCtrl = new TextEditingController();
   final TextEditingController timeCtrl = new TextEditingController();
   late List<bool> _isChecked;
-
+  void initValues()async{
+    values = {
+    'WIFI': widget.req['wifi'],
+    'KITCHEN':  widget.req['kitchen'],
+    'WASHING MACHINE':  widget.req['washing_machine'],
+    'AIR CONDITIONING':  widget.req['air_conditioning'],
+    'TV':  widget.req['tv'],
+    'HAIR_DRYER':  widget.req['hair_dryer'],
+    'IRON':  widget.req['iron'],
+    'POOL':  widget.req['pool'],
+    'GYM':  widget.req['gym'],
+    'SMOKING ALLOWED':  widget.req['smoking_allowed'],
+    'IS_APARTMENT': widget.req['is_apartment'],
+    'IS_SHARED': widget.req['is_shared'],
+  };
+  setState(() {
+      
+    });
+  }
+  void initState() {
+    
+    initValues();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,13 +97,36 @@ class _AddServicesState extends State<AddServices> {
   "gym": values['GYM'],
   "smoking_allowed": values['SMOKING ALLOWED']
 };
-var resp = await Listing().postListing(map);
+var resp = await Listing().editListing(widget.listingID,map);
 print(resp);
+if (resp['status'] =='Success') {
+                            var a = await Alert(
+                          context: context,
+                          style: alertStyle,
+                          type: AlertType.success,
+                          title: "Success !",
+                          desc: resp['Detail']??"",
+                          buttons: [
+                            DialogButton(
+                              radius: BorderRadius.circular(5.0),
+                              child: Text(
+                                "Ok",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20),
+                              ),
+                              onPressed: () => {
+                                Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => LandingPage()),
+                                    )
+                              },
+                             // color: glt.themeColor,
+                            ),
+                          ],
+                        ).show();}
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddImagesScreen(listingMap: resp,)),
-                );
+               
               },
               icon: Icon(
                 Icons.arrow_right,
@@ -92,7 +142,7 @@ print(resp);
               color: Colors.green,
             )),
         title: Text(
-          "Add Services",
+          "Edit Services",
           style: TextStyle(color: Colors.black),
         ),
         backgroundColor: Colors.transparent,

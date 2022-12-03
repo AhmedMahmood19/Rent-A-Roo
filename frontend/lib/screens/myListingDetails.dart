@@ -3,22 +3,20 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:rent_a_roo/screens/bookingPage.dart';
 import 'package:rent_a_roo/screens/reviewsScreen.dart';
 
-import '../cidgets/CustomNavBar2.dart';
 import '../cidgets/customNavBar.dart';
 import '../controls/services/listings.dart';
 import 'EditListingData.dart';
 
-class DetailsPage extends StatefulWidget {
-   DetailsPage({Key? key,required this.listingID}) : super(key: key);
+class MyListingDetailsPage extends StatefulWidget {
+   MyListingDetailsPage({Key? key,required this.listingID}) : super(key: key);
   int listingID;
   @override
-  State<DetailsPage> createState() => _DetailsPageState();
+  State<MyListingDetailsPage> createState() => _MyListingDetailsPageState();
 }
 
-class _DetailsPageState extends State<DetailsPage> {
+class _MyListingDetailsPageState extends State<MyListingDetailsPage> {
   int _current = 0;
 
   var carouselInfo = [
@@ -163,17 +161,13 @@ class _DetailsPageState extends State<DetailsPage> {
             )
           ]),
         ),
-        bottomNavigationBar: details['is_host']==true?CustomNavBar2(onPressed: (){Navigator.push(
-              context,
-              MaterialPageRoute(
-                  maintainState: false, builder: (context) => EditListingData(listingID: widget.listingID,)),
-            );}, price: details['nightly_price'].toString()??""):CustomNavBar(
+        bottomNavigationBar: CustomNavBar(
           price: details['nightly_price'].toString()??"",
           onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  maintainState: false, builder: (context) => BookingPage(listingID: widget.listingID,)),
+                  maintainState: false, builder: (context) => EditListingData(listingID: 1,)),
             );
           },
         ));

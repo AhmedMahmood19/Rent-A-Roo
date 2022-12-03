@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:rent_a_roo/screens/createListing.dart';
 import 'package:rent_a_roo/screens/homepage.dart';
 
+import '../controls/services/user.dart';
 import 'editProfile.dart';
 
 class Profile extends StatefulWidget {
@@ -17,6 +18,36 @@ class _ProfileState extends State<Profile> {
       fontSize: 22.0, fontWeight: FontWeight.bold, color: Colors.white);
 
   final textStyle2 = TextStyle(color: Colors.white);
+
+    Future fetchData() async {
+    Map userDetails = await User().getUserData();
+    print(userDetails);
+    if (!mounted) return;
+    setState(() {
+      userMap = {
+        'email': userDetails['email'] ?? "",
+        'password': userDetails['password'] ?? "",
+        'firstName': userDetails['first_name'] ?? "",
+        'lastName': userDetails['last_name'] ?? "",
+        'phone': userDetails['phone_n0'] ?? "",
+        'avgHost': userDetails['avg_host_rating'] ?? "",
+        'avgGuest': userDetails['avg_guest_rating'] ?? "",
+        'aboutme': userDetails['about_me'] ?? "",
+      };
+      print(userMap);
+    });
+  }
+
+  Map userMap = Map();
+
+  @override
+  void initState() {
+    super.initState();
+
+    fetchData();
+    // });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +76,7 @@ class _ProfileState extends State<Profile> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "Robert",
+                        "${userMap['firstName']} ${userMap['lastName']}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 24,
