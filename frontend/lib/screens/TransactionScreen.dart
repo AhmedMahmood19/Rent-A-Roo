@@ -115,13 +115,16 @@ class _TransactionScreenState extends State<TransactionScreen> {
                         if (guestTransactions[index]['has_guest_rated'] == null)
                           guestTransactions[index]['has_guest_rated'] = true;
                         if (guestTransactions[index]['has_guest_rated']) {
-                          int hostRating,listRating;
-
+                          int hostRating, listRating;
+                          TextEditingController review=TextEditingController();
                           Alert(
                               context: context,
                               title: "Rate",
                               content: Column(
                                 children: <Widget>[
+                                  SizedBox(
+                                    height: 5,
+                                  ),
                                   Text('host'),
                                   RatingBar.builder(
                                     initialRating: 3,
@@ -137,9 +140,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                     ),
                                     onRatingUpdate: (rating) {
                                       print(rating);
-                                      hostRating=rating.toInt();
+                                      hostRating = rating.toInt();
                                     },
-                                  ),Text('property'),
+                                  ),
+                                  Text('property'),
                                   RatingBar.builder(
                                     initialRating: 3,
                                     minRating: 1,
@@ -154,16 +158,23 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                     ),
                                     onRatingUpdate: (listingRating) {
                                       print(listingRating);
-                                      listRating=listingRating.toInt();
+                                      listRating = listingRating.toInt();
                                     },
-                                  )
+                                  ),
+                                  TextField(
+                                    controller: review,
+                                    decoration: InputDecoration(
+                                      icon: Icon(Icons.reviews),
+                                      labelText: 'Review',
+                                    ),
+                                  ),
                                 ],
                               ),
                               buttons: [
                                 DialogButton(
-                                  onPressed: () { 
-                                    
-                                    Navigator.pop(context);},
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
                                   child: Text(
                                     "confirm",
                                     style: TextStyle(

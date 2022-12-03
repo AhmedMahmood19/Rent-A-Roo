@@ -14,7 +14,7 @@ class ApiCalls {
   ///CONSTANTS FOR API CALLS
   ///eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbGllbnQiLCJpYXQiOjE2MTQ5NTE5MTl9.NhFa1eFf4Z1DNxmXUSVWt9VWDdsGch_w31yD5a5Muew
  // final String baseApiUrl = "https://.pk";
-   final String baseApiUrl = "http://127.0.0.1:8000";
+   final String baseApiUrl = "http://127.0.1.1:8000";
 
   Future<http.Response> postApiRequest(String route, dynamic bodyData) async {
     print(bodyData);

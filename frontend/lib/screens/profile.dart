@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:rent_a_roo/controls/services/auth.dart';
 import 'package:rent_a_roo/screens/createListing.dart';
 import 'package:rent_a_roo/screens/homepage.dart';
+import 'package:rent_a_roo/screens/login.dart';
 
 import '../controls/services/user.dart';
 import 'editProfile.dart';
@@ -19,7 +21,7 @@ class _ProfileState extends State<Profile> {
 
   final textStyle2 = TextStyle(color: Colors.white);
 
-    Future fetchData() async {
+  Future fetchData() async {
     Map userDetails = await User().getUserData();
     print(userDetails);
     if (!mounted) return;
@@ -47,7 +49,6 @@ class _ProfileState extends State<Profile> {
     fetchData();
     // });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +223,13 @@ class _ProfileState extends State<Profile> {
             height: 1,
           ),
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              Auth().logout();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Login()),
+              );
+            },
             child: Padding(
               padding: EdgeInsets.all(15),
               child: Row(
