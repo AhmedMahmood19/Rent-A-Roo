@@ -31,7 +31,6 @@ class Listings(Base):
     __tablename__ = "listings"
     listing_id = Column(Integer, primary_key=True, index=True)
     host_id=Column(Integer, ForeignKey("users.user_id", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL
-    # host = relationship("users",backref="listingss")
     title = Column(String, nullable=False)
     description = Column(String, nullable=False)
     state = Column(String, nullable=False)
@@ -66,7 +65,6 @@ class Listings(Base):
 class Listing_images(Base):
     __tablename__ = "listing_images"
     listing_id = Column(Integer, ForeignKey("listings.listing_id"), primary_key=True)   #Didnt add index to composite primary keys yet!!!
-    # listings = relationship("listings",backref="listingimages")
     image_path = Column(String, primary_key=True)
 
 #ratings_and_reviews CAN'T BE DELETED
@@ -74,9 +72,7 @@ class Ratings_and_reviews(Base):
     __tablename__ = "ratings_and_reviews"
     review_id = Column(Integer, primary_key=True, index=True)
     listing_id = Column(Integer, ForeignKey("listings.listing_id"))
-    # listings = relationship("listings",backref="ratingsandreviews")
     guest_id = Column(Integer, ForeignKey("users.user_id", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
-    # guest = relationship("users",backref="ratingsandreviews")
     rating = Column(Integer, nullable=False)
     review = Column(String, nullable=True)          #REVIEW TEXT IS OPTIONAL
     created_time = Column(DateTime(timezone=True), nullable=True, server_default=func.now())  #TO SHOW REVIEWS IN ORDER
@@ -86,9 +82,7 @@ class Questions_and_answers(Base):
     __tablename__ = "questions_and_answers"
     question_id = Column(Integer, primary_key=True, index=True)
     listing_id = Column(Integer, ForeignKey("listings.listing_id"))
-    # listings = relationship("listings",backref="questionsandanswers")
     guest_id = Column(Integer, ForeignKey("users.user_id", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
-    # guest = relationship("users",backref="questionsandanswers")
     question = Column(String, nullable=False)
     answer = Column(String, nullable=True)                       #NULL UNTIL HOST ANSWERS IT
     created_time = Column(DateTime(timezone=True), nullable=True, server_default=func.now())   #TO SHOW Q&A IN ORDER
@@ -97,7 +91,6 @@ class Questions_and_answers(Base):
 class Promoted_listings(Base):
     __tablename__ = "promoted_listings"
     listing_id = Column(Integer, ForeignKey("listings.listing_id"), primary_key=True, index=True)
-    # listings = relationship("listings",backref="promotedlistings")
     start_time = Column(DateTime(timezone=True), nullable=False)
     end_time = Column(DateTime(timezone=True), nullable=False)             #WILL BE A FIXED DURATION AFTER THE START_TIME
 
@@ -105,18 +98,14 @@ class Promoted_listings(Base):
 class Favourites(Base):
     __tablename__ = "favourites"
     guest_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), primary_key=True) #IF USER IS DELETED THEN DELETE FAVOURITES TOO
-    # guest = relationship("users",backref="favourites")
     listing_id = Column(Integer, ForeignKey("listings.listing_id"), primary_key=True)
-    # listings = relationship("listings",backref="favourites")
 
 #reservations CAN BE DELETED(THROUGH NORMAL FLOW OR IF USER IS DELETED)
 class Reservations(Base):
     __tablename__ = "reservations"
     reservation_id = Column(Integer, primary_key=True, index=True)
     listing_id = Column(Integer, ForeignKey("listings.listing_id"))
-    # listings = relationship("listings",backref="reservations")
     guest_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE")) #IF USER IS DELETED THEN DELETE RESERVATIONS TOO
-    # guest = relationship("users",backref="reservations")    
     checkin_date = Column(DateTime(timezone=True), nullable=False)         #WE WILL GIVE THE SAME TIME FOR CHECKIN AND CHECKOUT(12PM?) TO EVERYONE, ONLY DATE WILL BE SET BY GUEST
     checkout_date = Column(DateTime(timezone=True), nullable=False)
     created_time = Column(DateTime(timezone=True), nullable=True, server_default=func.now())  #TO CHECK IF IT HAS BEEN 24Hrs SO WE CAN SET STATUS TO REJECTED
@@ -128,30 +117,11 @@ class Transactions(Base):
     __tablename__ = "transactions"
     transaction_id = Column(Integer, primary_key=True, index=True)
     listing_id = Column(Integer, ForeignKey("listings.listing_id"))
-    # listings = relationship("listings",backref="transactions")
     guest_id = Column(Integer, ForeignKey("users.user_id", ondelete="SET NULL")) #IF USER IS DELETED THEN SET IT TO NULL, SHOW AS (DELETED USER) ON LISTING PAGE
-    # guest = relationship("users",backref="transactions")
     checkin_date = Column(DateTime(timezone=True), nullable=False)
     checkout_date = Column(DateTime(timezone=True), nullable=False)
     created_time = Column(DateTime(timezone=True), nullable=True, server_default=func.now())  #TO SHOW TRANSACTIONS IN ORDER
     amount_paid  = Column(Integer, nullable = False)
-    #Initially Null, set to False once now()>=checkout_date, set to True once user rates
+    #Initially Null, set to False if now()>=checkout_date, set to True if either user rates
     has_guest_rated  = Column(Boolean, nullable = True)                     #Has guest rated host and rated&reviewed listing yet?
     has_host_rated  = Column(Boolean, nullable = True)                      #Has host rated guest yet?
-
-
-#########################################
-### TO EXPLAIN HOW RELATIONSHIP WORKS ###
-#########################################
-# class Parent(Base):
-#    __tablename__="Parent"
-#    id=Column(Integer,primary_key=True,index=True,autoincrement=True)
-
-
-# class Child(Base):
-#     __tablename__= "Child"
-#     id=Column(Integer, primary_key= True)
-#     #foreign key: Child.Parent_id -> Parent.id 
-#     parent_id=Column(Integer, ForeignKey('Parent.id', ondelete='SET NULL'))
-#     parents = relationship("Parent",backref="children")
-#########################################

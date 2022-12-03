@@ -13,7 +13,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/login")
 def generate_token(sub: int):
     sub=str(sub)
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    # to_encode.update({"exp": expire})
     payload = {"sub": sub, "exp": expire}
     # To encode into a JWT(generate a token) we need a couple things like encryption algo, secret(256bit key) and payload("sub"=UserID,"exp"=expiry time)
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
