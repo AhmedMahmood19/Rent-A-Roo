@@ -22,6 +22,9 @@ class _FavouritesPageState extends State<FavouritesPage> {
 
  Future initValues() async {
     data = await Listing().getFavListing();
+    setState(() {
+      
+    });
     print(data);
   }
 
@@ -47,7 +50,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
         leading: Container(),
       ),
       body: ListView.builder(
-        itemCount: data.length,
+        itemCount: data==null?0: data.length,
         shrinkWrap: true,
         itemBuilder: (ctx, int index) {
           return Stack(

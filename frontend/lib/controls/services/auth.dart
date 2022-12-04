@@ -39,7 +39,7 @@ class Auth {
   }
 
   Future<Response> signUp(Map body) async {
-    String route = "/register";
+    String route = "/user/register";
     
 
     var response = await ApiCalls(loginToken: LoginToken(token: ""))
