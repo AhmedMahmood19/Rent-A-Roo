@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:rent_a_roo/controls/services/listings.dart';
 import 'package:rent_a_roo/landingpage.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:flutter/foundation.dart';
@@ -38,7 +39,7 @@ var alertStyle = AlertStyle(
 
 class _AddImagesScreenState extends State<AddImagesScreen> {
   List files = [];
-
+late Uint8List bytes;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,12 +54,13 @@ class _AddImagesScreenState extends State<AddImagesScreen> {
         actions: [
           IconButton(
               onPressed: () async {
-            
-                String fileName = files[1].path.split('/').last;
-                print(fileName);
-                print(files[0].path);
+               var resp= await Listing().updatePhoto(bytes, 1);
+               print(resp);
+             //   String fileName = files[1].path.split('/').last;
+               // print(fileName);
+                //print(files[0].path);
 
-                FormData data = FormData.fromMap({
+            /*    FormData data = FormData.fromMap({
                   "listingid":widget.listingMap['listing_id'],
                   "file": await MultipartFile.fromFile(
                     files[0].path,
@@ -73,7 +75,7 @@ class _AddImagesScreenState extends State<AddImagesScreen> {
                   print(jsonResponse);
                   var testData = jsonResponse['histogram_counts'].cast<double>();
                   var averageGrindSize = jsonResponse['average_particle_size'];
-                }).catchError((error) => print(error));
+                }).catchError((error) => print(error));*/
               
 /*
                 var a = await Alert(
@@ -141,7 +143,7 @@ class _AddImagesScreenState extends State<AddImagesScreen> {
                     final XFile? image =
                         await _picker.pickImage(source: ImageSource.gallery);
                     if (image != null) files.add(File(image.path));
-
+                     bytes = File(image!.path).readAsBytesSync();
                     print(files);
                     setState(() {});
                   },

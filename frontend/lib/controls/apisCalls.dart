@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+ import 'package:http_parser/http_parser.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:mime/mime.dart';
 import 'package:rent_a_roo/controls/services/auth.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
-
 
 class ApiCalls {
   final LoginToken? loginToken;
@@ -13,8 +14,8 @@ class ApiCalls {
 
   ///CONSTANTS FOR API CALLS
   ///eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbGllbnQiLCJpYXQiOjE2MTQ5NTE5MTl9.NhFa1eFf4Z1DNxmXUSVWt9VWDdsGch_w31yD5a5Muew
- // final String baseApiUrl = "https://.pk";
-   final String baseApiUrl = "http://127.0.1.1:8000";
+  // final String baseApiUrl = "https://.pk";
+  final String baseApiUrl = "http://192.168.217.128:8000";
 
   Future<http.Response> postApiRequest(String route, dynamic bodyData) async {
     print(bodyData);
@@ -31,7 +32,47 @@ class ApiCalls {
     );
   }
 
-    Future<http.Response> postApiSignUpRequest(String route, dynamic bodyData) async {
+  Future<http.Response> postApiRequestForm(
+      String route,
+      Map<String, String> bodyData,
+      List<Map> files,
+      List<Map> filesBytes) async {
+    var token = await Auth().getLoginTokenString();
+    var request = http.MultipartRequest('POST', Uri.https(baseApiUrl, route));
+    request.headers['Authorization'] = "Bearer ${token}";
+    request.fields.addAll(bodyData);
+    files.forEach((element) {
+      var file = element["file"] as File;
+      print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+      final mimeTypeData =
+          lookupMimeType("temp.png", headerBytes: [0xFF, 0xD8])?.split('/');
+      request.files.add(http.MultipartFile.fromBytes(
+          element["name"], file.readAsBytesSync(),
+          filename: "temp.png",
+          contentType: MediaType(mimeTypeData![0], mimeTypeData[1])));
+      print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+    });
+
+    filesBytes.forEach((element) {
+      final mimeTypeData =
+          lookupMimeType("temp.png", headerBytes: [0xFF, 0xD8])?.split('/');
+      request.files.add(http.MultipartFile.fromBytes(
+          element["name"], element["file"],
+          filename: "temp.png",
+          contentType: MediaType(mimeTypeData![0], mimeTypeData[1])));
+      print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+    });
+
+    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+    var response = await request.send();
+
+    final res = await http.Response.fromStream(response);
+
+    return res;
+  }
+
+  Future<http.Response> postApiSignUpRequest(
+      String route, dynamic bodyData) async {
     print(bodyData);
     var token = await Auth().getLoginTokenString();
     final Map<String, String> header = {
@@ -46,7 +87,6 @@ class ApiCalls {
       body: temp,
     );
   }
-
 
   Future<http.Response> getApiRequest(String route, {Map? queryParams}) async {
     var token = await Auth().getLoginTokenString();
@@ -64,28 +104,23 @@ class ApiCalls {
     return res;
   }
 
-  Future<http.Response> putApiRequest(String route,dynamic bodyData) async {
+  Future<http.Response> putApiRequest(String route, dynamic bodyData) async {
     var token = await Auth().getLoginTokenString();
     final Map<String, String> header = {
       "Authorization": "Bearer ${token}",
       'Content-Type': 'application/json; charset=UTF-8',
-
     };
-        final temp = jsonEncode(bodyData);
+    final temp = jsonEncode(bodyData);
 
-    return await http.put(
-      Uri.parse(baseApiUrl + route),
-      headers: header,
-      body: temp
-    );
+    return await http.put(Uri.parse(baseApiUrl + route),
+        headers: header, body: temp);
   }
 
-    Future<http.Response> putApiReserveRequest(String route) async {
+  Future<http.Response> putApiReserveRequest(String route) async {
     var token = await Auth().getLoginTokenString();
     final Map<String, String> header = {
       "Authorization": "Bearer ${token}",
       'Content-Type': 'application/json; charset=UTF-8',
-
     };
 
     return await http.put(
@@ -94,12 +129,11 @@ class ApiCalls {
     );
   }
 
-    Future<http.Response> delApiRequest(String route) async {
+  Future<http.Response> delApiRequest(String route) async {
     var token = await Auth().getLoginTokenString();
     final Map<String, String> header = {
       "Authorization": "Bearer ${token}",
-     // 'Content-Type': 'application/json; charset=UTF-8',
-
+      // 'Content-Type': 'application/json; charset=UTF-8',
     };
 
     return await http.delete(

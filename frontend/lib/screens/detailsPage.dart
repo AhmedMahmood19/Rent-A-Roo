@@ -312,7 +312,7 @@ class _DetailsPageState extends State<DetailsPage> {
             enlargeCenterPage: false,
             scrollDirection: Axis.horizontal,
           ),
-          itemCount: details['image_path'].length,
+          itemCount: details['image_path']==null?0:details['image_path'].length,
           itemBuilder:
               (BuildContext context, int itemIndex, int pageViewIndex) {
             return InkWell(
@@ -322,7 +322,7 @@ class _DetailsPageState extends State<DetailsPage> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(30.0),
                   child: Image.network(
-                    "${Constants().ip}${details['image_path'][itemIndex]}",
+                    "${Constants().ip}${details['image_path'][itemIndex]??""}",
                     fit: BoxFit.cover,
                     width: double.infinity,
                     //  subject['images']['large'],

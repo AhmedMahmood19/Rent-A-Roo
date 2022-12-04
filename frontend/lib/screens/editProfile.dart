@@ -99,8 +99,11 @@ class _EditProfileState extends State<EditProfile> {
               radius: 30,
               backgroundColor: Colors.black,
               child: ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-                child: Image.network("${Constants().ip}${userMap['image_path']}",fit: BoxFit.fill,)),
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  child: Image.network(
+                    "${Constants().ip}${userMap['image_path']}",
+                    fit: BoxFit.fill,
+                  )),
             ),
             SizedBox(
               height: 20,
@@ -254,13 +257,21 @@ class _EditProfileState extends State<EditProfile> {
             TextButton(
                 onPressed: () async {
                   var resp = await User().delUserData();
-                  Auth().logout();
-                  print(resp.toString());
+
+                  print(resp.statusCode);
                   setState(() {});
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Login()),
-                  );
+                  if (resp.statusCode == 200) {
+                    Auth().logout();
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Login()),
+                    );
+                  } else {
+                    SnackBar snackBar =
+                        SnackBar(content: Text(resp.body.toString()));
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
                 },
                 child: Text('delete user'))
           ]),

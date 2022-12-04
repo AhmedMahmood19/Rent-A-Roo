@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 
 import '../apisCalls.dart';
@@ -85,6 +86,15 @@ class Listing {
 
   Future updateUserData(dynamic body) async {
     Response res = await ApiCalls().putApiRequest('/user/profile', body);
+    return res;
+  }
+
+  Future<Response> updatePhoto(Uint8List file,int listingid) async {
+    Map files = {};
+    files["name"] = "image";
+    files["file"] = file;
+    var res = await ApiCalls()
+        .postApiRequestForm('/listing/image/${listingid}', {}, [], [files]);
     return res;
   }
 

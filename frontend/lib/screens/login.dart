@@ -240,7 +240,7 @@ class _LoginState extends State<Login> {
                           ],
                         ).show();
                       } else {
-                        /*await Alert(
+                        await Alert(
                             context: context,
                             style: alertStyle,
                             type: AlertType.error,
@@ -257,19 +257,12 @@ class _LoginState extends State<Login> {
                                 onPressed: () => {
                                   Navigator.of(context, rootNavigator: true)
                                       .pop(),
-                                  if (resbody['errorMessage'] ==
-                                      "Username does not exists.")
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => HomePage(
-                                              )),
-                                    )
+                                  
                                 },
                                // color: glt.themeColor,
                               ),
                             ],
-                          ).show();*/
+                          ).show();
                       }
                     } else {
                       Map body = {

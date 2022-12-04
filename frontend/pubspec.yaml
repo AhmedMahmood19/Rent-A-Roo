@@ -51,6 +51,7 @@ dependencies:
   url_launcher: ^6.1.7
   location: ^4.4.0
   dart_geohash: ^2.0.2
+  mime: ^1.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
