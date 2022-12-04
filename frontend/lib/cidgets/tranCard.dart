@@ -9,6 +9,8 @@ class TranCard extends StatelessWidget {
   final String endDate;
   final String startPrices;
   final int listingid;
+  final bool flag;
+
   Function onPressed;
 
   TranCard(
@@ -18,7 +20,8 @@ class TranCard extends StatelessWidget {
       required this.endDate,
       required this.startPrices,
       required this.listingid,
-      required this.onPressed});
+      required this.onPressed,
+      required this.flag});
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +131,7 @@ class TranCard extends StatelessWidget {
                               },
                               child: Text('View Listing')),
                           TextButton(
-                              onPressed: () {
+                              onPressed: flag==true?null:() {
                                 onPressed();
                               },
                               child: Text('Rate'))

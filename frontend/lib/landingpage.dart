@@ -6,6 +6,7 @@ import 'package:rent_a_roo/screens/detailsPage.dart';
 import 'package:rent_a_roo/screens/favourites.dart';
 import 'package:rent_a_roo/screens/homescreen.dart';
 import 'package:rent_a_roo/screens/myListingDetails.dart';
+import 'package:rent_a_roo/screens/myListings.dart';
 import 'package:rent_a_roo/screens/profile.dart';
 import 'package:rent_a_roo/screens/reservationScreen.dart';
 
@@ -20,9 +21,7 @@ class LandingPageState extends State<LandingPage> {
     HomeScreen(),
     TransactionScreen(),
     ReservationScreen(),
-    DetailsPage(
-      listingID: 1,
-    ),
+    FavouritesPage(),
     Profile()
   ];
 
@@ -50,11 +49,11 @@ class LandingPageState extends State<LandingPage> {
                 Icons.search,
                 size: 30,
               ),
-              label: "EXPLORER",
+              label: "Explorer",
             ),
             BottomNavigationBarItem(
               icon: Icon(
-                Icons.favorite_border,
+                Icons.hourglass_full,
                 //color: Colors.black,
                 size: 30,
               ),
@@ -62,7 +61,7 @@ class LandingPageState extends State<LandingPage> {
             ),
             BottomNavigationBarItem(
               icon: Icon(
-                Icons.favorite_border,
+                Icons.hourglass_bottom_outlined,
                 //color: Colors.black,
                 size: 30,
               ),
@@ -70,17 +69,17 @@ class LandingPageState extends State<LandingPage> {
             ),
             BottomNavigationBarItem(
               icon: Icon(
-                Icons.house,
+                Icons.favorite,
                 size: 30,
               ),
-              label: "PROPERTIES",
+              label: "Favourite",
             ),
             BottomNavigationBarItem(
               icon: Icon(
-                Icons.person_outline,
+                Icons.person,
                 size: 30,
               ),
-              label: "PROFILE",
+              label: "Profile",
             )
           ]),
     );

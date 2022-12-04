@@ -4,6 +4,8 @@ import 'package:rent_a_roo/cidgets/recommendation_card.dart';
 import 'package:rent_a_roo/screens/explore.dart';
 import 'package:rent_a_roo/screens/searchFormPage.dart';
 
+import '../controls/services/listings.dart';
+
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -13,6 +15,50 @@ class _HomeScreenState extends State<HomeScreen> {
   final controller = PageController(
     initialPage: 1,
   );
+
+  List details=[];
+
+    Future initValues() async {
+      Map temp2 = {
+                  "state": "",
+                  "city": "",
+                  "is_apartment": true,
+                  "is_shared": true,
+                  "accommodates": 0,
+                  "bathrooms": 0,
+                  "bedrooms": 0,
+                  "wifi": true,
+                  "kitchen": true,
+                  "washing_machine": true,
+                  "air_conditioning": true,
+                  "tv": true,
+                  "hair_dryer": true,
+                  "iron": true,
+                  "pool": true,
+                  "gym": true,
+                  "smoking_allowed": true,
+                  "nights": 0,
+                  "min_nightly_price": 0,
+                  "max_nightly_price": 0,
+                  "min_rating": 0,
+                  "max_rating": 0,
+                  "min_total_ratings": 0,
+                  "max_total_ratings": 0,
+                  "is_ascending": true,
+                  "order_by": "city"
+                };
+    var resp2 = await Listing().postSearchListing(true, temp2);
+    details=resp2;
+    print(details);
+  }
+
+  @override
+  void initState() {
+    initValues().whenComplete(() {
+      setState(() {});
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              SizedBox(
-                height: 50,
-              ),
+             
               InkWell(
                 borderRadius: BorderRadius.circular(20),
                 onTap: () {
@@ -143,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(
                     width: 5,
                   ),
-                  Text('Recommended'),
+                  details.length==0?Container():Text('Recommended'),
                 ],
               ),
               SizedBox(
@@ -151,15 +195,15 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               ListView.builder(
                 physics: NeverScrollableScrollPhysics(),
-                itemCount: 4,
+                itemCount: details.length,
                 shrinkWrap: true,
                 itemBuilder: (ctx, int index) {
                   return RecommendCard(
                       imageUrl:
                           "https://cdn.britannica.com/67/19367-050-885866B4/Valley-Taurus-Mountains-Turkey.jpg",
-                      title: "Nice",
-                      location: "20-2-2020",
-                      startPrices: "200");
+                      title: details[index]['city'],
+                      location: details[index]['state'],
+                      startPrices: details[index]['nightly_price']);
                 },
               ),
 

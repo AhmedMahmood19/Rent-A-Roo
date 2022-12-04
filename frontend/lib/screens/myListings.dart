@@ -6,21 +6,18 @@ import '../cidgets/recommendation_card.dart';
 import '../controls/services/listings.dart';
 import 'detailsPage.dart';
 
-class FavouritesPage extends StatefulWidget {
-  const FavouritesPage({Key? key}) : super(key: key);
+class MyListings extends StatefulWidget {
+  const MyListings({Key? key}) : super(key: key);
 
   @override
-  State<FavouritesPage> createState() => _FavouritesPageState();
+  State<MyListings> createState() => _MyListingsState();
 }
 
+class _MyListingsState extends State<MyListings> {
+  List data = [];
 
-
-class _FavouritesPageState extends State<FavouritesPage> {
-
-    List data=[];
-
- Future initValues() async {
-    data = await Listing().getFavListing();
+  Future initValues() async {
+    data = await Listing().getMyListing();
     print(data);
   }
 
@@ -31,11 +28,13 @@ class _FavouritesPageState extends State<FavouritesPage> {
     });
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(
-          'Favourites',
+      appBar: AppBar(
+        title: Text(
+          'My Listings',
           style: TextStyle(color: Colors.green),
         ),
         elevation: 0,
@@ -49,14 +48,17 @@ class _FavouritesPageState extends State<FavouritesPage> {
         itemCount: data.length,
         shrinkWrap: true,
         itemBuilder: (ctx, int index) {
-          return Stack(
-            children:[ Padding(
+          return Stack(children: [
+            Padding(
               padding: const EdgeInsets.fromLTRB(12.0, 12, 12, 0),
               child: InkWell(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => DetailsPage(listingID: data[index]['listing_id'],)),
+                    MaterialPageRoute(
+                        builder: (context) => DetailsPage(
+                              listingID: data[index]['listing_id'],
+                            )),
                   );
                 },
                 child: Column(
@@ -75,7 +77,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
                     Row(
                       children: [
                         Text(
-                          data[index]['state']??"",
+                          data[index]['state'] ?? "",
                           style: TextStyle(fontSize: 18, color: Colors.black),
                         ),
                         Spacer(),
@@ -83,18 +85,21 @@ class _FavouritesPageState extends State<FavouritesPage> {
                           Icons.star,
                           size: 14,
                         ),
-                        Text(data[index]['rating'].toString()??"", style: TextStyle(fontSize: 18))
+                        Text(data[index]['rating'].toString() ?? "",
+                            style: TextStyle(fontSize: 18))
                       ],
                     ),
                     SizedBox(
                       height: 3,
                     ),
-                    Text(data[index]['city']??"", style: TextStyle(fontSize: 16)),
+                    Text(data[index]['city'] ?? "",
+                        style: TextStyle(fontSize: 16)),
                     SizedBox(
                       height: 3,
                     ),
-                    
-                    Text('Rs-/${data[index]['nightly_price'].toString()??""} / night', style: TextStyle(fontSize: 16)),
+                    Text(
+                        'Rs-/${data[index]['nightly_price'].toString() ?? ""} / night',
+                        style: TextStyle(fontSize: 16)),
                     Divider(height: 10, thickness: 1)
                   ],
                 ),
@@ -103,21 +108,19 @@ class _FavouritesPageState extends State<FavouritesPage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Align(
-                alignment: Alignment.topRight,
-                child: IconButton(onPressed: ()async{
-                  var resp= Listing().delFav(data[index]['listing_id']);
-                  print(resp);
-                  
-                  await initValues();
-                  setState(() {
-                    
-                  });
-                  SnackBar snackBar = SnackBar(content: Text("Listing removed from favorites"));
-                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                }, icon: Icon(Icons.favorite))),
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                      onPressed: () async {
+                        var resp = await Listing()
+                            .delListing(data[index]['listing_id']);
+                        print(resp);
+                        initValues().whenComplete(() {
+                          setState(() {});
+                        });
+                      },
+                      icon: Icon(Icons.close))),
             )
-            ]
-          );
+          ]);
         },
       ),
     );

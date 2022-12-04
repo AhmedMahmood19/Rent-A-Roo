@@ -99,7 +99,7 @@ class _MyListingDetailsPageState extends State<MyListingDetailsPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ReviewsScreens()),
+                                    builder: (context) => ReviewsScreens(listingid: widget.listingID,)),
                               );
                             },
                             child: Text('Reviews'))

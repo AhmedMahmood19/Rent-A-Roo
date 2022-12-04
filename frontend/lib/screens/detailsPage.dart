@@ -4,15 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:rent_a_roo/screens/bookingPage.dart';
+import 'package:rent_a_roo/screens/q&aScreen.dart';
 import 'package:rent_a_roo/screens/reviewsScreen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../cidgets/CustomNavBar2.dart';
 import '../cidgets/customNavBar.dart';
 import '../controls/services/listings.dart';
 import 'EditListingData.dart';
+import 'Q8A.dart';
+import 'ViewHostProfile.dart';
+import 'listAmeneties.dart';
 
 class DetailsPage extends StatefulWidget {
-   DetailsPage({Key? key,required this.listingID}) : super(key: key);
+  DetailsPage({Key? key, required this.listingID}) : super(key: key);
   int listingID;
   @override
   State<DetailsPage> createState() => _DetailsPageState();
@@ -20,7 +25,6 @@ class DetailsPage extends StatefulWidget {
 
 class _DetailsPageState extends State<DetailsPage> {
   int _current = 0;
-
   var carouselInfo = [
     {
       'img':
@@ -33,21 +37,18 @@ class _DetailsPageState extends State<DetailsPage> {
       'flag': '2',
     }
   ];
-  Map details={};
-    Future initValues() async
-  {
-     details = await Listing().getListing(widget.listingID); 
+  Map details = {};
+  Future initValues() async {
+    details = await Listing().getListing(widget.listingID);
 
     print(details);
-    
   }
 
   @override
   void initState() {
-
-       initValues().whenComplete((){
-          setState(() {});
-       });
+    initValues().whenComplete(() {
+      setState(() {});
+    });
     super.initState();
   }
 
@@ -59,6 +60,19 @@ class _DetailsPageState extends State<DetailsPage> {
           foregroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           elevation: 0,
+          actions: [
+            IconButton(
+                onPressed: () async {
+                  var resp = await Listing().postFav(widget.listingID);
+                  print(resp);
+                   SnackBar snackBar = SnackBar(content: Text(resp['Detail']??"Already favourite or own listing"));
+                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                },
+                icon: Icon(
+                  Icons.favorite_border,
+                  color: Colors.green,
+                ))
+          ],
         ),
         body: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -69,7 +83,7 @@ class _DetailsPageState extends State<DetailsPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    details['title']??"",
+                    details['title'] ?? "",
                     style: TextStyle(
                       fontSize: 28,
                     ),
@@ -83,16 +97,36 @@ class _DetailsPageState extends State<DetailsPage> {
                     child: Row(
                       children: [
                         Icon(Icons.star),
-                        Text(details['rating'].toString()??""),
+                        Text(details['rating'].toString() ?? ""),
                         Spacer(),
                         Text('|'),
                         Spacer(),
                         Icon(Icons.location_pin),
-                        Text(details['city']??""),
+                        Text(details['city'] ?? ""),
                         Spacer(),
                         Text('|'),
                         Spacer(),
-                        Text('FAQs'),
+                        InkWell(
+                            onTap: () {
+                              if (details['is_host'] == true) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Q7AScreen(
+                                            listingid: widget.listingID,
+                                          )),
+                                );
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Q8AScreen(
+                                            listingid: widget.listingID,
+                                          )),
+                                );
+                              }
+                            },
+                            child: Text('FAQs')),
                         Spacer(),
                         Text('|'),
                         Spacer(),
@@ -101,7 +135,9 @@ class _DetailsPageState extends State<DetailsPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ReviewsScreens()),
+                                    builder: (context) => ReviewsScreens(
+                                          listingid: widget.listingID,
+                                        )),
                               );
                             },
                             child: Text('Reviews'))
@@ -109,74 +145,130 @@ class _DetailsPageState extends State<DetailsPage> {
                     ),
                   ),
                   Divider(),
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.grey,
-                        radius: 25,
-                      ),
-                      SizedBox(
-                        width: 15,
-                      ),
-                      Text(
-                        "${details['first_name']??""} ${details['last_name']??""}",
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      Spacer(),
-                      Icon(Icons.arrow_right_alt)
-                    ],
-                  ),
-                  Divider(),
-                  Text(
-                    details['description']??"",
-                    maxLines: 20,
-                  ),
-                  Divider(),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(20.0),
-                    child: Container(
-                      color: Colors.white,
-                      child: Image.asset(
-                        'assets/khimap.jpg',
-                        fit: BoxFit.cover,
-                      ),
-                      width: double.infinity,
-                      height: 150,
+                  InkWell(
+                    onTap: (){
+                         Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HostProfile(
+                                          hostid: details['host_id'],
+                                        )),
+                              );
+                    },
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.grey,
+                          radius: 25,
+                        ),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Text(
+                          "${details['first_name'] ?? ""} ${details['last_name'] ?? ""}",
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        Spacer(),
+                        Icon(Icons.arrow_right_alt)
+                      ],
                     ),
                   ),
                   Divider(),
-                  Row(
-                    children: [
-                      Text(
-                        'Ameneties',
-                        style: TextStyle(fontSize: 16),
+                  Text(
+                    details['description'] ?? "",
+                    maxLines: 20,
+                  ),
+                  Divider(),
+                  InkWell(
+                    onTap: ()async{
+                      final Uri _url = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=24.8607,67.0011');
+                      await launchUrl(_url);
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20.0),
+                      child: Container(
+                        color: Colors.white,
+                        child: Image.asset(
+                          'assets/khimap.jpg',
+                          fit: BoxFit.cover,
+                        ),
+                        width: double.infinity,
+                        height: 150,
                       ),
-                      Spacer(),
-                      Icon(Icons.arrow_right_alt),
-                      SizedBox(
-                        width: 10,
-                      )
-                    ],
+                    ),
+                  ),
+                  Divider(),
+                  InkWell(
+                    onTap: () {
+                      Map temp = {
+                        'WIFI': details['wifi'],
+                        'KITCHEN': details['kitchen'],
+                        'WASHING MACHINE': details['washing_machine'],
+                        'AIR CONDITIONING': details['air_conditioning'],
+                        'TV': details['tv'],
+                        'HAIR_DRYER': details['hair_dryer'],
+                        'IRON': details['iron'],
+                        'POOL': details['pool'],
+                        'GYM': details['gym'],
+                        'SMOKING ALLOWED': details['smoking_allowed'],
+                        'IS_APARTMENT': details['is_apartment'],
+                        'IS_SHARED': details['is_shared'],
+                      };
+                      print(temp);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ListServices(
+                                  req: temp,
+                                )),
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        Text(
+                          'Ameneties',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        Spacer(),
+                        Icon(Icons.arrow_right_alt),
+                        SizedBox(
+                          width: 10,
+                        )
+                      ],
+                    ),
                   )
                 ],
               ),
             )
           ]),
         ),
-        bottomNavigationBar: details['is_host']==true?CustomNavBar2(onPressed: (){Navigator.push(
-              context,
-              MaterialPageRoute(
-                  maintainState: false, builder: (context) => EditListingData(listingID: widget.listingID,)),
-            );}, price: details['nightly_price'].toString()??""):CustomNavBar(
-          price: details['nightly_price'].toString()??"",
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  maintainState: false, builder: (context) => BookingPage(listingID: widget.listingID,)),
-            );
-          },
-        ));
+        bottomNavigationBar: details['is_host'] == true
+            ? CustomNavBar2(
+                listingid: widget.listingID,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        maintainState: false,
+                        builder: (context) => EditListingData(
+                              listingID: widget.listingID,
+                            )),
+                  );
+                },
+                price: details['nightly_price'].toString() ?? "")
+            : CustomNavBar(
+                price: details['nightly_price'].toString() ?? "",
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        maintainState: false,
+                        builder: (context) => BookingPage(
+                              listingID: widget.listingID,
+                            )),
+                  );
+                },
+              ));
   }
 
   Widget carousel() {

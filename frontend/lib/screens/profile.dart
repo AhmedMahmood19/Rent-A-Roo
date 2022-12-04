@@ -4,6 +4,7 @@ import 'package:rent_a_roo/controls/services/auth.dart';
 import 'package:rent_a_roo/screens/createListing.dart';
 import 'package:rent_a_roo/screens/homepage.dart';
 import 'package:rent_a_roo/screens/login.dart';
+import 'package:rent_a_roo/screens/myListings.dart';
 
 import '../controls/services/user.dart';
 import 'editProfile.dart';
@@ -154,7 +155,10 @@ class _ProfileState extends State<Profile> {
             height: 1,
           ),
           TextButton(
-            onPressed: () {},
+            onPressed: () { Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MyListings()),
+              );},
             child: Padding(
               padding: EdgeInsets.all(15),
               child: Row(
@@ -162,7 +166,7 @@ class _ProfileState extends State<Profile> {
                 children: <Widget>[
                   Expanded(
                     child: Text(
-                      "Notifications",
+                      "My Listings",
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 18,
@@ -171,7 +175,7 @@ class _ProfileState extends State<Profile> {
                     ),
                   ),
                   Icon(
-                    Icons.notifications_none,
+                    Icons.house,
                   ),
                 ],
               ),

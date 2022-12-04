@@ -10,6 +10,8 @@ import '../cidgets/CustomNavBar2.dart';
 import '../cidgets/customNavBar.dart';
 import '../controls/services/listings.dart';
 import 'EditListingData.dart';
+import 'Q8A.dart';
+import 'listAmeneties.dart';
 
 class ViewListing extends StatefulWidget {
   ViewListing({Key? key, required this.listingID}) : super(key: key);
@@ -89,7 +91,17 @@ class _ViewListingState extends State<ViewListing> {
                         Spacer(),
                         Text('|'),
                         Spacer(),
-                        Text('FAQs'),
+                        InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Q8AScreen(
+                                          listingid: widget.listingID,
+                                        )),
+                              );
+                            },
+                            child: Text('FAQs')),
                         Spacer(),
                         Text('|'),
                         Spacer(),
@@ -98,7 +110,9 @@ class _ViewListingState extends State<ViewListing> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ReviewsScreens()),
+                                    builder: (context) => ReviewsScreens(
+                                          listingid: widget.listingID,
+                                        )),
                               );
                             },
                             child: Text('Reviews'))
@@ -142,18 +156,44 @@ class _ViewListingState extends State<ViewListing> {
                     ),
                   ),
                   Divider(),
-                  Row(
-                    children: [
-                      Text(
-                        'Ameneties',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      Spacer(),
-                      Icon(Icons.arrow_right_alt),
-                      SizedBox(
-                        width: 10,
-                      )
-                    ],
+                  InkWell(
+                    onTap: () {
+                      Map temp = {
+                        'WIFI': details['wifi'],
+                        'KITCHEN': details['kitchen'],
+                        'WASHING MACHINE': details['washing_machine'],
+                        'AIR CONDITIONING': details['air_conditioning'],
+                        'TV': details['tv'],
+                        'HAIR_DRYER': details['hair_dryer'],
+                        'IRON': details['iron'],
+                        'POOL': details['pool'],
+                        'GYM': details['gym'],
+                        'SMOKING ALLOWED': details['smoking_allowed'],
+                        'IS_APARTMENT': details['is_apartment'],
+                        'IS_SHARED': details['is_shared'],
+                      };
+                      print(temp);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ListServices(
+                                  req: temp,
+                                )),
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        Text(
+                          'Ameneties',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        Spacer(),
+                        Icon(Icons.arrow_right_alt),
+                        SizedBox(
+                          width: 10,
+                        )
+                      ],
+                    ),
                   )
                 ],
               ),
@@ -162,13 +202,12 @@ class _ViewListingState extends State<ViewListing> {
         ),
         bottomNavigationBar: details['is_host'] == true
             ? CustomNavBar2(
+                listingid: widget.listingID,
                 onPressed: () {},
                 price: details['nightly_price'].toString() ?? "")
             : CustomNavBar(
                 price: details['nightly_price'].toString() ?? "",
-                onPressed: () {
-                  
-                },
+                onPressed: () {},
               ));
   }
 

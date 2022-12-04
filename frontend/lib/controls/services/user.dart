@@ -10,6 +10,12 @@ class User {
     Map body = jsonDecode(res.body);
     return body ?? {};
   }
+    Future<Map> getProfile(int id) async {
+    Response res =
+        await ApiCalls().getApiRequest('/user/profile/${id}');
+    Map body = jsonDecode(res.body);
+    return body ?? {};
+  }
 
   Future updateUserData(dynamic body) async {
     Response res =

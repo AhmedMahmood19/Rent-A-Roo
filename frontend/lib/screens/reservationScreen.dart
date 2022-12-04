@@ -58,8 +58,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
           leading: Container(),
           actions: [
             IconButton(
-                onPressed: () {
-                  initValues();
+                onPressed: () async{
+                  await initValues();
                   setState(() {});
                 },
                 icon: Icon(Icons.refresh))
@@ -78,7 +78,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
         ),
         body: TabBarView(
           children: [
-            ListView.builder(
+            hostReservations.length==0?Center(child: Text('No Reservations Found'),): ListView.builder(
               itemCount: hostReservations.length,
               shrinkWrap: true,
               itemBuilder: (ctx, int index) {
@@ -108,7 +108,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
                 );
               },
             ),
-            ListView.builder(
+            guestReservation.length==0?Center(child: Text('No Reservations Found'),): ListView.builder(
               itemCount: guestReservation.length,
               shrinkWrap: true,
               itemBuilder: (ctx, int index) {

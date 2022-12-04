@@ -134,7 +134,7 @@ class _SearchFormPageState extends State<SearchFormPage> {
                 print(temp);
                 var resp = await Listing().postSearchListing(false, temp);
                 print(resp);
-                var resp2 = await Listing().postSearchListing(true, temp2);
+                var resp2 = await Listing().postSearchListing(true, temp);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
