@@ -4,21 +4,22 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:rent_a_roo/controls/services/reservactions.dart';
 
+import '../constants.dart';
 import '../controls/apisCalls.dart';
 import '../controls/services/user.dart';
 import 'login.dart';
 
 class HostProfile extends StatefulWidget {
-  HostProfile({super.key, required this.hostid});
+  HostProfile({super.key, required this.hostid, required this.img});
   int hostid;
+  String img;
   @override
   State<HostProfile> createState() => _HostProfileState();
 }
 
 class _HostProfileState extends State<HostProfile> {
   Future fetchData() async {
-    Map userDetails =
-        await User().getProfile(widget.hostid);
+    Map userDetails = await User().getProfile(widget.hostid);
 
     print(userDetails);
     if (!mounted) return;
@@ -76,7 +77,6 @@ class _HostProfileState extends State<HostProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-     
         title: Text(
           'Guest Profile',
           style: TextStyle(color: Colors.green),
@@ -93,9 +93,12 @@ class _HostProfileState extends State<HostProfile> {
           CircleAvatar(
             radius: 30,
             backgroundColor: Colors.black,
-            child: Image.asset(
-              userMap['image_path'],
-              fit: BoxFit.fill,
+            child: ClipRRect(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              child: Image.network(
+                "${Constants().ip}${userMap['image_path']}",
+                fit: BoxFit.fill,
+              ),
             ),
           ),
           SizedBox(

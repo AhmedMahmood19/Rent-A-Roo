@@ -3,6 +3,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 import '../cidgets/recommendation_card.dart';
+import '../constants.dart';
 import '../controls/services/listings.dart';
 import 'detailsPage.dart';
 
@@ -42,7 +43,6 @@ class _MyListingsState extends State<MyListings> {
           color: Colors.green, //change your color here
         ),
         backgroundColor: Colors.white,
-        leading: Container(),
       ),
       body: ListView.builder(
         itemCount: data.length,
@@ -70,6 +70,7 @@ class _MyListingsState extends State<MyListings> {
                           borderRadius: BorderRadius.all(Radius.circular(10))),
                       height: 250,
                       width: double.maxFinite,
+                        child: Image.network("${Constants().ip}${data[index]['image_path'][1].toString()}",fit: BoxFit.cover,),
                     ),
                     SizedBox(
                       height: 10,

@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:rent_a_roo/controls/services/auth.dart';
 
+import '../constants.dart';
 import '../controls/apisCalls.dart';
 import '../controls/services/user.dart';
 import 'login.dart';
@@ -97,7 +98,9 @@ class _EditProfileState extends State<EditProfile> {
             CircleAvatar(
               radius: 30,
               backgroundColor: Colors.black,
-              child: Image.asset(userMap['image_path'],fit: BoxFit.fill,),
+              child: ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                child: Image.network("${Constants().ip}${userMap['image_path']}",fit: BoxFit.fill,)),
             ),
             SizedBox(
               height: 20,

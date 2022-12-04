@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_controller.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:dart_geohash/dart_geohash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -10,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../cidgets/CustomNavBar2.dart';
 import '../cidgets/customNavBar.dart';
+import '../constants.dart';
 import '../controls/services/listings.dart';
 import 'EditListingData.dart';
 import 'Q8A.dart';
@@ -25,6 +27,7 @@ class DetailsPage extends StatefulWidget {
 
 class _DetailsPageState extends State<DetailsPage> {
   int _current = 0;
+  List imgList = [];
   var carouselInfo = [
     {
       'img':
@@ -42,6 +45,8 @@ class _DetailsPageState extends State<DetailsPage> {
     details = await Listing().getListing(widget.listingID);
 
     print(details);
+    imgList = details['image_path'];
+    setState(() {});
   }
 
   @override
@@ -63,10 +68,13 @@ class _DetailsPageState extends State<DetailsPage> {
           actions: [
             IconButton(
                 onPressed: () async {
+                  print(imgList);
                   var resp = await Listing().postFav(widget.listingID);
                   print(resp);
-                   SnackBar snackBar = SnackBar(content: Text(resp['Detail']??"Already favourite or own listing"));
-                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  SnackBar snackBar = SnackBar(
+                      content: Text(resp['Detail'] ??
+                          "Already favourite or own listing"));
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 },
                 icon: Icon(
                   Icons.favorite_border,
@@ -146,20 +154,25 @@ class _DetailsPageState extends State<DetailsPage> {
                   ),
                   Divider(),
                   InkWell(
-                    onTap: (){
-                         Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => HostProfile(
-                                          hostid: details['host_id'],
-                                        )),
-                              );
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => HostProfile(
+                                hostid: details['host_id'],
+                                img: details['host_image_path'])),
+                      );
                     },
                     child: Row(
                       children: [
                         CircleAvatar(
                           backgroundColor: Colors.grey,
                           radius: 25,
+                          child: ClipRRect(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                              child: Image.network(
+                                  "${Constants().ip}${details['host_image_path']}")),
                         ),
                         SizedBox(
                           width: 15,
@@ -180,9 +193,19 @@ class _DetailsPageState extends State<DetailsPage> {
                   ),
                   Divider(),
                   InkWell(
-                    onTap: ()async{
-                      final Uri _url = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=24.8607,67.0011');
-                      await launchUrl(_url);
+                    onTap: () async {
+                      if (details["gps_location"] != null) {
+                        GeoHash geohash = GeoHash(details["gps_location"]);
+                        final Uri _url = Uri.parse(
+                            'https://www.google.com/maps/dir/?api=1&destination=${geohash.longitude()},${geohash.latitude()}');
+                        await launchUrl(_url);
+                      }
+                      else
+                      {
+                         final Uri _url = Uri.parse(
+                            'https://www.google.com/maps/dir/?api=1&destination=24,67');
+                        await launchUrl(_url);
+                      }
                     },
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20.0),
@@ -273,64 +296,41 @@ class _DetailsPageState extends State<DetailsPage> {
 
   Widget carousel() {
     CarouselController _controller = CarouselController();
-    return Column(
-      children: [
-        Container(
-          height: 200,
-          width: double.maxFinite,
-          child: CarouselSlider.builder(
-              options: CarouselOptions(
-                initialPage: 0,
-                enableInfiniteScroll: true,
-                reverse: false,
-                autoPlay: true,
-                viewportFraction: 1,
-                autoPlayInterval: Duration(seconds: 3),
-                autoPlayAnimationDuration: Duration(milliseconds: 800),
-                autoPlayCurve: Curves.fastOutSlowIn,
-                enlargeCenterPage: false,
-                scrollDirection: Axis.horizontal,
-              ),
-              itemCount: carouselInfo.length,
-              itemBuilder:
-                  (BuildContext context, int itemIndex, int pageViewIndex) {
-                return InkWell(
-                  onTap: () async {},
-                  child: Container(
-                    padding: EdgeInsets.fromLTRB(15, 8, 15, 8),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(30.0),
-                      child: Image.network(
-                        carouselInfo[itemIndex]['img'].toString(),
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        //  subject['images']['large'],
-                      ),
-                    ),
-                  ),
-                );
-              }),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: carouselInfo.asMap().entries.map((entry) {
-            return GestureDetector(
-              onTap: () => _controller.animateToPage(entry.key),
+    return Container(
+      height: 200,
+      width: double.maxFinite,
+      child: CarouselSlider.builder(
+          options: CarouselOptions(
+            initialPage: 0,
+            enableInfiniteScroll: true,
+            reverse: false,
+            autoPlay: true,
+            viewportFraction: 1,
+            autoPlayInterval: Duration(seconds: 3),
+            autoPlayAnimationDuration: Duration(milliseconds: 800),
+            autoPlayCurve: Curves.fastOutSlowIn,
+            enlargeCenterPage: false,
+            scrollDirection: Axis.horizontal,
+          ),
+          itemCount: details['image_path'].length,
+          itemBuilder:
+              (BuildContext context, int itemIndex, int pageViewIndex) {
+            return InkWell(
+              onTap: () async {},
               child: Container(
-                width: 6.0,
-                height: 6.0,
-                margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: (Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white
-                            : Colors.black45)
-                        .withOpacity(_current == entry.key ? 0.5 : 0.3)),
+                padding: EdgeInsets.fromLTRB(15, 8, 15, 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(30.0),
+                  child: Image.network(
+                    "${Constants().ip}${details['image_path'][itemIndex]}",
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    //  subject['images']['large'],
+                  ),
+                ),
               ),
             );
-          }).toList(),
-        ),
-      ],
+          }),
     );
   }
 }

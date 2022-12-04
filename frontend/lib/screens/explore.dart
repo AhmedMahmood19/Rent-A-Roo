@@ -5,6 +5,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:rent_a_roo/controls/services/listings.dart';
 import 'package:rent_a_roo/screens/detailsPage.dart';
 
+import '../constants.dart';
+
 class ExplorePage extends StatefulWidget {
   const ExplorePage({Key? key}) : super(key: key);
 
@@ -63,6 +65,7 @@ class _ExplorePageState extends State<ExplorePage> {
                         borderRadius: BorderRadius.all(Radius.circular(10))),
                     height: 250,
                     width: double.maxFinite,
+                    child: Image.network("${Constants().ip}${data[index]['image_path'][1].toString()}",fit: BoxFit.cover,),
                   ),
                   SizedBox(
                     height: 10,

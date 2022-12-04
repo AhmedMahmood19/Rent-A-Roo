@@ -6,6 +6,7 @@ import 'package:rent_a_roo/screens/homepage.dart';
 import 'package:rent_a_roo/screens/login.dart';
 import 'package:rent_a_roo/screens/myListings.dart';
 
+import '../constants.dart';
 import '../controls/services/user.dart';
 import 'editProfile.dart';
 
@@ -36,8 +37,11 @@ class _ProfileState extends State<Profile> {
         'avgHost': userDetails['avg_host_rating'] ?? "",
         'avgGuest': userDetails['avg_guest_rating'] ?? "",
         'aboutme': userDetails['about_me'] ?? "",
+        'image_path': userDetails['image_path'] ?? "",
+
       };
       print(userMap);
+      
     });
   }
 
@@ -67,7 +71,7 @@ class _ProfileState extends State<Profile> {
                     decoration: BoxDecoration(
                         image: DecorationImage(
                             image: NetworkImage(
-                                'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460__340.png'),
+                               "${Constants().ip}${userMap['image_path']}"),
                             fit: BoxFit.cover),
                         borderRadius: BorderRadius.circular(20)),
                   ),

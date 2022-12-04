@@ -8,6 +8,7 @@ import 'package:rent_a_roo/screens/reviewsScreen.dart';
 
 import '../cidgets/CustomNavBar2.dart';
 import '../cidgets/customNavBar.dart';
+import '../constants.dart';
 import '../controls/services/listings.dart';
 import 'EditListingData.dart';
 import 'Q8A.dart';
@@ -25,13 +26,11 @@ class _ViewListingState extends State<ViewListing> {
 
   var carouselInfo = [
     {
-      'img':
-          'https://images.unsplash.com/photo-1597655601841-214a4cfe8b2c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bW91bnRhaW4lMjBzY2VuZXJ5fGVufDB8fDB8fA%3D%3D&w=1000&q=80',
+      'img':"http://127.0.0.1:8000/static/images/ac5735895.webp",
       'flag': '2',
     },
     {
-      'img':
-          'https://images.unsplash.com/photo-1597655601841-214a4cfe8b2c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bW91bnRhaW4lMjBzY2VuZXJ5fGVufDB8fDB8fA%3D%3D&w=1000&q=80',
+      'img':"http://127.0.0.1:8000/static/images/ac5735895.webp",
       'flag': '2',
     }
   ];
@@ -125,6 +124,11 @@ class _ViewListingState extends State<ViewListing> {
                       CircleAvatar(
                         backgroundColor: Colors.grey,
                         radius: 25,
+                        child: ClipRRect(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                              child: Image.network(
+                                  "${Constants().ip}${details['host_image_path']}")),
                       ),
                       SizedBox(
                         width: 15,
@@ -181,18 +185,44 @@ class _ViewListingState extends State<ViewListing> {
                                 )),
                       );
                     },
-                    child: Row(
-                      children: [
-                        Text(
-                          'Ameneties',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        Spacer(),
-                        Icon(Icons.arrow_right_alt),
-                        SizedBox(
-                          width: 10,
-                        )
-                      ],
+                    child: InkWell(
+                      onTap: (){
+                         Map temp = {
+                        'WIFI': details['wifi'],
+                        'KITCHEN': details['kitchen'],
+                        'WASHING MACHINE': details['washing_machine'],
+                        'AIR CONDITIONING': details['air_conditioning'],
+                        'TV': details['tv'],
+                        'HAIR_DRYER': details['hair_dryer'],
+                        'IRON': details['iron'],
+                        'POOL': details['pool'],
+                        'GYM': details['gym'],
+                        'SMOKING ALLOWED': details['smoking_allowed'],
+                        'IS_APARTMENT': details['is_apartment'],
+                        'IS_SHARED': details['is_shared'],
+                      };
+                      print(temp);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ListServices(
+                                  req: temp,
+                                )),
+                      );
+                      },
+                      child: Row(
+                        children: [
+                          Text(
+                            'Ameneties',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          Spacer(),
+                          Icon(Icons.arrow_right_alt),
+                          SizedBox(
+                            width: 10,
+                          )
+                        ],
+                      ),
                     ),
                   )
                 ],
@@ -200,15 +230,16 @@ class _ViewListingState extends State<ViewListing> {
             )
           ]),
         ),
-        bottomNavigationBar: details['is_host'] == true
-            ? CustomNavBar2(
-                listingid: widget.listingID,
-                onPressed: () {},
-                price: details['nightly_price'].toString() ?? "")
-            : CustomNavBar(
-                price: details['nightly_price'].toString() ?? "",
-                onPressed: () {},
-              ));
+        bottomNavigationBar: Container(
+          height: 80,
+           decoration: BoxDecoration(
+          border:
+              Border(top: BorderSide(color: Theme.of(context).dividerColor))),
+          child:Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Text("Rs-/"+details['nightly_price'].toString() ?? "",style: TextStyle(fontSize: 22),),
+          ))
+          );
   }
 
   Widget carousel() {
@@ -241,7 +272,7 @@ class _ViewListingState extends State<ViewListing> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(30.0),
                       child: Image.network(
-                        carouselInfo[itemIndex]['img'].toString(),
+                          "${Constants().ip}${details['image_path'][itemIndex]}",
                         fit: BoxFit.cover,
                         width: double.infinity,
                         //  subject['images']['large'],
@@ -251,25 +282,7 @@ class _ViewListingState extends State<ViewListing> {
                 );
               }),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: carouselInfo.asMap().entries.map((entry) {
-            return GestureDetector(
-              onTap: () => _controller.animateToPage(entry.key),
-              child: Container(
-                width: 6.0,
-                height: 6.0,
-                margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: (Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white
-                            : Colors.black45)
-                        .withOpacity(_current == entry.key ? 0.5 : 0.3)),
-              ),
-            );
-          }).toList(),
-        ),
+     
       ],
     );
   }

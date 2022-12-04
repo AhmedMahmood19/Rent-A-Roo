@@ -65,7 +65,7 @@ class _ReviewsScreensState extends State<ReviewsScreens> {
                         Text('${data[index]['first_name']??"Deleted"} ${data[index]['last_name']??"User"}'),
                         SizedBox(width: 10,),
                         RatingBarIndicator(
-                          rating: data[index]['rating'],
+                          rating: data[index]['rating'].toDouble(),
                           itemBuilder: (context, index) => Icon(
                             Icons.star,
                             color: Colors.amber,

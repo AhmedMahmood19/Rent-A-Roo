@@ -1,6 +1,8 @@
+import 'package:dart_geohash/dart_geohash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:location/location.dart';
 import 'package:rent_a_roo/controls/services/listings.dart';
 import 'package:rent_a_roo/screens/addAmeneities.dart';
 
@@ -12,71 +14,81 @@ class CreateListing extends StatefulWidget {
 }
 
 class _CreateListingState extends State<CreateListing> {
-  TextEditingController title=TextEditingController();
-    TextEditingController location=TextEditingController();
-  TextEditingController description=TextEditingController();
-  TextEditingController rooms=TextEditingController();
-  TextEditingController maxNights=TextEditingController();
-  TextEditingController minNights=TextEditingController();
-    TextEditingController accomodates=TextEditingController();
-  TextEditingController bathroom=TextEditingController();
-  TextEditingController nightlyPrice=TextEditingController();
-    TextEditingController city=TextEditingController();
-  TextEditingController state=TextEditingController();
-  TextEditingController address=TextEditingController();
-
-
-
+  TextEditingController title = TextEditingController();
+  TextEditingController location = TextEditingController();
+  TextEditingController description = TextEditingController();
+  TextEditingController rooms = TextEditingController();
+  TextEditingController maxNights = TextEditingController();
+  TextEditingController minNights = TextEditingController();
+  TextEditingController accomodates = TextEditingController();
+  TextEditingController bathroom = TextEditingController();
+  TextEditingController nightlyPrice = TextEditingController();
+  TextEditingController city = TextEditingController();
+  TextEditingController state = TextEditingController();
+  TextEditingController address = TextEditingController();
+  double lat=0;
+  double long=0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text(
+          'Create listing',
+          style: TextStyle(color: Colors.green),
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.green, //change your color here
+        ),
+        elevation: 0,
+        backgroundColor: Colors.white,
         actions: [
           IconButton(
-              onPressed: () async{
-                Map map={
-  "title": title.text,
-  "description": description.text,
-  "state": state.text,
-  "city": city.text,
-  "address": address.text,
-  "is_apartment": true,
-  "apartment_no": '1',
-  "gps_location": "geoloc",
-  "is_shared": true,
-  "accommodates": int.parse(accomodates.text),
-  "bathrooms": int.parse(bathroom.text),
-  "bedrooms": int.parse(rooms.text),
-  "nightly_price": int.parse(nightlyPrice.text),
-  "min_nights": int.parse(maxNights.text),
-  "max_nights": int.parse(minNights.text),
-  "wifi": true,
-  "kitchen": true,
-  "washing_machine": true,
-  "air_conditioning": true,
-  "tv": true,
-  "hair_dryer": true,
-  "iron": true,
-  "pool": true,
-  "gym": true,
-  "smoking_allowed": true
-};
-
+              onPressed: () async {
+                GeoHasher geoHasher = GeoHasher();
+                Map map = {
+                  "title": title.text,
+                  "description": description.text,
+                  "state": state.text,
+                  "city": city.text,
+                  "address": address.text,
+                  "is_apartment": true,
+                  "apartment_no": '1',
+                  "gps_location": geoHasher.encode(long,lat),
+                  "is_shared": true,
+                  "accommodates": int.parse(accomodates.text),
+                  "bathrooms": int.parse(bathroom.text),
+                  "bedrooms": int.parse(rooms.text),
+                  "nightly_price": int.parse(nightlyPrice.text),
+                  "min_nights": int.parse(maxNights.text),
+                  "max_nights": int.parse(minNights.text),
+                  "wifi": true,
+                  "kitchen": true,
+                  "washing_machine": true,
+                  "air_conditioning": true,
+                  "tv": true,
+                  "hair_dryer": true,
+                  "iron": true,
+                  "pool": true,
+                  "gym": true,
+                  "smoking_allowed": true
+                };
 
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddServices(req: map,)),
+                  MaterialPageRoute(
+                      builder: (context) => AddServices(
+                            req: map,
+                          )),
                 );
               },
               icon: Icon(Icons.arrow_right))
         ],
       ),
       body: SingleChildScrollView(
-        child: Column(children: [
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
-
               controller: title,
               decoration: InputDecoration(
                   hintText: "Title",
@@ -89,7 +101,6 @@ class _CreateListingState extends State<CreateListing> {
             ),
           ),
           Padding(
-            
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: city,
@@ -104,7 +115,6 @@ class _CreateListingState extends State<CreateListing> {
             ),
           ),
           Padding(
-            
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: address,
@@ -217,7 +227,7 @@ class _CreateListingState extends State<CreateListing> {
                   )),
             ),
           ),
-           Padding(
+          Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: maxNights,
@@ -230,7 +240,8 @@ class _CreateListingState extends State<CreateListing> {
                     color: Colors.grey,
                   )),
             ),
-          ), Padding(
+          ),
+          Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: minNights,
@@ -244,6 +255,45 @@ class _CreateListingState extends State<CreateListing> {
                   )),
             ),
           ),
+          TextButton.icon(
+              onPressed: () async {
+                Location location = new Location();
+
+                bool _serviceEnabled;
+                PermissionStatus _permissionGranted;
+                LocationData _locationData;
+                _serviceEnabled = await location.serviceEnabled();
+                if (!_serviceEnabled) {
+                  _serviceEnabled = await location.requestService();
+                  if (!_serviceEnabled) {
+                    return;
+                  }
+                }
+
+                _permissionGranted = await location.hasPermission();
+                if (_permissionGranted == PermissionStatus.denied) {
+                  _permissionGranted = await location.requestPermission();
+                  if (_permissionGranted != PermissionStatus.granted) {
+                    return;
+                  }
+                }
+
+                _locationData = await location.getLocation();
+                lat=_locationData.latitude!;
+                long=_locationData.longitude!;
+                String a=GeoHasher().encode(long,lat);
+                print(a);
+                print(GeoHasher().decode(a).toString());
+                print(_locationData.latitude);
+              },
+              icon: Icon(
+                Icons.location_on,
+                color: Colors.green,
+              ),
+              label: Text(
+                'Add Location',
+                style: TextStyle(color: Colors.green),
+              ))
         ]),
       ),
     );

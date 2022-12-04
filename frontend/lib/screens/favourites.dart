@@ -3,6 +3,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 import '../cidgets/recommendation_card.dart';
+import '../constants.dart';
 import '../controls/services/listings.dart';
 import 'detailsPage.dart';
 
@@ -68,6 +69,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
                           borderRadius: BorderRadius.all(Radius.circular(10))),
                       height: 250,
                       width: double.maxFinite,
+                        child: Image.network("${Constants().ip}${data[index]['image_path'][1].toString()}",fit: BoxFit.cover,),
                     ),
                     SizedBox(
                       height: 10,
