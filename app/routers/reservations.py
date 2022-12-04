@@ -42,9 +42,9 @@ def create_reservation(request: reservationSchemas.CreateReservation, db: Sessio
     if nights > listing.max_nights or nights < listing.min_nights:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"stay is greater than max_nights or lesser than min_nights")
     #For all transactions of the listing id we are making the reservation for: Check if the reservation starts before a transaction starts and ends after a transaction ends
-    reserved_dates = db.query(models.Transactions).filter(models.Transactions.listing_id == request.listing_id).filter(request.checkin_date<=models.Transactions.checkin_date, request.checkout_date>=models.Transactions.checkout_date)
-    if reserved_dates.first:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=f"Invalid reservation range, a transaction range already lies between the selected range")
+    # reserved_dates = db.query(models.Transactions).filter(models.Transactions.listing_id == request.listing_id).filter(request.checkin_date<=models.Transactions.checkin_date, request.checkout_date>=models.Transactions.checkout_date)
+    # if reserved_dates.first:
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=f"Invalid reservation range, a transaction range already lies between the selected range")
     # Calculates the bill
     amountdue = nights * listing.nightly_price
     # Create the reservation object
