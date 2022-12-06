@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html';
 import 'dart:io';
 import 'package:http_parser/http_parser.dart';
 import 'package:dio/dio.dart';
@@ -9,13 +10,16 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rent_a_roo/controls/services/listings.dart';
+import 'package:rent_a_roo/controls/services/user.dart';
 import 'package:rent_a_roo/landingpage.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:flutter/foundation.dart';
 
 class AddImagesScreen extends StatefulWidget {
-  AddImagesScreen({Key? key, required this.listingMap}) : super(key: key);
-  Map listingMap;
+  AddImagesScreen({
+    Key? key,required this.listingid
+  }) : super(key: key);
+  int listingid;
   @override
   State<AddImagesScreen> createState() => _AddImagesScreenState();
 }
@@ -38,8 +42,10 @@ var alertStyle = AlertStyle(
 );
 
 class _AddImagesScreenState extends State<AddImagesScreen> {
-  List files = [];
-  late Uint8List bytes;
+  List imgList = [];
+  Uint8List? bytes;
+  Uint8List? uploadedImage;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,82 +60,75 @@ class _AddImagesScreenState extends State<AddImagesScreen> {
         actions: [
           IconButton(
               onPressed: () async {
-              /*  FormData formData = new FormData.fromMap({
-                  "name": "wendux",
-                   'file': await MultipartFile.fromFile(files[0].path,filename: 'file')
-                });
-                var response = await Dio().post("http://192.168.217.128:8000/listing/image/1", data: formData);
+              
+                if (imgList != null && imgList.isNotEmpty) {
+                  var resp;
+                  for (int i = 0; i < imgList.length; i++) {
+                    resp = await Listing().updatePhoto(imgList[i]!,widget.listingid);
+                    print(resp.body);
+                  }
 
-                /* final request = http.MultipartRequest('POST',
-                    Uri.parse('http://192.168.217.128:8000/listing/image/1'));
-
-                request.files.add(await http.MultipartFile.fromBytes(
-                    'file', files[0].path,
-                    contentType: MediaType('image', 'png')));
-                final response = await http.Response.fromStream(await request.send());
-                print(response.body);
-
-                //var resp= await Listing().updatePhoto(bytes, 1);
-                //print(resp);
-                //   String fileName = files[1].path.split('/').last;
-                // print(fileName);
-                //print(files[0].path);*/
-
-                /*    FormData data = FormData.fromMap({
-                  "listingid":widget.listingMap['listing_id'],
-                  "file": await MultipartFile.fromFile(
-                    files[0].path,
-                    filename: fileName,
-                  ),
-                });
-
-                Dio dio = new Dio();
-
-                dio.post("http://127.0.0.1:8000", data: data).then((response) {
-                  var jsonResponse = jsonDecode(response.toString());
-                  print(jsonResponse);
-                  var testData = jsonResponse['histogram_counts'].cast<double>();
-                  var averageGrindSize = jsonResponse['average_particle_size'];
-                }).catchError((error) => print(error));*/
-*/
-
-                var a = await Alert(
-                  context: context,
-                  style: alertStyle,
-                  type: AlertType.success,
-                  title: "Success !",
-                  desc: "Listing successful.",
-                  buttons: [
-                    DialogButton(
-                      radius: BorderRadius.circular(5.0),
-                      child: Text(
-                        "Ok",
-                        style: TextStyle(color: Colors.white, fontSize: 20),
-                      ),
-                      onPressed: () => {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => LandingPage()),
-                        )
-                      },
-                      // color: glt.themeColor,
-                    ),
-                  ],
-                ).show();
+                  if (resp.statusCode == 201) {
+                    var a = await Alert(
+                      context: context,
+                      style: alertStyle,
+                      type: AlertType.success,
+                      title: "Success !",
+                      desc: "Listing successful.",
+                      buttons: [
+                        DialogButton(
+                          radius: BorderRadius.circular(5.0),
+                          child: Text(
+                            "Ok",
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                          ),
+                          onPressed: () => {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LandingPage()),
+                            )
+                          },
+                          // color: glt.themeColor,
+                        ),
+                      ],
+                    ).show();
+                  } else {
+                    var a = await Alert(
+                      context: context,
+                      style: alertStyle,
+                      type: AlertType.success,
+                      title: "Failed!",
+                      desc: "Listing unsuccessful.",
+                      buttons: [
+                        DialogButton(
+                          radius: BorderRadius.circular(5.0),
+                          child: Text(
+                            "Ok",
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                          ),
+                          onPressed: () => {Navigator.pop(context)},
+                          // color: glt.themeColor,
+                        ),
+                      ],
+                    ).show();
+                  }
+                }
               },
-              icon: Icon(Icons.arrow_right,color: Colors.green,))
+              icon: Icon(
+                Icons.arrow_right,
+                color: Colors.green,
+              ))
         ],
       ),
       body: SingleChildScrollView(
         child: Column(children: [
-          /* files.length == 0
-              ?*/
-          Container(),
-          /* : ListView.builder(
+          imgList.length == 0
+              ? Container()
+              : ListView.builder(
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  itemCount: files.length,
+                  itemCount: imgList.length,
                   itemBuilder: (BuildContext ctxt, int index) {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -137,35 +136,73 @@ class _AddImagesScreenState extends State<AddImagesScreen> {
                         Container(
                           height: 300,
                           width: MediaQuery.of(context).size.width,
-                          child: Image.file(
-                            files[index],
+                          child: Image.memory(
+                            imgList[index],
                             fit: BoxFit.fill,
                           ),
                         ),
                         IconButton(
                             onPressed: () {
-                              files.remove(files[index]);
+                              imgList.remove(imgList[index]);
                               setState(() {});
                             },
                             icon: Icon(Icons.cancel))
                       ]),
                     );
-                  }), 
-          files.length == 3
+                  }),
+          imgList.length == 3
               ? Container()
-              :*/ IconButton(
+              : IconButton(
                   onPressed: () async {
-                    final ImagePicker _picker = ImagePicker();
+                    /* final ImagePicker _picker = ImagePicker();
                     final XFile? image =
                         await _picker.pickImage(source: ImageSource.gallery);
                     if (image != null) files.add(File(image.path));
                     //bytes = File(image!.path).readAsBytesSync();
-                    print(files);
+                    print(files);*/
+                    _startFilePicker();
                     setState(() {});
                   },
                   icon: Icon(Icons.add_a_photo))
         ]),
       ),
     );
+  }
+
+  _startFilePicker() async {
+    FileUploadInputElement uploadInput = FileUploadInputElement();
+    uploadInput.click();
+
+    uploadInput.onChange.listen((e) {
+      // read file content as dataURL
+      final files = uploadInput.files;
+      if (files != null) {
+        if (files.length == 1) {
+          final file = files[0];
+          FileReader reader = FileReader();
+
+          reader.onLoadEnd.listen((e) {
+            setState(() {
+              if (reader.result is Uint8List) {
+                uploadedImage = reader.result as Uint8List;
+                imgList.add(uploadedImage);
+                //print(uploadedImage);
+              }
+
+              // bytes=Uint8List(uploadedImage.length);
+            });
+          });
+          // print(bytes);
+
+          reader.onError.listen((fileEvent) {
+            setState(() {
+              print("Some Error occured while reading the file");
+            });
+          });
+
+          reader.readAsArrayBuffer(file);
+        }
+      }
+    });
   }
 }

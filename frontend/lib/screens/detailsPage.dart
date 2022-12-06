@@ -198,18 +198,18 @@ class _DetailsPageState extends State<DetailsPage> {
                   Divider(),
                   InkWell(
                     onTap: () async {
-                     /* if (details["gps_location"] != null) {
+                      if (details["gps_location"] != null) {
                         GeoHash geohash = GeoHash(details["gps_location"]);
                         final Uri _url = Uri.parse(
-                            'https://www.google.com/maps/dir/?api=1&destination=${geohash.longitude()},${geohash.latitude()}');
+                            'https://www.google.com/maps/search/?api=1&query=${geohash.longitude()},${geohash.latitude()}');
                         await launchUrl(_url);
                       }
                       else
-                      {*/
+                      {
                          final Uri _url = Uri.parse(
                             'https://www.google.com/maps/search/?api=1&query=24.856837,67.264594');
                         await launchUrl(_url);
-                      //}
+                      }
                     },
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20.0),

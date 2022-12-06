@@ -36,6 +36,14 @@ class _AddServicesState extends State<AddServices> {
   late List<bool> _isChecked;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    if(widget.req['apartment_no']==null)
+    values["IS_APARTMENT"]=true;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -43,6 +51,7 @@ class _AddServicesState extends State<AddServices> {
         actions: [
           IconButton(
               onPressed: () async {
+                var resp;
                 Map map = {
                   "title": widget.req['title'],
                   "description": widget.req['description'],
@@ -50,8 +59,8 @@ class _AddServicesState extends State<AddServices> {
                   "city": widget.req['city'],
                   "address": widget.req['address'],
                   "is_apartment": values['IS_APARTMENT'],
-                  "apartment_no": widget.req['apartment_no'],
-                  "gps_location": "geoloc",
+                  "apartment_no":"1",
+                  "gps_location": widget.req['gps_location'],
                   "is_shared": values['IS_SHARED'],
                   "accommodates": widget.req['accommodates'],
                   "bathrooms": widget.req['bathrooms'],
@@ -70,33 +79,16 @@ class _AddServicesState extends State<AddServices> {
                   "gym": values['GYM'],
                   "smoking_allowed": values['SMOKING ALLOWED']
                 };
-                var resp = await Listing().postListing(map);
+                resp = await Listing().postListing(map);
                 print(resp);
 
-                var a = await Alert(
-                  context: context,
-                  style: alertStyle,
-                  type: AlertType.success,
-                  title: "Success !",
-                  desc: "Listing successful.",
-                  buttons: [
-                    DialogButton(
-                      radius: BorderRadius.circular(5.0),
-                      child: Text(
-                        "Ok",
-                        style: TextStyle(color: Colors.white, fontSize: 20),
-                      ),
-                      onPressed: () => {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => LandingPage()),
-                        )
-                      },
-                      // color: glt.themeColor,
-                    ),
-                  ],
-                ).show();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AddImagesScreen(listingid: resp['listing_id']),
+                  ),
+                );
               },
               icon: Icon(
                 Icons.arrow_right,

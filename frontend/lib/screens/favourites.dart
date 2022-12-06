@@ -49,7 +49,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
         backgroundColor: Colors.white,
         leading: Container(),
       ),
-      body: ListView.builder(
+      body: data.length==0?Center(child: Text('No Favorites'),): ListView.builder(
         itemCount: data==null?0: data.length,
         shrinkWrap: true,
         itemBuilder: (ctx, int index) {

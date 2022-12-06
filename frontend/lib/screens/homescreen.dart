@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rent_a_roo/cidgets/recommendation_card.dart';
+import 'package:rent_a_roo/screens/detailsPage.dart';
 import 'package:rent_a_roo/screens/explore.dart';
 import 'package:rent_a_roo/screens/searchFormPage.dart';
 
@@ -175,12 +176,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: details.length,
                 shrinkWrap: true,
                 itemBuilder: (ctx, int index) {
-                  return RecommendCard(
-                      imageUrl:
-                          "${Constants().ip}${details[index]['image_path'][0].toString()}",
-                      title: details[index]['city'],
-                      location: details[index]['state'],
-                      startPrices: details[index]['nightly_price'].toString());
+                  return InkWell( 
+                    onTap: (){
+                       Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => DetailsPage(listingID: details[index]['listing_id'],)),
+                          );
+                    },
+                    child: RecommendCard(
+                        imageUrl:
+                            "${Constants().ip}${details[index]['image_path'][0].toString()}",
+                        title: details[index]['city'],
+                        location: details[index]['state'],
+                        startPrices: details[index]['nightly_price'].toString()),
+                  );
                 },
               ),
 

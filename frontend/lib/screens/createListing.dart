@@ -45,6 +45,7 @@ class _CreateListingState extends State<CreateListing> {
           IconButton(
               onPressed: () async {
                 GeoHasher geoHasher = GeoHasher();
+                print(geoHasher.encode(long,lat));
                 Map map = {
                   "title": title.text,
                   "description": description.text,
@@ -52,7 +53,7 @@ class _CreateListingState extends State<CreateListing> {
                   "city": city.text,
                   "address": address.text,
                   "is_apartment": true,
-                  "apartment_no": '1',
+                  "apartment_no": null,
                   "gps_location": geoHasher.encode(long,lat),
                   "is_shared": true,
                   "accommodates": int.parse(accomodates.text),

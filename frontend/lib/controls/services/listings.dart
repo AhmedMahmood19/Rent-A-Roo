@@ -91,7 +91,7 @@ class Listing {
 
   Future<Response> updatePhoto(Uint8List file,int listingid) async {
     Map files = {};
-    files["name"] = "image";
+    files["body"] = "image";
     files["file"] = file;
     var res = await ApiCalls()
         .postApiRequestForm('/listing/image/${listingid}', {}, [], [files]);

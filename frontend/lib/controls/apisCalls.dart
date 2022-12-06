@@ -37,8 +37,8 @@ class ApiCalls {
       Map<String, String> bodyData,
       List<Map> files,
       List<Map> filesBytes) async {
-    var token = await Auth().getLoginTokenString();
-    var request = http.MultipartRequest('POST', Uri.https(baseApiUrl, route));
+   var token = await Auth().getLoginTokenString();
+    var request = http.MultipartRequest('POST', Uri.parse(baseApiUrl+route));
     request.headers['Authorization'] = "Bearer ${token}";
     request.fields.addAll(bodyData);
     files.forEach((element) {
@@ -47,7 +47,7 @@ class ApiCalls {
       final mimeTypeData =
           lookupMimeType("temp.png", headerBytes: [0xFF, 0xD8])?.split('/');
       request.files.add(http.MultipartFile.fromBytes(
-          element["name"], file.readAsBytesSync(),
+          'file', file.readAsBytesSync(),
           filename: "temp.png",
           contentType: MediaType(mimeTypeData![0], mimeTypeData[1])));
       print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
@@ -57,7 +57,7 @@ class ApiCalls {
       final mimeTypeData =
           lookupMimeType("temp.png", headerBytes: [0xFF, 0xD8])?.split('/');
       request.files.add(http.MultipartFile.fromBytes(
-          element["name"], element["file"],
+          'file', element["file"],
           filename: "temp.png",
           contentType: MediaType(mimeTypeData![0], mimeTypeData[1])));
       print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");

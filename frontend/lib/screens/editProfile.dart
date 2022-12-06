@@ -1,3 +1,6 @@
+import 'dart:html';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -17,6 +20,8 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
+  Uint8List? uploadedImage;
+
   Future fetchData() async {
     Map userDetails = await User().getUserData();
     print(userDetails);
@@ -33,7 +38,7 @@ class _EditProfileState extends State<EditProfile> {
         'aboutme': userDetails['about_me'] ?? "",
         "image_path": userDetails['image_path'] ?? "",
       };
-      print(userMap);
+      // print(userMap);
       firstname.text = userMap['firstName'];
       lastname.text = userMap['lastName'];
       password.text = userMap['password'];
@@ -57,9 +62,10 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   void initState() {
+    fetchData();
+
     super.initState();
 
-    fetchData();
     // });
   }
 
@@ -95,15 +101,35 @@ class _EditProfileState extends State<EditProfile> {
         padding: const EdgeInsets.all(12.0),
         child: SingleChildScrollView(
           child: Column(children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundColor: Colors.black,
-              child: ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  child: Image.network(
-                    "${Constants().ip}${userMap['image_path']}",
-                    fit: BoxFit.fill,
-                  )),
+            InkWell(
+              onTap: () async {
+                if(uploadedImage==null)
+                await _startFilePicker();
+                setState(() {
+                  
+                });
+                if (uploadedImage != null) {
+                  var resp;
+
+                  resp = await User().updatePhoto(uploadedImage!);
+                  print(resp.body);
+                  uploadedImage=null;
+                }
+                 fetchData();
+                 setState(() {
+                   
+                 });
+              },
+              child: CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.black,
+                child: ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    child: Image.network(
+                      "${Constants().ip}${userMap['image_path']}",
+                      fit: BoxFit.fill,
+                    )),
+              ),
             ),
             SizedBox(
               height: 20,
@@ -278,5 +304,47 @@ class _EditProfileState extends State<EditProfile> {
         ),
       ),
     );
+  }
+
+  _startFilePicker() async {
+    FileUploadInputElement uploadInput = FileUploadInputElement();
+    uploadInput.click();
+
+    uploadInput.onChange.listen((e) {
+      // read file content as dataURL
+      final files = uploadInput.files;
+      if (files != null) {
+        if (files.length == 1) {
+          final file = files[0];
+          FileReader reader = FileReader();
+
+          reader.onLoadEnd.listen((e) {
+            setState(() {
+              if (reader.result is Uint8List) {
+                uploadedImage = reader.result as Uint8List;
+              
+                //print(uploadedImage);
+              }
+
+              // bytes=Uint8List(uploadedImage.length);
+            }
+            
+            );
+            setState(() {
+              
+            });
+          });
+          // print(bytes);
+
+          reader.onError.listen((fileEvent) {
+            setState(() {
+              print("Some Error occured while reading the file");
+            });
+          });
+
+          reader.readAsArrayBuffer(file);
+        }
+      }
+    });
   }
 }

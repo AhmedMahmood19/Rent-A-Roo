@@ -117,6 +117,7 @@ class ResCard extends StatelessWidget {
                           fontSize: 12,
                         ),
                       ),
+                      Spacer(),
                       Row(
                         children: [
                           TextButton(
