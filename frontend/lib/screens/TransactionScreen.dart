@@ -162,11 +162,11 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                 "https://thumbs.dreamstime.com/b/amazing-misty-autumn-scenery-lake-sorapis-dolomites-italy-beautiful-mountains-colorful-yellow-larches-shore-193683774.jpg",
                             title: hostTransactions[index]['title'] ?? "",
                             startDate: DateTime.parse(
-                                        hostTransactions[index]['checkin_date'])
+                                        hostTransactions[index]['checkin_date']).toLocal()
                                     .toString() ??
                                 "",
                             endDate: DateTime.parse(hostTransactions[index]
-                                        ['checkout_date'])
+                                        ['checkout_date']).toLocal()
                                     .toString() ??
                                 "",
                             startPrices: hostTransactions[index]['amount_paid']
@@ -284,11 +284,11 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                 "https://thumbs.dreamstime.com/b/amazing-misty-autumn-scenery-lake-sorapis-dolomites-italy-beautiful-mountains-colorful-yellow-larches-shore-193683774.jpg",
                             title: guestTransactions[index]['title'] ?? "",
                             startDate: DateTime.parse(guestTransactions[index]
-                                        ['checkin_date'])
+                                        ['checkin_date']).toLocal()
                                     .toString() ??
                                 "",
                             endDate: DateTime.parse(guestTransactions[index]
-                                        ['checkout_date'])
+                                        ['checkout_date']).toLocal()
                                     .toString() ??
                                 "",
                             startPrices: guestTransactions[index]['amount_paid']

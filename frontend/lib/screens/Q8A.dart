@@ -99,7 +99,7 @@ class _Q8AScreenState extends State<Q8AScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                     /* Row(
                         children: [
                           CircleAvatar(
                             radius: 15,
@@ -111,7 +111,7 @@ class _Q8AScreenState extends State<Q8AScreen> {
                           Text(
                               '${data[index]['first_name'] ?? "Deleted"} ${data[index]['last_name'] ?? "User"}')
                         ],
-                      ),
+                      ),*/
                       SizedBox(
                         height: 10,
                       ),

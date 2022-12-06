@@ -38,16 +38,16 @@ class ResCard extends StatelessWidget {
             height: 200,
             child: Row(
               children: <Widget>[
-                SizedBox(
+               /* SizedBox(
                   width: 130,
                   height: 200,
                   child: Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
                   ),
-                ),
+                ),*/
                 Container(
-                  width: 220,
+                  width: 310,
                   padding: EdgeInsets.all(10),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

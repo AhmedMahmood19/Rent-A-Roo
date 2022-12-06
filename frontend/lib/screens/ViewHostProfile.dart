@@ -78,7 +78,7 @@ class _HostProfileState extends State<HostProfile> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Guest Profile',
+          'Host Profile',
           style: TextStyle(color: Colors.green),
         ),
         iconTheme: IconThemeData(

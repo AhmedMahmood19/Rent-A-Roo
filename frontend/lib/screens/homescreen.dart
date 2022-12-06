@@ -4,6 +4,7 @@ import 'package:rent_a_roo/cidgets/recommendation_card.dart';
 import 'package:rent_a_roo/screens/explore.dart';
 import 'package:rent_a_roo/screens/searchFormPage.dart';
 
+import '../constants.dart';
 import '../controls/services/listings.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,30 +21,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Future initValues() async {
       Map temp2 = {
-                  "state": "",
-                  "city": "",
-                  "is_apartment": true,
-                  "is_shared": true,
-                  "accommodates": 0,
-                  "bathrooms": 0,
-                  "bedrooms": 0,
-                  "wifi": true,
-                  "kitchen": true,
-                  "washing_machine": true,
-                  "air_conditioning": true,
-                  "tv": true,
-                  "hair_dryer": true,
-                  "iron": true,
-                  "pool": true,
-                  "gym": true,
-                  "smoking_allowed": true,
-                  "nights": 0,
-                  "min_nightly_price": 0,
-                  "max_nightly_price": 0,
-                  "min_rating": 0,
-                  "max_rating": 0,
-                  "min_total_ratings": 0,
-                  "max_total_ratings": 0,
                   "is_ascending": true,
                   "order_by": "city"
                 };
@@ -200,10 +177,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (ctx, int index) {
                   return RecommendCard(
                       imageUrl:
-                          "https://cdn.britannica.com/67/19367-050-885866B4/Valley-Taurus-Mountains-Turkey.jpg",
+                          "${Constants().ip}${details[index]['image_path'][0].toString()}",
                       title: details[index]['city'],
                       location: details[index]['state'],
-                      startPrices: details[index]['nightly_price']);
+                      startPrices: details[index]['nightly_price'].toString());
                 },
               ),
 

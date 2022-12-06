@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
+import '../constants.dart';
 import 'detailsPage.dart';
 
 class SearchResultsScreen extends StatefulWidget {
@@ -53,7 +54,8 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => DetailsPage(
-                                        listingID: widget.promoted[index]['listing_id'],
+                                        listingID: widget.promoted[index]
+                                            ['listing_id'],
                                       )),
                             );
                           },
@@ -67,6 +69,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                                         BorderRadius.all(Radius.circular(10))),
                                 height: 250,
                                 width: double.maxFinite,
+                                child: Image.network(
+                                  "${Constants().ip}${widget.promoted[index]['image_path'][1].toString()}",
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                               SizedBox(
                                 height: 10,
@@ -83,7 +89,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                                     Icons.star,
                                     size: 14,
                                   ),
-                                  Text(widget.promoted[index]['rating'].toString(),
+                                  Text(
+                                      widget.promoted[index]['rating']
+                                          .toString(),
                                       style: TextStyle(fontSize: 18))
                                 ],
                               ),
@@ -95,7 +103,8 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                               SizedBox(
                                 height: 3,
                               ),
-                              Text('${widget.promoted[index]['nightly_price'].toString()}',
+                              Text(
+                                  '${widget.promoted[index]['nightly_price'].toString()}',
                                   style: TextStyle(fontSize: 16)),
                               Divider(height: 10, thickness: 1)
                             ],
@@ -121,7 +130,8 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => DetailsPage(
-                                        listingID: widget.results[index]['listing_id'],
+                                        listingID: widget.results[index]
+                                            ['listing_id'],
                                       )),
                             );
                           },
@@ -135,6 +145,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                                         BorderRadius.all(Radius.circular(10))),
                                 height: 250,
                                 width: double.maxFinite,
+                                child: Image.network(
+                                  "${Constants().ip}${widget.results[index]['image_path'][1].toString()}",
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                               SizedBox(
                                 height: 10,
@@ -142,7 +156,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                               Row(
                                 children: [
                                   Text(
-                                  widget.results[index]['state'],
+                                    widget.results[index]['state'],
                                     style: TextStyle(
                                         fontSize: 18, color: Colors.black),
                                   ),
@@ -151,7 +165,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                                     Icons.star,
                                     size: 14,
                                   ),
-                                  Text(widget.results[index]['rating'].toString(), style: TextStyle(fontSize: 18))
+                                  Text(
+                                      widget.results[index]['rating']
+                                          .toString(),
+                                      style: TextStyle(fontSize: 18))
                                 ],
                               ),
                               SizedBox(
@@ -162,8 +179,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                               SizedBox(
                                 height: 3,
                               ),
-                            
-                              Text(widget.results[index]['nightly_price'].toString(),
+                              Text(
+                                  widget.results[index]['nightly_price']
+                                      .toString(),
                                   style: TextStyle(fontSize: 16)),
                               Divider(height: 10, thickness: 1)
                             ],

@@ -49,8 +49,15 @@ def create_listing(request:listingSchemas.CreateListing, db: Session = Depends(c
         smoking_allowed = request.smoking_allowed
     )
     db.add(insertlisting)
+
     db.commit()
     db.refresh(insertlisting)
+    insert_image=models.Listing_images(
+        listing_id = insertlisting.listing_id,
+        image_path = "/static/images/defaultprofilepic.jpg"
+    )
+    db.add(insert_image)
+    db.commit()    
     return {"Status":"Success","listing_id":insertlisting.listing_id}
 
 # Allow user to upload listing images, needs to be an async function. This (...) means required

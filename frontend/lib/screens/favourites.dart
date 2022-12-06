@@ -72,7 +72,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
                           borderRadius: BorderRadius.all(Radius.circular(10))),
                       height: 250,
                       width: double.maxFinite,
-                        child: Image.network("${Constants().ip}${data[index]['image_path'][1].toString()}",fit: BoxFit.cover,),
+                        child: Image.network("${Constants().ip}${data[index]['image_path'][0].toString()}",fit: BoxFit.cover,),
                     ),
                     SizedBox(
                       height: 10,

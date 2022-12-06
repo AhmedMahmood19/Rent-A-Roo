@@ -26,7 +26,7 @@ class _SearchFormPageState extends State<SearchFormPage> {
   };
   Map<String, bool> values2 = {
     'IS APARTMENT': true,
-    'IS SHARED': true,
+    'IS SHARED': false,
   };
 
   TextEditingController state = TextEditingController();
@@ -46,7 +46,7 @@ class _SearchFormPageState extends State<SearchFormPage> {
   @override
   void initState() {
     // TODO: implement initState
-    accomodation.text = '0';
+    /*accomodation.text = '0';
     bathrooms.text = '0';
     bedrooms.text = '0';
     noOfNights.text = '0';
@@ -55,9 +55,11 @@ class _SearchFormPageState extends State<SearchFormPage> {
     minRate.text = '0';
     maxPerNight.text = '0';
     minNoOfRate.text = '0';
-    maxNoOfRate.text = '0';
+    maxNoOfRate.text = '0';*/
     super.initState();
   }
+
+  final _form = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -75,76 +77,124 @@ class _SearchFormPageState extends State<SearchFormPage> {
         actions: [
           IconButton(
               onPressed: () async {
-                Map temp = {
-                  "state": state.text,
-                  "city": city.text,
-                  "is_apartment": values2['IS APARTMENT'],
-                  "is_shared": values2['IS SHARED'],
-                  "accommodates": int.parse(accomodation.text),
-                  "bathrooms": int.parse(bathrooms.text),
-                  "bedrooms": int.parse(bedrooms.text),
-                  "wifi": values['WIFI'],
-                  "kitchen": values['KITCHEN'],
-                  "washing_machine": values['WASHING MACHINE'],
-                  "air_conditioning": values['AIR CONDITIONING'],
-                  "tv": values['TV'],
-                  "hair_dryer": values['HAIR_DRYER'],
-                  "iron": values['IRON'],
-                  "pool": values['POOL'],
-                  "gym": values['GYM'],
-                  "smoking_allowed": values['SMOKING ALLOWED'],
-                  "nights": int.parse(noOfNights.text),
-                  "min_nightly_price": int.parse(minPerNight.text),
-                  "max_nightly_price": int.parse(maxPerNight.text),
-                  "min_rating": int.parse(minRate.text),
-                  "max_rating": int.parse(maxPerNight.text),
-                  "min_total_ratings": int.parse(minNoOfRate.text),
-                  "max_total_ratings": int.parse(maxNoOfRate.text),
-                  "is_ascending": true,
-                  "order_by": orderBy.text
-                };
-                Map temp2 = {
-                  "state": "",
-                  "city": "",
-                  "is_apartment": true,
-                  "is_shared": true,
-                  "accommodates": 0,
-                  "bathrooms": 0,
-                  "bedrooms": 0,
-                  "wifi": true,
-                  "kitchen": true,
-                  "washing_machine": true,
-                  "air_conditioning": true,
-                  "tv": true,
-                  "hair_dryer": true,
-                  "iron": true,
-                  "pool": true,
-                  "gym": true,
-                  "smoking_allowed": true,
-                  "nights": 0,
-                  "min_nightly_price": 0,
-                  "max_nightly_price": 0,
-                  "min_rating": 0,
-                  "max_rating": 0,
-                  "min_total_ratings": 0,
-                  "max_total_ratings": 0,
-                  "is_ascending": true,
-                  "order_by": "city"
-                };
-                print(temp);
-                var resp = await Listing().postSearchListing(false, temp);
-                print(resp);
-                var resp2 = await Listing().postSearchListing(true, temp);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          SearchResultsScreen(results: resp, promoted: resp2)),
-                );
+                if (_form.currentState!.validate()) {
+                  // If the form is valid, display a snackbar. In the real world,
+                  // you'd often call a server or save the information in a database.
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Processing Data')),
+                  );
+
+                  Map temp = {
+                    /*  "state": state.text,
+                    "city": city.text,
+                    "is_apartment": values2['IS APARTMENT'],
+                    "is_shared": values2['IS SHARED'],
+                    "accommodates": int.parse(accomodation.text),
+                    "bathrooms": int.parse(bathrooms.text),
+                    "bedrooms": int.parse(bedrooms.text),
+                    "wifi": values['WIFI'],
+                    "kitchen": values['KITCHEN'],
+                    "washing_machine": values['WASHING MACHINE'],
+                    "air_conditioning": values['AIR CONDITIONING'],
+                    "tv": values['TV'],
+                    "hair_dryer": values['HAIR_DRYER'],
+                    "iron": values['IRON'],
+                    "pool": values['POOL'],
+                    "gym": values['GYM'],
+                    "smoking_allowed": values['SMOKING ALLOWED'],
+                    "nights": int.parse(noOfNights.text),
+                    "min_nightly_price": int.parse(minPerNight.text),
+                    "max_nightly_price": int.parse(maxPerNight.text),
+                    "min_rating": int.parse(minRate.text),
+                    "max_rating": int.parse(maxPerNight.text),
+                    "min_total_ratings": int.parse(minNoOfRate.text),
+                    "max_total_ratings": int.parse(maxNoOfRate.text),*/
+                    "is_ascending": true,
+                    "order_by": orderBy.text
+                  };
+                  if (state.text.isNotEmpty) temp["state"] = state.text;
+                  if (city.text.isNotEmpty) temp["city"] = city.text;
+                  temp["is_apartment"] = values2['IS APARTMENT'];
+                  temp["is_shared"] = values2['IS SHARED'];
+                  if (accomodation.text.isNotEmpty)
+                    temp["accommodates"] = int.parse(accomodation.text);
+                  if (bathrooms.text.isNotEmpty)
+                    temp["bathrooms"] = int.parse(bathrooms.text);
+                  if (bedrooms.text.isNotEmpty)
+                    temp["bedrooms"] = int.parse(bedrooms.text);
+                  if (values["WIFI"] != null) temp["wifi"] = values["WIFI"];
+                  if (values["KITCHEN"] != null)
+                    temp["kitchen"] = values["KITCHEN"];
+                  if (values["WASHING MACHINE"] != null)
+                    temp["washing_machine"] = values["WASHING MACHINE"];
+                  if (values["AIR CONDITIONING"] != null)
+                    temp["air_conditioning"] = values["AIR CONDITIONING"];
+                  if (values["TV"] != null) temp["tv"] = values["TV"];
+                  if (values["HAIR_DRYER"] != null)
+                    temp["hair_dryer"] = values["HAIR_DRYER"];
+                  if (values["IRON"] != null) temp["iron"] = values["IRON"];
+                  if (values["POOL"] != null) temp["pool"] = values["POOL"];
+                  if (values["GYM"] != null) temp["gym"] = values["GYM"];
+                  if (values["SMOKING ALLOWED"] != null)
+                    temp["smoking_allowed"] = values["SMOKING ALLOWED"];
+                  if (noOfNights.text.isNotEmpty)
+                    temp["nights"] = int.parse(noOfNights.text);
+                  if (minPerNight.text.isNotEmpty)
+                    temp["min_nightly_price"] = int.parse(minPerNight.text);
+                  if (maxPerNight.text.isNotEmpty)
+                    temp["max_nightly_price"] = int.parse(maxPerNight.text);
+                  if (minRate.text.isNotEmpty)
+                    temp["min_rating"] = int.parse(minRate.text);
+                  if (maxRate.text.isNotEmpty)
+                    temp["max_rating"] = int.parse(maxRate.text);
+                  if (minNoOfRate.text.isNotEmpty)
+                    temp["min_total_ratings"] = int.parse(minNoOfRate.text);
+                  if (maxNoOfRate.text.isNotEmpty)
+                    temp["max_total_ratings"] = int.parse(maxNoOfRate.text);
+
+                  Map temp2 = {
+                    "state": "",
+                    "city": "",
+                    "is_apartment": true,
+                    "is_shared": true,
+                    "accommodates": 0,
+                    "bathrooms": 0,
+                    "bedrooms": 0,
+                    "wifi": true,
+                    "kitchen": true,
+                    "washing_machine": true,
+                    "air_conditioning": true,
+                    "tv": true,
+                    "hair_dryer": true,
+                    "iron": true,
+                    "pool": true,
+                    "gym": true,
+                    "smoking_allowed": true,
+                    "nights": 0,
+                    "min_nightly_price": 0,
+                    "max_nightly_price": 0,
+                    "min_rating": 0,
+                    "max_rating": 0,
+                    "min_total_ratings": 0,
+                    "max_total_ratings": 0,
+                    "is_ascending": true,
+                    "order_by": "city"
+                  };
+                  print(temp);
+                  var resp = await Listing().postSearchListing(false, temp);
+                  print(resp);
+                  var resp2 = await Listing().postSearchListing(true, temp);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => SearchResultsScreen(
+                            results: resp, promoted: resp2)),
+                  );
+                }
               },
               icon: Icon(
                 Icons.arrow_right,
-                color: Colors.white,
+                color: Colors.green,
               ))
         ],
       ),
@@ -174,16 +224,25 @@ class _SearchFormPageState extends State<SearchFormPage> {
                     color: Colors.grey,
                   )),
             ),
-            TextField(
-              controller: orderBy,
-              decoration: InputDecoration(
-                  hintText: "Order by: city/state/rating/nightly_price",
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(color: Colors.grey),
-                  prefixIcon: Icon(
-                    Icons.filter,
-                    color: Colors.grey,
-                  )),
+            Form(
+              key: _form,
+              child: TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter some text';
+                  }
+                  return null;
+                },
+                controller: orderBy,
+                decoration: InputDecoration(
+                    hintText: "Order by: city/state/rating/nightly_price",
+                    border: InputBorder.none,
+                    hintStyle: TextStyle(color: Colors.grey),
+                    prefixIcon: Icon(
+                      Icons.filter,
+                      color: Colors.grey,
+                    )),
+              ),
             ),
             TextField(
               controller: minPerNight,

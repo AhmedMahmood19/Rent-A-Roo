@@ -57,6 +57,9 @@ class _ViewListingState extends State<ViewListing> {
           foregroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           elevation: 0,
+          leading: IconButton(onPressed: (){
+            Navigator.pop(context);
+          },icon: Icon(Icons.arrow_back),color: Colors.green,),
         ),
         body: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, children: [

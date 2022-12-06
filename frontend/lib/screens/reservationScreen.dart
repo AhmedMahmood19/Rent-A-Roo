@@ -101,7 +101,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
                           "https://thumbs.dreamstime.com/b/amazing-misty-autumn-scenery-lake-sorapis-dolomites-italy-beautiful-mountains-colorful-yellow-larches-shore-193683774.jpg",
                       title: hostReservations[index]['title'] ?? "",
                       startDate: hostReservations[index]['checkin_date'] ?? "",
-                      endDate: "2022-12-03T08:28:23.098Z",
+                      endDate: hostReservations[index]['checkout_date'],
                       startPrices:
                           hostReservations[index]['amount_due'].toString() ??
                               ""),
@@ -147,8 +147,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
                       imageUrl:
                           "https://thumbs.dreamstime.com/b/amazing-misty-autumn-scenery-lake-sorapis-dolomites-italy-beautiful-mountains-colorful-yellow-larches-shore-193683774.jpg",
                       title: guestReservation[index]['title'] ?? "",
-                      startDate: guestReservation[index]['checkin_date'] ?? "",
-                      endDate: guestReservation[index]['checkout_date'] ?? "",
+                      startDate: DateTime.parse(guestReservation[index]['checkin_date']).toLocal().toString() ?? "",
+                      endDate: DateTime.parse(guestReservation[index]['checkout_date']).toLocal().toString()  ?? "",
                       startPrices:
                           guestReservation[index]['amount_due'].toString() ??
                               ""),

@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:rent_a_roo/controls/services/reservactions.dart';
 
+import '../constants.dart';
 import '../controls/apisCalls.dart';
 import '../controls/services/user.dart';
 import 'login.dart';
@@ -110,8 +111,8 @@ class _ViewGuestProfileState extends State<ViewGuestProfile> {
           CircleAvatar(
             radius: 30,
             backgroundColor: Colors.black,
-            child: Image.asset(
-              userMap['image_path'],
+            child: Image.network(
+               "${Constants().ip}${userMap['image_path']}",
               fit: BoxFit.fill,
             ),
           ),

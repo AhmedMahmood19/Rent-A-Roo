@@ -51,15 +51,15 @@ class _ReviewsScreensState extends State<ReviewsScreens> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+               Row(
                   children: [
-                    CircleAvatar(
+                   /* CircleAvatar(
                       radius: 15,
                       backgroundColor: Colors.grey,
                     ),
                     SizedBox(
                       width: 10,
-                    ),
+                    ),*/
                     Row(
                       children: [
                         Text('${data[index]['first_name']??"Deleted"} ${data[index]['last_name']??"User"}'),

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';  
+import 'dart:io';
 import 'package:http_parser/http_parser.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
@@ -14,7 +14,7 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:flutter/foundation.dart';
 
 class AddImagesScreen extends StatefulWidget {
-   AddImagesScreen({Key? key,required this.listingMap}) : super(key: key);
+  AddImagesScreen({Key? key, required this.listingMap}) : super(key: key);
   Map listingMap;
   @override
   State<AddImagesScreen> createState() => _AddImagesScreenState();
@@ -39,7 +39,7 @@ var alertStyle = AlertStyle(
 
 class _AddImagesScreenState extends State<AddImagesScreen> {
   List files = [];
-late Uint8List bytes;
+  late Uint8List bytes;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,13 +54,28 @@ late Uint8List bytes;
         actions: [
           IconButton(
               onPressed: () async {
-               var resp= await Listing().updatePhoto(bytes, 1);
-               print(resp);
-             //   String fileName = files[1].path.split('/').last;
-               // print(fileName);
-                //print(files[0].path);
+              /*  FormData formData = new FormData.fromMap({
+                  "name": "wendux",
+                   'file': await MultipartFile.fromFile(files[0].path,filename: 'file')
+                });
+                var response = await Dio().post("http://192.168.217.128:8000/listing/image/1", data: formData);
 
-            /*    FormData data = FormData.fromMap({
+                /* final request = http.MultipartRequest('POST',
+                    Uri.parse('http://192.168.217.128:8000/listing/image/1'));
+
+                request.files.add(await http.MultipartFile.fromBytes(
+                    'file', files[0].path,
+                    contentType: MediaType('image', 'png')));
+                final response = await http.Response.fromStream(await request.send());
+                print(response.body);
+
+                //var resp= await Listing().updatePhoto(bytes, 1);
+                //print(resp);
+                //   String fileName = files[1].path.split('/').last;
+                // print(fileName);
+                //print(files[0].path);*/
+
+                /*    FormData data = FormData.fromMap({
                   "listingid":widget.listingMap['listing_id'],
                   "file": await MultipartFile.fromFile(
                     files[0].path,
@@ -76,8 +91,8 @@ late Uint8List bytes;
                   var testData = jsonResponse['histogram_counts'].cast<double>();
                   var averageGrindSize = jsonResponse['average_particle_size'];
                 }).catchError((error) => print(error));*/
-              
-/*
+*/
+
                 var a = await Alert(
                   context: context,
                   style: alertStyle,
@@ -101,16 +116,17 @@ late Uint8List bytes;
                       // color: glt.themeColor,
                     ),
                   ],
-                ).show();*/
+                ).show();
               },
-              icon: Icon(Icons.arrow_right))
+              icon: Icon(Icons.arrow_right,color: Colors.green,))
         ],
       ),
       body: SingleChildScrollView(
         child: Column(children: [
-        /* files.length == 0
-              ?*/ Container(),
-              /* : ListView.builder(
+          /* files.length == 0
+              ?*/
+          Container(),
+          /* : ListView.builder(
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemCount: files.length,
@@ -134,16 +150,16 @@ late Uint8List bytes;
                             icon: Icon(Icons.cancel))
                       ]),
                     );
-                  }), */
+                  }), 
           files.length == 3
               ? Container()
-              : IconButton(
+              :*/ IconButton(
                   onPressed: () async {
                     final ImagePicker _picker = ImagePicker();
                     final XFile? image =
                         await _picker.pickImage(source: ImageSource.gallery);
                     if (image != null) files.add(File(image.path));
-                     bytes = File(image!.path).readAsBytesSync();
+                    //bytes = File(image!.path).readAsBytesSync();
                     print(files);
                     setState(() {});
                   },

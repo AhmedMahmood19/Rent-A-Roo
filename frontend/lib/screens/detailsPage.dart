@@ -45,7 +45,7 @@ class _DetailsPageState extends State<DetailsPage> {
     details = await Listing().getListing(widget.listingID);
 
     print(details);
-    imgList = details['image_path'];
+    imgList = await details['image_path'];
     setState(() {});
   }
 
@@ -64,7 +64,11 @@ class _DetailsPageState extends State<DetailsPage> {
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
+          leading: IconButton(onPressed: (){
+            Navigator.pop(context);
+          },icon: Icon(Icons.arrow_back),color: Colors.green,),
           elevation: 0,
+          
           actions: [
             IconButton(
                 onPressed: () async {
@@ -194,18 +198,18 @@ class _DetailsPageState extends State<DetailsPage> {
                   Divider(),
                   InkWell(
                     onTap: () async {
-                      if (details["gps_location"] != null) {
+                     /* if (details["gps_location"] != null) {
                         GeoHash geohash = GeoHash(details["gps_location"]);
                         final Uri _url = Uri.parse(
                             'https://www.google.com/maps/dir/?api=1&destination=${geohash.longitude()},${geohash.latitude()}');
                         await launchUrl(_url);
                       }
                       else
-                      {
+                      {*/
                          final Uri _url = Uri.parse(
-                            'https://www.google.com/maps/dir/?api=1&destination=24,67');
+                            'https://www.google.com/maps/search/?api=1&query=24.856837,67.264594');
                         await launchUrl(_url);
-                      }
+                      //}
                     },
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20.0),
@@ -312,7 +316,8 @@ class _DetailsPageState extends State<DetailsPage> {
             enlargeCenterPage: false,
             scrollDirection: Axis.horizontal,
           ),
-          itemCount: details['image_path']==null?0:details['image_path'].length,
+          itemCount: details==null 
+          || details.isEmpty?0:details['image_path'].length,
           itemBuilder:
               (BuildContext context, int itemIndex, int pageViewIndex) {
             return InkWell(
@@ -321,7 +326,7 @@ class _DetailsPageState extends State<DetailsPage> {
                 padding: EdgeInsets.fromLTRB(15, 8, 15, 8),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(30.0),
-                  child: Image.network(
+                  child: details==null || details.isEmpty?Container():Image.network(
                     "${Constants().ip}${details['image_path'][itemIndex]??""}",
                     fit: BoxFit.cover,
                     width: double.infinity,

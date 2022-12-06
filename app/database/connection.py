@@ -83,6 +83,21 @@ dummy.add(models.Listings(host_id=7,
         state="Sindh",city="Karachi",address="Apartment P12, Creek Vista Apartments, Karachi",is_apartment=True,apartment_no="P12", 
         is_shared=False,accommodates=4,bathrooms=2,bedrooms=2,nightly_price=17000,min_nights=2,max_nights=10,wifi=True, kitchen=True, washing_machine=False, air_conditioning=True, tv=True, hair_dryer=False, iron=False, pool=True, gym=True, smoking_allowed=True,view_count=80
 ))
+dummy.add(models.Listings(host_id=4, 
+        title="Magnificent Villas ",description="Sea, sand, and sun merge in prism-like perfection at this modern villa", 
+        state="Sindh",city="Karachi",address="Apartment P12, Creek Vista Apartments, Karachi",is_apartment=False, 
+        is_shared=False,accommodates=4,bathrooms=2,bedrooms=2,nightly_price=17000,min_nights=2,max_nights=10,wifi=True, kitchen=True, washing_machine=False, air_conditioning=True, tv=True, hair_dryer=False, iron=False, pool=True, gym=True, smoking_allowed=True,view_count=80
+))
+dummy.add(models.Listings(host_id=4, 
+        title="Magnificent Apartment ",description="Sea, sand, and sun merge in prism-like perfection at this modern apartment", 
+        state="Sindh",city="Karachi",address="Apartment P12, Creek Vista Apartments, Karachi",is_apartment=True,apartment_no="C62",
+        is_shared=False,accommodates=4,bathrooms=2,bedrooms=2,nightly_price=17000,min_nights=2,max_nights=10,wifi=True, kitchen=True, washing_machine=False, air_conditioning=True, tv=True, hair_dryer=False, iron=False, pool=True, gym=True, smoking_allowed=True,view_count=80
+))
+dummy.add(models.Listings(host_id=4, 
+        title="Not Magnificent But Great Apartment ",description="Sea, sand, and sun merge in prism-like not perfect at this old apartment", 
+        state="Sindh",city="Lahore",address="Apartment P12, Creek Vista Apartments, Karachi",is_apartment=True,apartment_no="C26",
+        is_shared=False,accommodates=4,bathrooms=2,bedrooms=2,nightly_price=17000,min_nights=2,max_nights=10,wifi=True, kitchen=True, washing_machine=False, air_conditioning=True, tv=True, hair_dryer=False, iron=False, pool=True, gym=True, smoking_allowed=True,view_count=80
+))
 dummy.commit()
 dummy.close()
 
@@ -112,6 +127,14 @@ dummy.add(models.Listing_images(listing_id=6, image_path="/static/images/3aec06b
 dummy.add(models.Listing_images(listing_id=6, image_path="/static/images/4416a2566.webp"))
 dummy.add(models.Listing_images(listing_id=6, image_path="/static/images/704186ce6.jpg"))
 dummy.add(models.Listing_images(listing_id=6, image_path="/static/images/e19050156.jpeg"))
+dummy.add(models.Listing_images(listing_id=7, image_path="/static/images/6c6151f17.jpeg"))
+dummy.add(models.Listing_images(listing_id=7, image_path="/static/images/6fe550c87.jpeg"))
+dummy.add(models.Listing_images(listing_id=8, image_path="/static/images/8c8ca6ff8.jpeg"))
+dummy.add(models.Listing_images(listing_id=8, image_path="/static/images/4cdeb41a8.jpeg"))
+dummy.add(models.Listing_images(listing_id=9, image_path="/static/images/0b4e21a09.jpeg"))
+dummy.add(models.Listing_images(listing_id=9, image_path="/static/images/727dae5a9.jpeg"))
+
+
 dummy.commit()
 dummy.close()
 
@@ -123,6 +146,8 @@ start = datetime.now(tz=timezone.utc)
 start2daysbefore = start-timedelta(days=2)+timedelta(minutes=5) #2 days before today and 5 minutes after the time from now 
 dummy = SessionLocal()
 dummy.add(models.Promoted_listings(listing_id=2, start_time=start ,end_time=start + timedelta(days=2)))
+dummy.add(models.Promoted_listings(listing_id=7, start_time=start ,end_time=start + timedelta(days=2)))
+dummy.add(models.Promoted_listings(listing_id=8, start_time=start ,end_time=start + timedelta(days=2)))
 # (promotion expires 5min after program starts)
 dummy.add(models.Promoted_listings(listing_id=3, start_time=start2daysbefore ,end_time=start2daysbefore + timedelta(days=2)))
 dummy.add(models.Promoted_listings(listing_id=4, start_time=start2daysbefore ,end_time=start2daysbefore + timedelta(days=2)))
@@ -146,6 +171,18 @@ dummy.add(models.Reservations(listing_id=4,guest_id=5,
         amount_due=82500,
         created_time=start-timedelta(hours=23, minutes=52)))
 dummy.add(models.Reservations(listing_id=3,guest_id=5,
+        checkin_date=datetime(2022, 12, 6, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        checkout_date=datetime(2022, 12, 13, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        amount_due=52500))
+dummy.add(models.Reservations(listing_id=7,guest_id=5,
+        checkin_date=datetime(2022, 12, 6, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        checkout_date=datetime(2022, 12, 13, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        amount_due=52500))
+dummy.add(models.Reservations(listing_id=8,guest_id=3,
+        checkin_date=datetime(2022, 12, 6, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        checkout_date=datetime(2022, 12, 13, 9, 00, 00, 000000,tzinfo=timezone.utc),
+        amount_due=52500))
+dummy.add(models.Reservations(listing_id=9,guest_id=6,
         checkin_date=datetime(2022, 12, 6, 9, 00, 00, 000000,tzinfo=timezone.utc),
         checkout_date=datetime(2022, 12, 13, 9, 00, 00, 000000,tzinfo=timezone.utc),
         amount_due=52500))

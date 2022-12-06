@@ -284,6 +284,10 @@ class _LoginState extends State<Login> {
                       print(resp.body);
                       var resbody = jsonDecode(resp.body);
                       if (resp.statusCode == 201) {
+                        _inscription=false;
+                        setState(() {
+                          
+                        });
                         await Alert(
                           context: context,
                           style: alertStyle,
