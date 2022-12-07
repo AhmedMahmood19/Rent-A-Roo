@@ -6,6 +6,7 @@ import 'package:rent_a_roo/screens/homepage.dart';
 import 'package:rent_a_roo/screens/login.dart';
 import 'package:rent_a_roo/screens/myListings.dart';
 
+import '../LanguageMap/languageMapService.dart';
 import '../constants.dart';
 import '../controls/services/user.dart';
 import 'editProfile.dart';
@@ -38,15 +39,14 @@ class _ProfileState extends State<Profile> {
         'avgGuest': userDetails['avg_guest_rating'] ?? "",
         'aboutme': userDetails['about_me'] ?? "",
         'image_path': userDetails['image_path'] ?? "",
-
       };
       print(userMap);
-      
     });
   }
 
   Map userMap = Map();
-
+  String dropdownvalue = 'English';
+  var items = ['English', 'Urdu'];
   @override
   void initState() {
     super.initState();
@@ -71,7 +71,7 @@ class _ProfileState extends State<Profile> {
                     decoration: BoxDecoration(
                         image: DecorationImage(
                             image: NetworkImage(
-                               "${Constants().ip}${userMap['image_path']}"),
+                                "${Constants().ip}${userMap['image_path']}"),
                             fit: BoxFit.cover),
                         borderRadius: BorderRadius.circular(20)),
                   ),
@@ -114,7 +114,7 @@ class _ProfileState extends State<Profile> {
           Padding(
             padding: EdgeInsets.all(15),
             child: Text(
-              "Profile".toUpperCase(),
+              LanguageMapService.getTranslation("Profile"),
               style: TextStyle(
                 color: Colors.grey,
                 fontSize: 15,
@@ -135,7 +135,7 @@ class _ProfileState extends State<Profile> {
                 children: <Widget>[
                   Expanded(
                     child: Text(
-                      "Personal Information",
+                      LanguageMapService.getTranslation("Personal Information"),
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 17,
@@ -159,10 +159,12 @@ class _ProfileState extends State<Profile> {
             height: 1,
           ),
           TextButton(
-            onPressed: () { Navigator.push(
+            onPressed: () {
+              Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => MyListings()),
-              );},
+              );
+            },
             child: Padding(
               padding: EdgeInsets.all(15),
               child: Row(
@@ -170,7 +172,7 @@ class _ProfileState extends State<Profile> {
                 children: <Widget>[
                   Expanded(
                     child: Text(
-                      "My Listings",
+                      LanguageMapService.getTranslation("My Listings"),
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 18,
@@ -207,7 +209,7 @@ class _ProfileState extends State<Profile> {
                 children: <Widget>[
                   Expanded(
                     child: Text(
-                      "Add property",
+                      LanguageMapService.getTranslation("Add property"),
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 18,
@@ -245,7 +247,7 @@ class _ProfileState extends State<Profile> {
                 children: <Widget>[
                   Expanded(
                     child: Text(
-                      "Log out",
+                      LanguageMapService.getTranslation("Log out"),
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 18,
@@ -260,6 +262,43 @@ class _ProfileState extends State<Profile> {
               ),
             ),
           ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 30),
+            decoration: BoxDecoration(
+              color: Colors.black12,
+            ),
+            width: 50,
+            height: 1,
+          ),          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Row(
+              children: [
+                Text(LanguageMapService.getTranslation('Set language'),
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w300)),
+                Spacer(),
+                DropdownButton(
+                  isExpanded: false,
+                  value: dropdownvalue,
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  items: items.map((String items) {
+                    return DropdownMenuItem(
+                      value: items,
+                      child: Text(items),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      dropdownvalue = newValue!;
+                      LanguageMapService.setTranslation(dropdownvalue);
+                    });
+                  },
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );

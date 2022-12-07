@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
+import '../LanguageMap/languageMapService.dart';
 import '../cidgets/recommendation_card.dart';
 import '../constants.dart';
 import '../controls/services/listings.dart';
@@ -39,7 +40,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(
-          'Favourites',
+          LanguageMapService.getTranslation('Favourites'),
           style: TextStyle(color: Colors.green),
         ),
         elevation: 0,
@@ -49,7 +50,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
         backgroundColor: Colors.white,
         leading: Container(),
       ),
-      body: data.length==0?Center(child: Text('No Favorites'),): ListView.builder(
+      body: data.length==0?Center(child: Text(LanguageMapService.getTranslation('No Favorites')),): ListView.builder(
         itemCount: data==null?0: data.length,
         shrinkWrap: true,
         itemBuilder: (ctx, int index) {
@@ -117,7 +118,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
                   setState(() {
                     
                   });
-                  SnackBar snackBar = SnackBar(content: Text("Listing removed from favorites"));
+                  SnackBar snackBar = SnackBar(content: Text(LanguageMapService.getTranslation("Listing removed from favorites")));
                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 }, icon: Icon(Icons.favorite))),
             )

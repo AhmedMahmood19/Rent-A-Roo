@@ -10,6 +10,8 @@ import 'package:rent_a_roo/screens/myListings.dart';
 import 'package:rent_a_roo/screens/profile.dart';
 import 'package:rent_a_roo/screens/reservationScreen.dart';
 
+import 'LanguageMap/languageMapService.dart';
+
 class LandingPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => LandingPageState();
@@ -49,7 +51,7 @@ class LandingPageState extends State<LandingPage> {
                 Icons.search,
                 size: 30,
               ),
-              label: "Explorer",
+              label: LanguageMapService.getTranslation("Explore"),
             ),
             BottomNavigationBarItem(
               icon: Icon(
@@ -57,7 +59,7 @@ class LandingPageState extends State<LandingPage> {
                 //color: Colors.black,
                 size: 30,
               ),
-              label: "Transactions",
+              label: LanguageMapService.getTranslation("Transactions"),
             ),
             BottomNavigationBarItem(
               icon: Icon(
@@ -65,21 +67,21 @@ class LandingPageState extends State<LandingPage> {
                 //color: Colors.black,
                 size: 30,
               ),
-              label: "Reservations",
+              label: LanguageMapService.getTranslation("Reservations"),
             ),
             BottomNavigationBarItem(
               icon: Icon(
                 Icons.favorite,
                 size: 30,
               ),
-              label: "Favourite",
+              label: LanguageMapService.getTranslation("Favourites"),
             ),
             BottomNavigationBarItem(
               icon: Icon(
                 Icons.person,
                 size: 30,
               ),
-              label: "Profile",
+              label: LanguageMapService.getTranslation("Profile"),
             )
           ]),
     );
