@@ -5,6 +5,7 @@ import 'package:rent_a_roo/screens/detailsPage.dart';
 import 'package:rent_a_roo/screens/explore.dart';
 import 'package:rent_a_roo/screens/searchFormPage.dart';
 
+import '../LanguageMap/languageMapService.dart';
 import '../constants.dart';
 import '../controls/services/listings.dart';
 
@@ -81,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: <Widget>[
                         Icon(Icons.search),
                         Text(
-                          "Search for places to stay",
+                          LanguageMapService.getTranslation("Search for places to stay"),
                           style: TextStyle(fontSize: 13, color: Colors.black54),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -148,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: Colors.white,
                             ),
                             child: Text(
-                              "Explore",
+                              LanguageMapService.getTranslation("Explore"),
                               style: TextStyle(color: Colors.red),
                             )),
                       ),

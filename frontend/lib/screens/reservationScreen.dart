@@ -7,6 +7,7 @@ import 'package:rent_a_roo/screens/addImages.dart';
 import 'package:rent_a_roo/screens/viewGuestProfile.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
+import '../LanguageMap/languageMapService.dart';
 import '../cidgets/recommendation_card.dart';
 import '../cidgets/resCard.dart';
 import '../cidgets/tranCard.dart';
@@ -47,7 +48,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            'Reservations',
+            LanguageMapService.getTranslation('Reservations'),
             style: TextStyle(color: Colors.green),
           ),
           elevation: 0,
@@ -68,10 +69,10 @@ class _ReservationScreenState extends State<ReservationScreen> {
             labelColor: Colors.green,
             tabs: [
               Tab(
-                text: "Host",
+                text:   LanguageMapService.getTranslation('Host'),
               ),
               Tab(
-                text: "Guest",
+                text:   LanguageMapService.getTranslation('Guest'),
               ),
             ],
           ),

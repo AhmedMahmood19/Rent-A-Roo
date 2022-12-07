@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
+import '../LanguageMap/languageMapService.dart';
 import '../cidgets/recommendation_card.dart';
 import '../cidgets/tranCard.dart';
 import '../controls/services/transactions.dart';
@@ -51,7 +52,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            'Transactions',
+            LanguageMapService.getTranslation('Transactions'),
             style: TextStyle(color: Colors.green),
           ),
           elevation: 0,
@@ -71,9 +72,9 @@ class _TransactionScreenState extends State<TransactionScreen> {
           bottom: TabBar(
             labelColor: Colors.green,
             tabs: [
-              Tab(text: "Host"),
+              Tab(text: LanguageMapService.getTranslation('Host')),
               Tab(
-                text: "Guest",
+                text: LanguageMapService.getTranslation('Guest'),
               ),
             ],
           ),
