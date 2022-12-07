@@ -55,22 +55,22 @@ dummy.close()
 dummy = SessionLocal()
 dummy.add(models.Listings(host_id=2,
         title="Beach house with a great view", description="You can view the beautiful sea from the terrace of the house, all rooms have brown marble flooring with wide windows that open up directly to the sea", 
-        state="Sindh", city="Karachi", address="Plot D-28, 38th St, Phase 6 DHA",is_apartment=False,
+        state="Sindh", city="Karachi", address="Plot D-28, 38th St, Phase 6 DHA",is_apartment=False, gps_location="tkrsvz3w66r7",
         is_shared=False, accommodates=5, bathrooms=3, bedrooms=4, nightly_price=7500, min_nights=2, max_nights=15, wifi=True, kitchen=True, washing_machine=True, air_conditioning=True, tv=True, hair_dryer=False, iron=False, pool=False, gym=False, smoking_allowed=False
 ))
 dummy.add(models.Listings(host_id=1, 
         title="Luxurious apartment in the middle of the city", description="The apartment has a single master bedroom but it is big enough to fit around 4 people, but it only has a single bed", 
-        state="Punjab", city="Lahore", address="Apartment 22E, Sector B Apartments, Askari 11",is_apartment=True, apartment_no="22E", 
+        state="Punjab", city="Lahore", address="Apartment 22E, Sector B Apartments, Askari 11",is_apartment=True, apartment_no="22E", gps_location="ttsfvxrdr8tp",
         is_shared=False, accommodates=4, bathrooms=1, bedrooms=1, nightly_price=2400, min_nights=5, max_nights=10, wifi=True, kitchen=True, washing_machine=False, air_conditioning=False, tv=False, hair_dryer=False, iron=False, pool=False, gym=False, smoking_allowed=True
 ))
 dummy.add(models.Listings(host_id=4, 
         title="Regal Urban Minimalism",description="Gaze out across the city from high up in this 16th-floor retreat. The expansive residence features an open-plan layout, floor-to-ceiling windows, soothing greys, chic furnishings and decor, and breathtaking panoramic vistas.",
-        state="Punjab",city="Islamabad",address="Apt 5A, legion towers, Sector G6, Islamabad",is_apartment=True, apartment_no="16K",
+        state="Punjab",city="Islamabad",address="Apt 5A, legion towers, Sector G6, Islamabad",is_apartment=True, apartment_no="16K", gps_location="ttgzz19n1qfd",
         is_shared=False,accommodates=3,bathrooms=1,bedrooms=1,nightly_price=25000,min_nights=3,max_nights=7,wifi=True, kitchen=True, washing_machine=True, air_conditioning=True, tv=True, hair_dryer=True, iron=True, pool=False, gym=False, smoking_allowed=False,view_count=1000, total_ratings=3, rating=3
 ))
 dummy.add(models.Listings(host_id=4, 
         title="Unique woody feel and panoramic views of the mountains",description="The spacious terrace has a sitting arrangement for 4 and has the most gorgeous views you can soak in from all of the region. We can arrange for a bonfire or barbecue in the terrace as well.",
-        state="Punjab",city="Murree",address="G-14, Kuldana Road, Murree, Punjab",is_apartment=False,
+        state="Punjab",city="Murree",address="G-14, Kuldana Road, Murree, Punjab",is_apartment=False, gps_location="twh0yjwxpb18",
         is_shared=False,accommodates=6,bathrooms=2,bedrooms=2,nightly_price=15000,min_nights=2,max_nights=5,wifi=True, kitchen=True, washing_machine=False, air_conditioning=True, tv=False, hair_dryer=False, iron=False, pool=False, gym=False, smoking_allowed=True,view_count=790, total_ratings=2, rating=3
 ))
 dummy.add(models.Listings(host_id=7, 
