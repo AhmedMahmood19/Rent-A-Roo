@@ -196,12 +196,12 @@ class _DetailsPageState extends State<DetailsPage> {
                     maxLines: 20,
                   ),
                   Divider(),
-                  InkWell(
+                  details["gps_location"] == null?Container():InkWell(
                     onTap: () async {
                       if (details["gps_location"] != null) {
                         GeoHash geohash = GeoHash(details["gps_location"]);
                         final Uri _url = Uri.parse(
-                            'https://www.google.com/maps/search/?api=1&query=${geohash.longitude()},${geohash.latitude()}');
+                            'https://www.google.com/maps/search/?api=1&query=${geohash.latitude()},${geohash.longitude()}');
                         await launchUrl(_url);
                       }
                       else

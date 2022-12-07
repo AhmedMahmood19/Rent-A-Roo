@@ -101,8 +101,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
                       imageUrl:
                           "https://thumbs.dreamstime.com/b/amazing-misty-autumn-scenery-lake-sorapis-dolomites-italy-beautiful-mountains-colorful-yellow-larches-shore-193683774.jpg",
                       title: hostReservations[index]['title'] ?? "",
-                      startDate: hostReservations[index]['checkin_date'] ?? "",
-                      endDate: hostReservations[index]['checkout_date'],
+                      startDate: DateTime.parse(hostReservations[index]['checkin_date']).toLocal().toString()?? "",
+                      endDate: DateTime.parse(hostReservations[index]['checkout_date']).toLocal().toString(),
                       startPrices:
                           hostReservations[index]['amount_due'].toString() ??
                               ""),

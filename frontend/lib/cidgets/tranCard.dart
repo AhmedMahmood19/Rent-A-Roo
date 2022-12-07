@@ -35,7 +35,7 @@ class TranCard extends StatelessWidget {
           print("Go to offer!");
         },
         child: Container(
-            width: 350,
+            width: 365,
             height: 200,
             child: Row(
               children: <Widget>[
@@ -48,95 +48,111 @@ class TranCard extends StatelessWidget {
                   ),
                 ),*/
                 Container(
-                  width: 350,
+                  width: 365,
                   padding: EdgeInsets.all(10),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Flexible(
-                        child: Text(
-                          title,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Flexible(
+                          child: Text(
+                            title,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
                       SizedBox(
                         height: 8,
                       ),
-                      Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.date_range,
-                            color: Colors.grey[500],
-                            size: 16,
-                          ),
-                          SizedBox(
-                            width: 8,
-                          ),
-                          Text(
-                            startDate,
-                            style: TextStyle(
-                              color: Colors.grey[500],
-                              fontSize: 12,
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10.0,0,0,0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.date_range,
+                                  color: Colors.grey[500],
+                                  size: 16,
+                                ),
+                                SizedBox(
+                                  width: 8,
+                                ),
+                                Text(
+                                  startDate,
+                                  style: TextStyle(
+                                    color: Colors.grey[500],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.date_range,
-                            color: Colors.grey[500],
-                            size: 16,
-                          ),
-                          SizedBox(
-                            width: 8,
-                          ),
-                          Text(
-                            endDate,
-                            style: TextStyle(
-                              color: Colors.grey[500],
-                              fontSize: 12,
+                            SizedBox(
+                              height: 8,
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "Rs-/$startPrices",
-                        style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontSize: 12,
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.date_range,
+                                  color: Colors.grey[500],
+                                  size: 16,
+                                ),
+                                SizedBox(
+                                  width: 8,
+                                ),
+                                Text(
+                                  endDate,
+                                  style: TextStyle(
+                                    color: Colors.grey[500],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              "Rs-/$startPrices",
+                              style: TextStyle(
+                                color: Colors.blueAccent,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       Spacer(),
-                      Row(
-                        children: [
-                          TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          ViewListing(listingID: listingid)),
-                                );
-                              },
-                              child: Text('View Listing')),
-                          TextButton(
-                              onPressed: flag==true?null:() {
-                                onPressed();
-                              },
-                              child: Text('Rate'))
-                        ],
+                      Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Row(
+                          children: [
+                            TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            ViewListing(listingID: listingid)),
+                                  );
+                                },
+                                child: Text('View Listing')),
+                            TextButton(
+                                onPressed: flag == true
+                                    ? null
+                                    : () {
+                                        onPressed();
+                                      },
+                                child: Text('Rate'))
+                          ],
+                        ),
                       )
                     ],
                   ),

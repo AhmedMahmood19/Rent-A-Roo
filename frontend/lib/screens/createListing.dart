@@ -26,8 +26,8 @@ class _CreateListingState extends State<CreateListing> {
   TextEditingController city = TextEditingController();
   TextEditingController state = TextEditingController();
   TextEditingController address = TextEditingController();
-  double lat=0;
-  double long=0;
+  double lat = 0;
+  double long = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,7 +45,7 @@ class _CreateListingState extends State<CreateListing> {
           IconButton(
               onPressed: () async {
                 GeoHasher geoHasher = GeoHasher();
-                print(geoHasher.encode(long,lat));
+                print(geoHasher.encode(lat, long));
                 Map map = {
                   "title": title.text,
                   "description": description.text,
@@ -54,7 +54,7 @@ class _CreateListingState extends State<CreateListing> {
                   "address": address.text,
                   "is_apartment": true,
                   "apartment_no": null,
-                  "gps_location": geoHasher.encode(long,lat),
+                  "gps_location": geoHasher.encode(long, lat),
                   "is_shared": true,
                   "accommodates": int.parse(accomodates.text),
                   "bathrooms": int.parse(bathroom.text),
@@ -139,20 +139,6 @@ class _CreateListingState extends State<CreateListing> {
                   hintStyle: TextStyle(color: Colors.grey),
                   prefixIcon: Icon(
                     Icons.earbuds_battery,
-                    color: Colors.grey,
-                  )),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: location,
-              decoration: InputDecoration(
-                  hintText: "Location",
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(color: Colors.grey),
-                  prefixIcon: Icon(
-                    Icons.location_on,
                     color: Colors.grey,
                   )),
             ),
@@ -280,12 +266,14 @@ class _CreateListingState extends State<CreateListing> {
                 }
 
                 _locationData = await location.getLocation();
-                lat=_locationData.latitude!;
-                long=_locationData.longitude!;
-                String a=GeoHasher().encode(long,lat);
+                lat = _locationData.latitude!;
+                long = _locationData.longitude!;
+                String a = GeoHasher().encode(long, lat);
                 print(a);
                 print(GeoHasher().decode(a).toString());
                 print(_locationData.latitude);
+                SnackBar snackBar = SnackBar(content: Text("Location added"));
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
               },
               icon: Icon(
                 Icons.location_on,
