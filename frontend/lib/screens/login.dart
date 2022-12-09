@@ -198,7 +198,7 @@ class _LoginState extends State<Login> {
                         alignment: Alignment.centerRight,
                         child: Text(
                           "Forgot password ?",
-                          style: TextStyle(color: Colors.green, fontSize: 12),
+                          style: TextStyle(color: Colors.transparent, fontSize: 12),
                         )),
                   ),
                 ),
