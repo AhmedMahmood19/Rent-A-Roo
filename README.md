@@ -1,6 +1,6 @@
-## File Structure
+## File Structure Of Backend(app Folder)
 ```
-App
+app
 ├── __init__.py         #Needed in every directory for easy relative imports
 ├── main.py             #The whole application starts here
 ├── .gitignore
@@ -12,16 +12,20 @@ App
 │   ├── connection.py   #connects application to a database
 │   └── models.py       #contains all the database schemas(called models in this project)
 │
-├── routers
+├── routers             #contains all of the API Endpoints, grouped into files 
 │   ├── __init__.py
 │   ├── Authentication.py
 │   ├── listings.py
-│   └── users.py
+│   ├── users.py
+│   ├── ratingsandquestions.py
+│   └── reservations.py
 │
-├── schemas             #Contains all pydantic models(called schemas)
+├── schemas             #Contains all pydantic models(used for data validation)
 │   ├── __init__.py
 │   ├── listingSchemas.py
-│   └── userSchemas.py
+│   ├── userSchemas.py
+│   ├── ratingandquestionSchemas.py
+│   └── reservationSchemas.py
 │
 └── static              #Contains all static files that are transferred to and from frontend
     └── images
