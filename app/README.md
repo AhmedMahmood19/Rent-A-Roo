@@ -15,9 +15,9 @@ pip3 install -r requirements.txt
 ````
 ### 5. Run the server when you are in the App directory with:
 ````
-uvicorn main:app --reload
+uvicorn main:app  --reload --host 0.0.0.0 --port 8000
 ````
-### 6. For testing go to the following link on your browser 
+### 6. To view and test the endpoints go to the following link on your browser 
 ```
 localhost:8000/docs
 ```
