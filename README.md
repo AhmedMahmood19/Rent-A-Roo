@@ -1,37 +1,26 @@
-## File Structure
+## Steps
+### 1. Clone this repo to your system and cd into /App
+
+### 2. Create a virtual environment:
+````
+python3 -m venv 1_venv
+````
+### 3. Activate the virtual environment:
+````
+source 1_venv/bin/activate
+````
+### 4. Install required packages:
+````
+pip3 install -r requirements.txt
+````
+### 5. Run the server when you are in the App directory with:
+````
+uvicorn main:app  --reload --host 0.0.0.0 --port 8000
+````
+### 6. To view and test the endpoints go to the following link on your browser 
 ```
-App
-├── __init__.py         #Needed in every directory for easy relative imports
-├── main.py             #The whole application starts here
-├── .gitignore
-├── README.md
-├── requirements.txt    #contains python packages that need to be installed
-│
-├── database            #contains all files needed to interact with a database
-│   ├── __init__.py
-│   ├── connection.py   #connects application to a database
-│   └── models.py       #contains all the database schemas(called models in this project)
-│
-├── routers
-│   ├── __init__.py
-│   ├── Authentication.py
-│   ├── listings.py
-│   └── users.py
-│
-├── schemas             #Contains all pydantic models(called schemas)
-│   ├── __init__.py
-│   ├── listingSchemas.py
-│   └── userSchemas.py
-│
-└── static              #Contains all static files that are transferred to and from frontend
-    └── images
+localhost:8000/docs
 ```
-## Always import the whole file from a directory like:
-```
-from schemas import userSchemas
-```
-## So when you use a class from it you write it as 
-```
-userSchemas.UserReg
-```
-### Thus it will not be confusing where a class or function is from and it makes the code more readable
+## Tips:
+* To shutdown server press ctrl+C in the terminal where you ran uvicorn.
+* You can edit your code while the server is running and it will update any changes to the server as soon as you save your code file.
